@@ -1,0 +1,31 @@
+#!/usr/bin/perl -w
+
+# 	Benjamin Van Durme, vandurme@cs.rochester.edu, 13 Mar 2008
+# 	Time-stamp: <2010-02-11 23:29:09 vandurme>
+
+
+# Purpose: takes a value k, and an input stream of text. Outputs k lines of text
+# drawn uniformly at random from stream.
+
+my $k = shift || die "Usage: rand-sample <k>";
+my @sample;
+
+$i = 1;
+
+# Fill bucket with first k items
+while ($line = <>) {
+    if ($i <= $k) {
+	$sample[$i-1] = $line;
+    } else {
+	# With probability k/i, accept new element from stream, replace a random
+	# element of the bucket with new element.
+	if (rand() < ($k/$i)) {
+	    $sample[int(rand($k))] = $line;
+	}
+    }
+    $i++;
+}
+
+foreach $line (@sample) {
+    print $line;
+}
