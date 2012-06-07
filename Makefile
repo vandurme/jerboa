@@ -13,6 +13,7 @@ CLASSES = $(SRC:.java=.class)
 ALL_CLASSES = `find java/ -name "*.class"`
 
 jar: $(CLASSES)
+	$(shell mkdir -p dist)
 	$(JAR) $(JAR_NAME) $(ALL_CLASSES)
 
 tags:
