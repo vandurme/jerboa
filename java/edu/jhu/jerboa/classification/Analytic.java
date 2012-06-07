@@ -25,107 +25,107 @@ import java.util.Arrays;
 
    Stand-alone wrapper for the core classification components.
 
- */
+*/
 public class Analytic {
-    private static Logger logger = Logger.getLogger(Analytic.class.getName());
-    IClassifier classifier;
-    String classifierType;
-    Hashtable<String,ClassifierState> starterStates;
+  private static Logger logger = Logger.getLogger(Analytic.class.getName());
+  IClassifier classifier;
+  String classifierType;
+  Hashtable<String,ClassifierState> starterStates;
 
-    /**
-       Properties:
-       Analytic.names : (String[]), e.g., en.gender.swbd-sender
-     */
-    public Analytic () throws Exception {
-	String[] names = JerboaProperties.getStrings("Analytic.names");
-	starterStates = new Hashtable();
-	for (int i = 0; i < names.length; i++) {
+  /**
+     Properties:
+     Analytic.names : (String[]), e.g., en.gender.swbd-sender
+  */
+  public Analytic () throws Exception {
+    String[] names = JerboaProperties.getStrings("Analytic.names");
+    starterStates = new Hashtable();
+    for (int i = 0; i < names.length; i++) {
 	    starterStates.put(names[i],new ClassifierState(names[i]));
 	    starterStates.get(names[i]).initialize();
-	}
     }
+  }
 
-    /**
-       Given a series of serialized state messages (sometime loosely called
-       "feature vectors", although that's not quite correct), then retrieve a
-       decision.
+  /**
+     Given a series of serialized state messages (sometime loosely called
+     "feature vectors", although that's not quite correct), then retrieve a
+     decision.
 
-       If the classifier is not confident in the decision, or if there is no
-       classifier stored under the given name, then this method returns null.
+     If the classifier is not confident in the decision, or if there is no
+     classifier stored under the given name, then this method returns null.
 
-       Currently this array is of length 1, containing a label and a score. The
-       return type signature is array, looking to when some platform such as CCC
-       wants more than just the top decision with confidence.
+     Currently this array is of length 1, containing a label and a score. The
+     return type signature is array, looking to when some platform such as CCC
+     wants more than just the top decision with confidence.
 
-       If one was sitting downstream, intercepting a set of
-       serializedStateMessages, and wanted to turn that into a classifier
-       decision, then:
+     If one was sitting downstream, intercepting a set of
+     serializedStateMessages, and wanted to turn that into a classifier
+     decision, then:
 
-       String configurationFile = ...; // e.g., en.gender.properties
-       JerboaProperties.load(configurationFile);
-       Analytic analytic = new Analytic();
-       String[] serializedStateMessages = ...; // all the "feature vectors" for a given analytic
-       String name = ...; // the analytic name, e.g., "en.gender.twitter"
-       SimpleImmutableEntry<String,Double>[] result = analytic.aggregate(name, serializedStateMessages);
-       if (result != null) {
-         String label = result.getKey(); // e.g., "MALE"
-	 double probability = result.getValue(); // e.g., 0.8
-       }
-     */
-    public SimpleImmutableEntry<String,Double>[] aggregate (String name, String[] serializedStateMessages) throws Exception {
-	if (starterStates.containsKey(name)) {
+     String configurationFile = ...; // e.g., en.gender.properties
+     JerboaProperties.load(configurationFile);
+     Analytic analytic = new Analytic();
+     String[] serializedStateMessages = ...; // all the "feature vectors" for a given analytic
+     String name = ...; // the analytic name, e.g., "en.gender.twitter"
+     SimpleImmutableEntry<String,Double>[] result = analytic.aggregate(name, serializedStateMessages);
+     if (result != null) {
+     String label = result.getKey(); // e.g., "MALE"
+     double probability = result.getValue(); // e.g., 0.8
+     }
+  */
+  public SimpleImmutableEntry<String,Double>[] aggregate (String name, String[] serializedStateMessages) throws Exception {
+    if (starterStates.containsKey(name)) {
 	    ClassifierState state = starterStates.get(name).newState();
 	    state.update(serializedStateMessages);
 	    double[] classification = state.classify();
 	    if (state.confidenceExceedsThreshold(classification))
-		return state.getDecision(classification);
+        return state.getDecision(classification);
 	    else
-		return null;
-	} else {
+        return null;
+    } else {
 	    return null;
-	}
     }
+  }
 
-    public String report (Hashtable<String,ClassifierState> states) throws Exception {
-	ClassifierState state;
-	SimpleImmutableEntry<String,Double>[] decision;
-	double[] classification;
-	String results = "";
-	for (String classifierName : states.keySet()) {
+  public String report (Hashtable<String,ClassifierState> states) throws Exception {
+    ClassifierState state;
+    SimpleImmutableEntry<String,Double>[] decision;
+    double[] classification;
+    String results = "";
+    for (String classifierName : states.keySet()) {
 	    state = states.get(classifierName);
 	    classification = state.classify();
 	    //System.out.println(classifierName + " " + classification[0]);
 	    if (state.confidenceExceedsThreshold(classification)) {
-		//System.out.println(classifierName + " exceeds threshold");
-		decision = state.getDecision(classification);
-		results += classifierName + "\t" + decision[0].getKey() + "\t" + decision[0].getValue() + "\n";
-		logger.fine(classifierName + " " + classification[0]);
+        //System.out.println(classifierName + " exceeds threshold");
+        decision = state.getDecision(classification);
+        results += classifierName + "\t" + decision[0].getKey() + "\t" + decision[0].getValue() + "\n";
+        logger.fine(classifierName + " " + classification[0]);
 	    }
-	}
-	return results;
     }
+    return results;
+  }
 
-    public void update (Hashtable<String,ClassifierState> states,
-			Vector<SimpleImmutableEntry<String,String>> messages) throws Exception {
-	if (states.size() == 0)
+  public void update (Hashtable<String,ClassifierState> states,
+                      Vector<SimpleImmutableEntry<String,String>> messages) throws Exception {
+    if (states.size() == 0)
 	    for (String classifierName : starterStates.keySet())
-		states.put(classifierName, starterStates.get(classifierName).newState());
+        states.put(classifierName, starterStates.get(classifierName).newState());
 
-	for (SimpleImmutableEntry<String,String> message : messages) {
+    for (SimpleImmutableEntry<String,String> message : messages) {
 	    states.get(message.getKey()).update(message.getValue());
-	}
     }
+  }
 
-    public void process (String source, Hashtable<String,Object> data) throws Exception {
-	Hashtable<String,Object> stateMessage;
+  public void process (String source, Hashtable<String,Object> data) throws Exception {
+    Hashtable<String,Object> stateMessage;
 
-	// If inspection happens distinctly from the update, and/or
-	// classification, then the stateMessage and/or state needs to be
-	// serialized, transmitted, and rebuilt elsewhere.
+    // If inspection happens distinctly from the update, and/or
+    // classification, then the stateMessage and/or state needs to be
+    // serialized, transmitted, and rebuilt elsewhere.
 
-	ClassifierState state;
+    ClassifierState state;
 
-	for (String classifierName : starterStates.keySet()) {
+    for (String classifierName : starterStates.keySet()) {
 	    state = starterStates.get(classifierName).newState();
 
 	    stateMessage = state.inspect(data);
@@ -140,46 +140,46 @@ public class Analytic {
 	    SimpleImmutableEntry<String,Double>[] results;
 	    double[] classification = state.classify();
 	    if (source == null)
-		System.out.print(state.getName());
+        System.out.print(state.getName());
 	    else
-		System.out.print(source + "\t" + state.getName());
+        System.out.print(source + "\t" + state.getName());
 	    if (state.confidenceExceedsThreshold(classification)) {
-		results = state.getDecision(classification);
-		for (SimpleImmutableEntry<String,Double> d : results)
-		    System.out.print("\t" + d.getKey() + "\t" + d.getValue());
+        results = state.getDecision(classification);
+        for (SimpleImmutableEntry<String,Double> d : results)
+          System.out.print("\t" + d.getKey() + "\t" + d.getValue());
 	    } else {
-		System.out.print("\t" + "UNKNOWN" + "\t" + "0.0");
+        System.out.print("\t" + "UNKNOWN" + "\t" + "0.0");
 	    }
 	    System.out.println("\t" + stateMessageString);
-	}
     }
+  }
 
-    public Vector<SimpleImmutableEntry<String,String>> processData (Hashtable<String,Object> data) throws Exception {
-	Hashtable<String,Object> stateMessage;
-	ClassifierState state;
-	Vector<SimpleImmutableEntry<String,String>> results = new Vector();
+  public Vector<SimpleImmutableEntry<String,String>> processData (Hashtable<String,Object> data) throws Exception {
+    Hashtable<String,Object> stateMessage;
+    ClassifierState state;
+    Vector<SimpleImmutableEntry<String,String>> results = new Vector();
 
-	for (String classifierName : starterStates.keySet()) {
+    for (String classifierName : starterStates.keySet()) {
 	    state = starterStates.get(classifierName).newState();
 	    stateMessage = state.inspect(data);
 
 	    String stateMessageString = state.serializeStateMessage(stateMessage);
 	    results.add(new SimpleImmutableEntry<String,String>(classifierName,stateMessageString));
-	}
-	return results;
     }
+    return results;
+  }
 
-    public static void main (String[] args) throws Exception {
-	JerboaProperties.load(args[0]);
-	Analytic analytic = new Analytic();
+  public static void main (String[] args) throws Exception {
+    JerboaProperties.load(args[0]);
+    Analytic analytic = new Analytic();
 
-	String docParserName =
+    String docParserName =
 	    JerboaProperties.getString("Analytic.docParser");
-	Class c;
-	c = Class.forName(docParserName);
-	IDocumentParser docParser = (IDocumentParser) c.newInstance();
+    Class c;
+    c = Class.forName(docParserName);
+    IDocumentParser docParser = (IDocumentParser) c.newInstance();
 
-	for (int i = 1; i < args.length; i++)
-	    analytic.process(args[i],docParser.parseDocument(FileManager.getReader(FileManager.getFile(args[i]))));
-   }
+    for (int i = 1; i < args.length; i++)
+      analytic.process(args[i],docParser.parseDocument(FileManager.getFile(args[i])));
+  }
 }
