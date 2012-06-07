@@ -6,9 +6,11 @@
 
 package edu.jhu.jerboa.processing;
 
+import edu.jhu.jerboa.util.FileManager;
 import java.util.Hashtable;
 import java.util.Vector;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -23,10 +25,11 @@ public class TokenDocumentParser implements IDocumentParser {
      Result includes:
      "content" : String[] of tokens
   */
-  public Hashtable<String,Object> parseDocument (BufferedReader reader) throws IOException {
+  public Hashtable<String,Object> parseDocument (File file) throws IOException {
     Vector<String> context = new Vector<String>();
     String line;
     String[] tokens;
+    BufferedReader reader = FileManager.getReader(file);
     Hashtable<String,Object> h = new Hashtable();
     while ((line = reader.readLine()) != null) {
 	    tokens = line.split("\\s");
