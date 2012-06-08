@@ -6,12 +6,12 @@
 
 package edu.jhu.jerboa.processing;
 
-import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.File;
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.logging.Logger;
+import java.io.BufferedReader;
 
 import edu.jhu.jerboa.util.*;
 
@@ -51,8 +51,7 @@ public class StaticDocumentStream implements IStream {
   public Hashtable<String,Object> next () throws Exception {
     if (curDocID +1 < files.length) {
 	    curDocID++;
-	    BufferedReader reader = FileManager.getReader(files[curDocID]);
-	    return docParser.parseDocument(reader);
+	    return docParser.parseDocument(files[curDocID]);
     } else {
 	    return null;
     }
