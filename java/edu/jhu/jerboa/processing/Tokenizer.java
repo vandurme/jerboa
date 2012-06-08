@@ -158,15 +158,7 @@ public class Tokenizer {
       // parentheses, brackets, etc.
       "([\\]\\[\\(\\){}<>])", " $1 ",
       
-      "--", " -- ",
-      
-      // NOTE THAT SPLIT WORDS ARE NOT MARKED. Obviously this isn't great,
-      // since you might someday want to know how the words originally fit
-      // together -- but it's too late to make a better system now, given
-      // the millions of words we've already done "wrong".
-      
-      // (vandurme: this is the closing quotation MacIntyre refers to earlier)
-      "\"", " '' "
+      "--", " -- "
     };
 
     for (int i = 0; i < v.length -1; i+= 2) {
@@ -424,14 +416,14 @@ public class Tokenizer {
     while ((line = reader.readLine()) != null) {
       tokens = tokenize(line, Tokenization.valueOf(args[0]));
       if (tokens.length > 0) {
-        if (test) {
-          System.out.println("---------");
+        if (test)
           System.out.println(line);
-        }
         System.out.print(tokens[0]);
         for (int i = 1; i < tokens.length; i++)
           System.out.print(" " + tokens[i]);
         System.out.println();
+        if (test)
+          System.out.println("---------");
       }
     }
     reader.close();
