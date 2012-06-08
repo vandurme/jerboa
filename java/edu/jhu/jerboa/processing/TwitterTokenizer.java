@@ -284,8 +284,7 @@ public class TwitterTokenizer {
     while ((line = reader.readLine()) != null) {
       toks = line.split(",");
       if (toks[0].length() > 4) {
-        pair = TextUtil.convertUTF32to16(toks[0]);
-        //regexp = "(\\u" + pair[0] + "\\u" + pair[1] + ")";
+        pair = Character.toChars(Integer.decode("0x" + toks[0]));
         regexp = "(" + pair[0] + pair[1] + ")";
         p.add(new SimpleImmutableEntry(Pattern.compile(regexp),toks[1]));
       } 
@@ -452,6 +451,10 @@ public class TwitterTokenizer {
   }
 
   public static void main (String[] args) throws Exception {
+    if (args.length == 0) {
+      System.err.println("Example: java -DTwitterTokenizer.unicode=proj/tokenize/unicode.csv -DTwitterTokenizer.full=true -cp java edu.jhu.jerboa.processing.TwitterTokenizer proj/tokenize/example_tweets.txt");
+      System.exit(-1);
+    }
     BufferedReader reader = FileManager.getReader(args[0]);
     String line;
     String[][] tokens;
@@ -483,8 +486,5 @@ public class TwitterTokenizer {
       }
     }
     reader.close();
-
   }
-
-
 }
