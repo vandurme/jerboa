@@ -7,13 +7,13 @@
 package edu.jhu.jerboa.processing;
 
 import java.util.Hashtable;
-import java.io.BufferedReader;
+import java.io.File;
 
 /**
    @author Benjamin Van Durme
 
    An IDocumentParser should read the entirety of the contents of the reader
- */
+*/
 public interface IDocumentParser {
-  public Hashtable<String,Object> parseDocument (BufferedReader reader) throws Exception;
+  public Hashtable<String,Object> parseDocument (File file) throws Exception;
 }
