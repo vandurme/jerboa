@@ -14,7 +14,9 @@ ALL_CLASSES = `find java/ -name "*.class"`
 
 jar: $(CLASSES)
 	$(shell mkdir -p dist)
-	$(JAR) $(JAR_NAME) $(ALL_CLASSES)
+	$(JAR) $(JAR_NAME) -C java/ edu
+
+opt-rebar: $(CLASSES)
 
 tags:
 	${RM} TAGS
