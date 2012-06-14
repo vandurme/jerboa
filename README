@@ -30,7 +30,6 @@ README  : this file
 LICENSE : 2-clause BSD license
 Makfile : a simple Makefile to build the .jar file
 proj/   : projects with associated property files and shell scripts
-dist/   : destination for .jar file(s)
-java/   : java source
+java/   : java source, and destination of .jar file
 scripts/: utility scripts
 config/ : global configuration files, such as logging.properties
