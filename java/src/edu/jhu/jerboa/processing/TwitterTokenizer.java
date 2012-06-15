@@ -483,6 +483,15 @@ public class TwitterTokenizer {
             System.out.print(" " + tokens[2][i]);
           System.out.println();
         }
+      } else {
+        if (full) {
+          System.out.println("");
+          System.out.println("");
+          System.out.println("");
+          System.out.println("");
+        } else {
+          System.out.println("");
+        }
       }
     }
     reader.close();
