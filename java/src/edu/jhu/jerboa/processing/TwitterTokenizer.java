@@ -13,6 +13,7 @@ import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Vector;
 import java.io.IOException;
 import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 /**
    Recognizes various Twitter related tokens, runs PTB tokenization on the rest.
@@ -450,12 +451,16 @@ public class TwitterTokenizer {
     return result;
   }
 
+  /**
+   * Example: java -DTwitterTokenizer.unicode=proj/tokenize/unicode.csv -DTwitterTokenizer.full=true edu.jhu.jerboa.processing.TwitterTokenizer proj/tokenize/example_tweets.txt
+   */
   public static void main (String[] args) throws Exception {
-    if (args.length == 0) {
-      System.err.println("Example: java -DTwitterTokenizer.unicode=proj/tokenize/unicode.csv -DTwitterTokenizer.full=true -cp java edu.jhu.jerboa.processing.TwitterTokenizer proj/tokenize/example_tweets.txt");
-      System.exit(-1);
-    }
-    BufferedReader reader = FileManager.getReader(args[0]);
+    BufferedReader reader;
+    if (args.length == 0)
+      reader = new BufferedReader(new InputStreamReader(System.in));
+    else
+      reader = FileManager.getReader(args[0]);
+
     String line;
     String[][] tokens;
 
