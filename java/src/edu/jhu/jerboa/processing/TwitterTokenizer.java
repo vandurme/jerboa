@@ -75,7 +75,9 @@ import java.io.InputStreamReader;
 public class TwitterTokenizer {
   private static SimpleImmutableEntry<Pattern,String>[] patterns;
   private static String START = "(?<=^|\\s)";
+  private static String START_W_PAREN = "(?<=^|\\s|\\()";
   private static String END = "(?=$|\\s)";
+  private static String END_W_PAREN = "(?=$|\\s|\\))";
 
 
   private static SimpleImmutableEntry<Pattern,String>[] getPairs (String[] pattern, String[] tag) {
@@ -93,12 +95,12 @@ public class TwitterTokenizer {
   public static SimpleImmutableEntry<Pattern,String>[] getURLPatterns () {
     // "p:" gets picked up by the emoticon pattern, so order of patterns is
     // important. Matching <, > pairs without verifying both are present.
-    return getPairs(START + "(" +
+    return getPairs(START_W_PAREN + "(" +
                     "<?(https?:|www\\.)\\S+>?"
                     + "|" +
                     // inspired by twokenize
                     "<?[^\\s@]+\\.(com|co\\.uk|org|net|info|ca|ly|mp|edu|gov)(/(\\S*))?"
-                    + ")" + END,
+                    + ")" + END_W_PAREN,
                     "URL");
   }
 
@@ -172,7 +174,7 @@ public class TwitterTokenizer {
 
   public static SimpleImmutableEntry<Pattern,String>[] getMentionPatterns () {
     //return Pattern.compile(START + "(@[_A-Za-z0-9]+)" + "(?=$|\\s|:)");
-    return getPairs(START + "(@[_A-Za-z0-9]+)", "MENTION");
+    return getPairs(START_W_PAREN + "(@[_A-Za-z0-9]+)", "MENTION");
   }
 
   public static SimpleImmutableEntry<Pattern,String>[] getHeartPatterns () {
@@ -204,11 +206,11 @@ public class TwitterTokenizer {
   */
   public static SimpleImmutableEntry<Pattern,String>[] getEmailPatterns () {
     // modified from twokenize
-    return getPairs(START +
+    return getPairs(START_W_PAREN +
                     // added the [^.] guard: much more likely to catch punctuation ahead of an
                     // @-mention then an email address that ends in '.'
                     // That guard also requires email address to be at least 2 characters long
-                    "([a-zA-Z0-9._%+-]+[^.]@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4})" + END,
+                    "([a-zA-Z0-9._%+-]+[^.]@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4})" + END_W_PAREN,
                     "EMAIL");
   }
 
@@ -306,10 +308,10 @@ public class TwitterTokenizer {
     // '@' email before mention, as anything not email with an '@' is
     // likely to be a mention
     x.add(getEmailPatterns());
+    x.add(getMentionPatterns());
     x.add(getURLPatterns());
     x.add(getWesternEmoticonPatterns());
     x.add(getEasternEmoticonPatterns());
-    x.add(getMentionPatterns());
     x.add(getHeartPatterns());
     x.add(getHashtagPatterns());
     x.add(getLeftArrowPatterns());
