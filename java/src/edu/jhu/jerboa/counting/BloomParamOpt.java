@@ -76,6 +76,14 @@ public class BloomParamOpt {
 	return classifier.getWeights();
     }
 
+    /**
+       Intended to parse the `BloomParamOpt.numBits` field in the .properties
+       file that is fed to this class.
+
+       Basically, either checks for a simple number (i.e., "16") or looks for
+       a number with n at the end, like "8n". In the latter case, it takes
+       `this.numElements` and multiplies it by that number.
+     */
     private long parseNumBits (String input) {
 	if (this.numElements < 0) {
 	    throw new ClassFormatError("Called parseNumBits before " +
