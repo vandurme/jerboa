@@ -91,7 +91,7 @@ public class BloomParamOpt {
        to read the cache using java `.properties`. MUTATES GLOBAL STATE via
        method call to `generateAndCacheCore`. 
     */
-    public void populateCoreValues () {
+    public void populateCoreValues () throws Exception {
 	if (this.coreValsCached) {
 	    // try to read cache
 	    try {
@@ -105,15 +105,8 @@ public class BloomParamOpt {
 	    }
 
 	    // no? generate and write cache values instead
-	    try {
-		logger.info("Attempting to generate cache from scratch.");
-		generateAndCacheCore();
-	    }
-	    catch (Exception err) {
-		System.err.println(err);
-		System.exit(0);
-		return;
-	    }
+	    logger.info("Attempting to generate cache from scratch.");
+	    generateAndCacheCore();
 	}
 	else {
 	    System.out.println("not cached");
@@ -134,13 +127,19 @@ public class BloomParamOpt {
 	    new Hashtable<String,String[]>();
 	HashSet<String> featureSet = new HashSet<String>();
 
-	IStream stream = getStream();
+	IStream stream = (IStream)
+	    Class.forName(this.streamTypeName).newInstance();
 
 	// initializing here cuts running time by an order of magnitude
-	ClassifierState state = getInitdClassifierState();
+	ClassifierState state = new ClassifierState(this.name);
+	state.initialize();
 
 	for (int i = 0; stream.hasNext(); ) {
 	    if (((data = stream.next()) != null) && (data.size() > 0)) {
+		if (++i % 10000 == 0) {
+		    System.out.println("\t" + i);
+		}
+		
 		ClassifierState currState = state.newState();
 		String communicant = (String) data.get("communicant");
 
@@ -156,47 +155,6 @@ public class BloomParamOpt {
 		tmpLabels.put(communicant, (Double) data.get("label"));
 	    }
 	}
-    }
-
-    private ClassifierState getInitdClassifierState () {
-	ClassifierState tmp = null;
-	
-	try {
-	    tmp = new ClassifierState(this.name);
-	    tmp.initialize();
-	}
-	catch (Exception err) {
-	    System.out.println(err);
-	    System.exit(1);
-	}
-	
-	return tmp;
-    }
-    
-    private IStream getStream () {
-	IStream stream = null;
-	
-	try {
-	    stream = (IStream) Class.forName(this.streamTypeName).newInstance();
-
-	}
-	catch (ClassNotFoundException err) {
-	    System.out.println(err);
-	    logger.severe(err.toString());
-	    System.exit(1);
-	}
-	catch (InstantiationException err) {
-	    System.out.println(err);
-	    logger.severe(err.toString());
-	    System.exit(1);
-	}
-	catch (IllegalAccessException err) {
-	    System.out.println(err);
-	    logger.severe(err.toString());
-	    System.exit(1);
-	}
-	
-	return stream;
     }
 
     /**
@@ -335,17 +293,8 @@ public class BloomParamOpt {
 	}
     }
     
-    public static void main(String[] args) {
-	try {
-	    BloomParamOpt optimizer = new BloomParamOpt();
-	    optimizer.optimize();
-	}
-	catch (Exception err) {
-	    logger.severe("BloomParamOpt failed to optimize parameters");
-	    logger.severe(err.toString());
-	    System.err.println("BloomParamOpt failed to optimize parameters");
-	    System.err.println(err);
-	    System.exit(1);
-	}
+    public static void main(String[] args) throws Exception {
+	BloomParamOpt optimizer = new BloomParamOpt();
+	optimizer.optimize();
     }
 }
