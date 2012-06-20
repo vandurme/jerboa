@@ -32,9 +32,10 @@ public class BloomParamOpt {
     private Hashtable<String,Double> labels;
 
     private String outputFilename;
-    private boolean coreValsCached;
-    private String featuresCache;
-    private String trainInstCache;
+    
+    private boolean coreValsCached;  // cache files will either be read from
+    private String featuresCache;    // or they will be written to; they are
+    private String trainInstCache;   // required to be specified
     private String usersCache;
     private String labelsCache;
 
@@ -45,39 +46,45 @@ public class BloomParamOpt {
 	this.propPrefix = "BloomParamOpt";
 	
 	this.weights = getWeights();
-	this.numElements = JerboaProperties.getInt(propPrefix +
-						   ".numElements",
-						   this.weights.size());
+	this.numElements =
+	    JerboaProperties.getInt(propPrefix + ".numElements",
+				    this.weights.size());
 	this.numBits =
 	    parseNumBits(JerboaProperties.getString(propPrefix + ".numBits"));
 	this.kmax = JerboaProperties.getDouble(propPrefix + ".kmax", 2);
-	this.outputFilename = JerboaProperties.getString(propPrefix +
-							 ".outputFilename");
-	this.coreValsCached = JerboaProperties.getBoolean(propPrefix +
-							  ".coreValsCached");
-	this.featuresCache = JerboaProperties.getString(propPrefix +
-							".featuresCache");
-	this.trainInstCache = JerboaProperties.getString(propPrefix +
-							 ".trainInstCache");
-	this.usersCache = JerboaProperties.getString(propPrefix +
-						     ".usersCache");
-	this.labelsCache = JerboaProperties.getString(propPrefix +
-						      ".labelsCache");
+	
+	this.outputFilename =
+	    JerboaProperties.getString(propPrefix + ".outputFilename");
+
+	this.coreValsCached =
+	    JerboaProperties.getBoolean(propPrefix + ".coreValsCached");
+	this.featuresCache =
+	    JerboaProperties.getString(propPrefix + ".featuresCache");
+	this.trainInstCache =
+	    JerboaProperties.getString(propPrefix + ".trainInstCache");
+	this.usersCache =
+	    JerboaProperties.getString(propPrefix + ".usersCache");
+	this.labelsCache =
+	    JerboaProperties.getString(propPrefix + ".labelsCache");
+	
+	populateCoreValues();
     }
     
     public void optimize () {
 	logger.config("Optimizing Bloom filter with parameters numElements="
 		      + this.numElements + " numBits=" + this.numBits +
 		      " kmax=" + this.kmax);
-	populateCoreValues();
     }
 
     public void populateCoreValues () {
 	if (this.coreValsCached) {
+	    logger.info("Attempting to read from cache files");
 	    try {
 		readAll();
 	    }
 	    catch (IOException err) {
+		logger.info("FAILED to read from cache files; generating " +
+			    "cache files instead");
 		System.out.println("COW");
 		System.err.println(err);
 		System.exit(0);
