@@ -18,18 +18,25 @@ public class BloomParamOpt {
 	Logger.getLogger(BloomParamOpt.class.getName());
     private static String propPrefix;
 
-    private Hashtable<String,Double> weights;
     private long numElements = -1;
+    private long numBits;
+    private double kmax;
+    private Hashtable<String,Double> weights;
+
+    private String outputFilename;
 
     public BloomParamOpt () throws Exception {
 	this.propPrefix = "BloomParamOpt";
 	
-	// get weights
 	this.weights = getWeights();
 	this.numElements = JerboaProperties.getInt(propPrefix +
 						   ".numElements",
 						   this.weights.size());
-	// get numBits
+	this.numBits =
+	    parseNumBits(JerboaProperties.getString(propPrefix + ".numBits"));
+	this.kmax = JerboaProperties.getDouble(propPrefix + ".kmax", 2);
+	this.outputFilename = JerboaProperties.getString(propPrefix +
+							 ".outputFilename");
     }
     
     public void optimize () {
@@ -49,6 +56,27 @@ public class BloomParamOpt {
 	classifier.readState();
 
 	return classifier.getWeights();
+    }
+
+    private long parseNumBits (String input) {
+	if (this.numElements < 0) {
+	    throw new ClassFormatError("Called parseNumBits before " +
+				       "BloomParamOpt.numElements was set");
+	}
+
+	int indexOfN = input.indexOf('n');
+	int len = input.length();
+
+	if (indexOfN == -1) {
+	    return (long) Double.parseDouble(input);
+	}
+	else if (indexOfN == len - 1) {
+	    return (long) (this.numElements *
+			   Double.parseDouble(input.substring(0, len - 1)));
+	}
+	else {
+	    throw new NumberFormatException("Invalid format to parseNumBits");
+	}
     }
     
     public static void main(String[] args) {
