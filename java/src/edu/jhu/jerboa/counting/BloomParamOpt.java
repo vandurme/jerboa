@@ -23,6 +23,8 @@ public class BloomParamOpt {
 	Logger.getLogger(BloomParamOpt.class.getName());
     private static String propPrefix;
 
+    private String name;
+
     private long numElements = -1;
     private long numBits;
     private double kmax;
@@ -45,6 +47,8 @@ public class BloomParamOpt {
 
     public BloomParamOpt () throws Exception {
 	this.propPrefix = "BloomParamOpt";
+
+	this.name = JerboaProperties.getString(propPrefix + ".name");
 	
 	this.weights = getWeights();
 	this.numElements =
@@ -120,7 +124,6 @@ public class BloomParamOpt {
 	    new Hashtable<String,String[]>();
 	HashSet<String> featureSet = new HashSet<String>();
 
-	ClassifierState tmp = new ClassifierState(this.name);
     }
 
     /**
