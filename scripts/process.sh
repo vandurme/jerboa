@@ -11,6 +11,6 @@ shift
 
 java -cp ${ROOT}/java/dist/jerboa.jar \
     -DJerboaProperties.filename=${FILE} \
-    -Djava.util.logging.config.file=${ROOT}/config/logging.properties \
+    -Djava.util.logging.config.file=${ROOT}/java/config/logging.properties \
     $* \
     edu.jhu.jerboa.processing.ProcessStream 
