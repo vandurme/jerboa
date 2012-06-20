@@ -3,6 +3,7 @@ package edu.jhu.jerboa.counting;
 import java.util.logging.Logger;
 import java.util.Hashtable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.io.BufferedReader;
 import java.io.IOException;
 
@@ -76,6 +77,12 @@ public class BloomParamOpt {
 		      " kmax=" + this.kmax);
     }
 
+    /**
+       Reads core values from cache, writes to global variables. On failure,
+       we generate and cache all from scratch. Optionally, we can choose not
+       to read the cache using java `.properties`. PERMUTES GLOBAL STATE via
+       method call to `generateAndCacheCore`. 
+    */
     public void populateCoreValues () {
 	if (this.coreValsCached) {
 	    logger.info("Attempting to read from cache files");
@@ -99,6 +106,21 @@ public class BloomParamOpt {
 	    System.exit(0);
 	    // get cached vals
 	}
+    }
+
+    /**
+       Generates all the data we need, writes to cache files, and sticks
+       them all in the global state. PERMUTES GLOBAL STATE.
+    */
+    private void generateAndCacheCore () {
+	Hashtable<String,Object> data;
+	Hashtable<String,Integer> tmpUsers = new Hashtable<String,Integer>();
+	Hashtable<String,Double> tmpLabels = new Hashtable<String,Double>();
+	Hashtable<String,String[]> tmpTrainInst =
+	    new Hashtable<String,String[]>();
+	HashSet<String> featureSet = new HashSet<String>();
+
+	ClassifierState tmp = new ClassifierState(this.name);
     }
 
     /**
