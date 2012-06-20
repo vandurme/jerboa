@@ -84,7 +84,6 @@ public class BloomParamOpt {
 	    JerboaProperties.getString(propPrefix + ".labelsCache");
 	
 	populateCoreValues();
-	logger.info("FINISHED POPULATING");
     }
     
     public void optimize () {
@@ -114,12 +113,10 @@ public class BloomParamOpt {
 
 	    // no? generate and write cache values instead
 	    logger.info("Attempting to generate cache from scratch.");
-	    generateAndCacheCore();
+
 	}
 	else {
-	    System.out.println("not cached");
-	    System.exit(0);
-	    // get cached vals
+	    generateAndCacheCore();
 	}
     }
 
@@ -145,6 +142,7 @@ public class BloomParamOpt {
 	for (int i = 0; stream.hasNext(); ) {
 	    if (((data = stream.next()) != null) && (data.size() > 0)) {
 		if (++i % 10000 == 0) {
+		    System.out.println(i);
 		    logger.info("Processed " + i + " communicants");
 		}
 		
@@ -154,7 +152,7 @@ public class BloomParamOpt {
 		// This is a terrible hack, I (aclemmer) know, but it speeds
 		// up processing by a lot.
 		try {
-		    tmpUsers.put(communicant, users.get(communicant) + 1);
+		    tmpUsers.put(communicant, tmpUsers.get(communicant) + 1);
 		}
 		catch (NullPointerException err) {
 		    tmpUsers.put(communicant, 0);
@@ -172,6 +170,8 @@ public class BloomParamOpt {
 	this.trainInst = tmpTrainInst;
 	addUsersBelowThreshold(tmpUsers);
 	this.labels = tmpLabels;
+
+	writeAll();
     }
 
     private void addUsersBelowThreshold (Hashtable<String,Integer> users) {
@@ -289,19 +289,21 @@ public class BloomParamOpt {
 	  this.trainFeatures : user id -> features
 	  this.users : users -> # of times seen
 	*/
-	String featuresFile = JerboaProperties.getString(propPrefix +
-							 ".featuresCache");
-	String trainFeatsFile = JerboaProperties.getString(propPrefix +
-							   ".trainFeatsCache");
-	String usersFile = JerboaProperties.getString(propPrefix +
-						      ".usersCache");
-	String labelsFile = JerboaProperties.getString(propPrefix +
-						       ".labelsCache");
+	System.out.println(this.featuresCache);
+	logger.info("Writing features cache at " + this.featuresCache);
+	writeCache(this.featuresCache, this.features);
 	
-	writeCache(featuresFile, this.features);
-	writeTrainFeats(trainFeatsFile, this.trainInst);
-	writeCache(usersFile, this.users);
-	writeCache(labelsFile, this.labels);
+	System.out.println(this.trainInstCache);
+	logger.info("Writing traning instances cache at " + this.trainInstCache);
+	writeTrainFeats(this.trainInstCache, this.trainInst);
+	
+	System.out.println(this.usersCache);	
+	logger.info("Writing users cache at " + this.usersCache);
+	writeCache(this.usersCache, this.users);
+	
+	System.out.println(this.labelsCache);
+	logger.info("Writing labels cache at " + this.labelsCache);
+	writeCache(this.labelsCache, this.labels);
     }
     
     private void writeTrainFeats (String filename,
@@ -421,7 +423,7 @@ public class BloomParamOpt {
 
 	for (int i = 0; i < lines.length; i++) {
 	    String[] spl = lines[i].split("\t");
-	    users.put(spl[0], Integer.parseInt(spl[1]));
+	    usersCache.put(spl[0], Integer.parseInt(spl[1]));
 	}
 
 	return usersCache;
