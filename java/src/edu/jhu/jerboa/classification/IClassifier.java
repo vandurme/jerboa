@@ -66,6 +66,8 @@ public interface IClassifier {
      */
     public int getCardinality();
 
+    public Hashtable<String,Double> getWeights();
+    
     public ClassifierForm getForm();
 
     public void addName(String name);

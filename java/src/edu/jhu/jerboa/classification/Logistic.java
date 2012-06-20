@@ -227,6 +227,10 @@ public class Logistic implements IClassifier {
     in.close();
   }
 
+    public Hashtable<String,Double> getWeights () {
+	return this.weights;
+    }
+
   /** Not supported */
   public void writeState() throws IOException {
     throw new IOException("Not supported"); }
