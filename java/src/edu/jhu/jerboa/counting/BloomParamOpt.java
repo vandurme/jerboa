@@ -40,7 +40,25 @@ public class BloomParamOpt {
     }
     
     public void optimize () {
-	logger.info("Optimizing Bloom filter parameters");
+	logger.config("Optimizing Bloom filter with parameters numElements="
+		      + this.numElements + " numBits=" + this.numBits +
+		      " kmax=" + this.kmax);
+	populateCoreValues();
+    }
+
+    public void populateCoreValues () {
+	boolean coreValsCached = Jerboa.getBoolean(propPrefix +
+						   ".coreValsCached");
+	if (coreValsCached) {
+	    System.out.println("cached");
+	    System.exit(0);
+	    // read cached values
+	}
+	else {
+	    System.out.println("not cached");
+	    System.exit(0);
+	    // get cached vals
+	}
     }
 
     /**
