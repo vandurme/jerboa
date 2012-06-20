@@ -24,6 +24,7 @@ public class BloomParamOpt {
     private Hashtable<String,Double> weights;
 
     private String outputFilename;
+    private boolean coreValsCached;
 
     public BloomParamOpt () throws Exception {
 	this.propPrefix = "BloomParamOpt";
@@ -37,6 +38,8 @@ public class BloomParamOpt {
 	this.kmax = JerboaProperties.getDouble(propPrefix + ".kmax", 2);
 	this.outputFilename = JerboaProperties.getString(propPrefix +
 							 ".outputFilename");
+	this.coreValsCached = JerboaProperties.getBoolean(propPrefix +
+							  ".coreValsCached");
     }
     
     public void optimize () {
@@ -47,9 +50,7 @@ public class BloomParamOpt {
     }
 
     public void populateCoreValues () {
-	boolean coreValsCached = Jerboa.getBoolean(propPrefix +
-						   ".coreValsCached");
-	if (coreValsCached) {
+	if (this.coreValsCached) {
 	    System.out.println("cached");
 	    System.exit(0);
 	    // read cached values
@@ -59,6 +60,26 @@ public class BloomParamOpt {
 	    System.exit(0);
 	    // get cached vals
 	}
+    }
+
+    /**
+       Attempts to read users, feature list, users, user labels, and the
+       training features of every user.
+
+       If even one of these cache files is missing, we will probably have to
+       generate all of them from scratch. This isn't *always* true, but I
+       (aclemmer) didn't bother to figure it out, and simply mandated that
+       all of them must be there, or we start over again.
+     */
+    private void readAll () {
+	logger.info("Reading features cache")
+	logger.info("Reading training batches cache")
+	logger.info("Reading users cache")
+	logger.info("Reading labels cache")
+    }
+
+    private void readFeaturesCache () {
+	
     }
 
     /**
