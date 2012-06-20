@@ -36,6 +36,10 @@ public class BloomParamOpt {
 	logger.info("Optimizing Bloom filter parameters");
     }
 
+    /**
+       Returns a hashtable that pairs features (strings) with their weights
+       (doubles).
+     */
     private Hashtable<String,Double> getWeights () throws Exception {
 	String modelClass = JerboaProperties.getString(propPrefix +
 						       ".modelClass");
