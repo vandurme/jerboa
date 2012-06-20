@@ -85,11 +85,6 @@ public class BloomParamOpt {
        `this.numElements` and multiplies it by that number.
      */
     private long parseNumBits (String input) {
-	if (this.numElements < 0) {
-	    throw new ClassFormatError("Called parseNumBits before " +
-				       "BloomParamOpt.numElements was set");
-	}
-
 	int indexOfN = input.indexOf('n');
 	int len = input.length();
 
@@ -97,6 +92,11 @@ public class BloomParamOpt {
 	    return (long) Double.parseDouble(input);
 	}
 	else if (indexOfN == len - 1) {
+	    if (this.numElements < 0) {
+		throw new ClassFormatError("Called parseNumBits before " +
+					   "BloomParamOpt.numElements was set");
+	    }
+	    
 	    return (long) (this.numElements *
 			   Double.parseDouble(input.substring(0, len - 1)));
 	}
