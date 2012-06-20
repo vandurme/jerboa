@@ -4,6 +4,7 @@ import java.util.logging.Logger;
 import java.util.Hashtable;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Enumeration;
 import java.io.BufferedReader;
 import java.io.IOException;
 
@@ -137,7 +138,7 @@ public class BloomParamOpt {
 	for (int i = 0; stream.hasNext(); ) {
 	    if (((data = stream.next()) != null) && (data.size() > 0)) {
 		if (++i % 10000 == 0) {
-		    System.out.println("\t" + i);
+		    logger.info("Processed " + i + " communicants");
 		}
 		
 		ClassifierState currState = state.newState();
@@ -153,10 +154,61 @@ public class BloomParamOpt {
 		}
 
 		tmpLabels.put(communicant, (Double) data.get("label"));
+		String[] trainInst =
+		    trainingInstance(state.inspect(data), featureSet);
+		appendFeatures(trainInst, tmpTrainInst, communicant);
 	    }
 	}
     }
 
+    /**
+       Appends a new set of features to the set of features we've seen up till
+       now, concatenates them, returns the new array of "seen" features.
+     */
+    private void appendFeatures (String[] trainInst,
+				 Hashtable<String,String[]> trainFeats,
+				 String communicant) {
+	try {
+	    // Concat the two arrays together; no clean way of doing this, :(
+	    String[] prevTrainInst = trainFeats.get(communicant);
+	    String[] c = new String[trainInst.length + prevTrainInst.length];
+	    System.arraycopy(prevTrainInst, 0, c, 0, prevTrainInst.length);
+	    System.arraycopy(trainInst, 0, c, prevTrainInst.length,
+			     trainInst.length);
+
+	    // TODO: return instead of mutating the state!
+	    trainFeats.put(communicant, c);
+	}
+	catch (NullPointerException err) {
+	    trainFeats.put(communicant, trainInst);
+	}
+    }
+
+    /**
+       Takes a set of features and our current feature set as input, makes a
+       String[] representing the features in sequence. Updates the feature set
+       to reflect that we've seen these features.
+     */
+    private String[] trainingInstance (Hashtable<String,Object> message,
+				       HashSet<String> featureSet) {
+	// featureInstance ususally looks like: something + ".instance"
+	String featureInstance = message.keys().nextElement();
+	Hashtable<String,Double> instance = (Hashtable<String,Double>)
+	    message.get(featureInstance);
+
+	Enumeration<String> e = instance.keys();
+
+	ArrayList<String> trainInst = new ArrayList<String>();
+	while (e.hasMoreElements()) {
+	    String k = e.nextElement();
+
+	    trainInst.add(k);
+	    featureSet.add(k);
+	}
+
+	return trainInst.toArray(new String[0]);
+    }
+    
     /**
        Attempts to read users, feature list, users, user labels, and the
        training features of every user.
