@@ -3,9 +3,12 @@ package edu.jhu.jerboa.counting;
 import java.util.logging.Logger;
 import java.util.Hashtable;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.HashSet;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 
 import ilog.concert.*;
@@ -31,6 +34,7 @@ public class BloomParamOpt {
     private long numElements = -1;
     private long numBits;
     private double kmax;
+    private int threshold;
     private Hashtable<String,Double> weights;
     private Hashtable<String,Integer> features;
     private Hashtable<String,String[]> trainInst;
@@ -62,6 +66,8 @@ public class BloomParamOpt {
 	this.numBits =
 	    parseNumBits(JerboaProperties.getString(propPrefix + ".numBits"));
 	this.kmax = JerboaProperties.getDouble(propPrefix + ".kmax", 2);
+	this.threshold = JerboaProperties.getInt(propPrefix + ".threshold",
+						 0);
 	
 	this.outputFilename =
 	    JerboaProperties.getString(propPrefix + ".outputFilename");
@@ -78,6 +84,7 @@ public class BloomParamOpt {
 	    JerboaProperties.getString(propPrefix + ".labelsCache");
 	
 	populateCoreValues();
+	logger.info("FINISHED POPULATING");
     }
     
     public void optimize () {
@@ -159,8 +166,71 @@ public class BloomParamOpt {
 		appendFeatures(trainInst, tmpTrainInst, communicant);
 	    }
 	}
+	removeAllDupFeats(tmpTrainInst, featureSet);
+
+	this.features = featuresFromSet(featureSet);
+	this.trainInst = tmpTrainInst;
+	addUsersBelowThreshold(tmpUsers);
+	this.labels = tmpLabels;
     }
 
+    private void addUsersBelowThreshold (Hashtable<String,Integer> users) {
+	this.users = new Hashtable<String,Integer>();
+	
+	Enumeration<String> e = users.keys();
+	while (e.hasMoreElements()) {
+	    String k = e.nextElement();
+	    int v = users.get(k);
+	    if (v >= this.threshold) {
+		this.users.put(k, v);
+	    }
+	}
+    }
+    
+    private Hashtable<String,Integer> featuresFromSet (HashSet<String>
+						       featureSet) {
+	Hashtable<String,Integer> features = new Hashtable<String,Integer>();
+	Iterator<String> iter = featureSet.iterator();
+
+	for (int i = 0; iter.hasNext(); i++) {
+	    features.put(iter.next(), i);
+	}
+
+	return features;
+    }
+    
+    private void removeAllDupFeats (Hashtable<String,String[]> trainFeats,
+				    HashSet<String> features) {
+	Enumeration<String> e = trainFeats.keys();
+	while (e.hasMoreElements()) {
+	    String k = e.nextElement();
+	    String[] feats = trainFeats.get(k);
+	    String[] deDupd = removeDupsAfterFirst(feats);
+	    trainFeats.put(k, deDupd);
+	}
+	// TODO: Cause this to return rather than by-default mutating state!
+    }
+    
+    private static String[] removeDupsAfterFirst (String[] content) {
+	HashSet<String> seen = new HashSet<String>();
+	LinkedList<String> noDups = new LinkedList<String>();
+
+	for (int i = 0; i < content.length; i++) {
+	    if (seen.contains(content[i])) {
+		continue;
+	    }
+	    else if (content[i].equals("")) {
+		continue;
+	    }
+	    else {
+		seen.add(content[i]);
+		noDups.add(content[i]);
+	    }
+	}
+
+	return noDups.toArray(new String[0]);
+    }
+    
     /**
        Appends a new set of features to the set of features we've seen up till
        now, concatenates them, returns the new array of "seen" features.
@@ -207,6 +277,87 @@ public class BloomParamOpt {
 	}
 
 	return trainInst.toArray(new String[0]);
+    }
+    
+    private void writeAll () throws Exception {
+	/*
+	  Here is a key of the properties used here
+	  
+	  this.weights : feature string -> weight
+	  this.labels : user id -> label
+	  this.features : feature -> index
+	  this.trainFeatures : user id -> features
+	  this.users : users -> # of times seen
+	*/
+	String featuresFile = JerboaProperties.getString(propPrefix +
+							 ".featuresCache");
+	String trainFeatsFile = JerboaProperties.getString(propPrefix +
+							   ".trainFeatsCache");
+	String usersFile = JerboaProperties.getString(propPrefix +
+						      ".usersCache");
+	String labelsFile = JerboaProperties.getString(propPrefix +
+						       ".labelsCache");
+	
+	writeCache(featuresFile, this.features);
+	writeTrainFeats(trainFeatsFile, this.trainInst);
+	writeCache(usersFile, this.users);
+	writeCache(labelsFile, this.labels);
+    }
+    
+    private void writeTrainFeats (String filename,
+				  Hashtable<String,String[]> trainFeats) {
+	try {
+	    BufferedWriter w = FileManager.getWriter(filename);
+
+	    Enumeration<String> e = trainFeats.keys();
+	    while (e.hasMoreElements()) {
+		String k = e.nextElement();
+		String[] feats = trainFeats.get(k);
+		w.write(k + "\t");
+		for (int i = 0; i < feats.length; i++) {
+		    w.write(feats[i] + this.delimiter);
+		}
+		w.write("\n");
+	    }
+	    w.close();
+	}
+	catch (IOException err) {
+	    System.err.println(err);
+	    System.exit(1);
+	}
+    }
+    
+    private void writeCache (String filename, String[] arr) {
+	try {
+	    BufferedWriter w = FileManager.getWriter(filename);
+
+	    for (int i = 0; i < arr.length; i++) {
+		w.write(arr[i] + "\n");
+	    }
+	    w.close();
+	}
+	catch (IOException err) {
+	    System.err.println(err);
+	    System.exit(1);
+	}
+    }
+    
+    private void writeCache (String filename,
+			     Hashtable<String,? extends Object> dict) {
+	try {
+	    BufferedWriter w = FileManager.getWriter(filename);
+
+	    Enumeration<String> e = dict.keys();
+	    while (e.hasMoreElements()) {
+		String k = e.nextElement();
+		w.write(k + "\t" + dict.get(k) + "\n");
+	    }
+	    w.close();
+	}
+	catch (IOException err) {
+	    System.err.println(err);
+	    System.exit(1);
+	}
     }
     
     /**
