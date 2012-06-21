@@ -17,7 +17,7 @@ import edu.jhu.jerboa.util.FileManager;
    much faster. Basically handles structured file IO, assumes the canonical
    structure of data that is imposed by `BloomParamOpt` class.
  */
-public class OptCache {
+public class CacheHelpers {
     public static void writeTrainFeats (String filename,
 					Hashtable<String,String[]> trainFeats,
 					String delimiter) {

@@ -18,7 +18,7 @@ import edu.jhu.jerboa.classification.*;
 import edu.jhu.jerboa.processing.*;
 import edu.jhu.jerboa.util.JerboaProperties;
 import edu.jhu.jerboa.util.FileManager;
-import edu.jhu.jerboa.counting.bloomopt.OptCache;
+import edu.jhu.jerboa.counting.bloomopt.CacheHelpers;
 
 /**
    @author Alex Clemmer <clemmer.alexander@gmail.com>
@@ -104,7 +104,7 @@ public class BloomParamOpt {
 	    // try to read cache
 	    try {
 		logger.info("Attempting to read from cache files");
-		readAll();
+		readCaches();
 		return;
 	    }
 	    catch (IOException err) {
@@ -291,17 +291,17 @@ public class BloomParamOpt {
 	  this.users : users -> # of times seen
 	*/
 	logger.info("Writing features cache at " + this.featuresCache);
-	OptCache.writeCache(this.featuresCache, this.features);
+	CacheHelpers.writeCache(this.featuresCache, this.features);
 	
 	logger.info("Writing traning instances cache at " + this.trainInstCache);
-	OptCache.writeTrainFeats(this.trainInstCache, this.trainInst,
+	CacheHelpers.writeTrainFeats(this.trainInstCache, this.trainInst,
 				 this.delimiter);
 	
 	logger.info("Writing users cache at " + this.usersCache);
-	OptCache.writeCache(this.usersCache, this.users);
+	CacheHelpers.writeCache(this.usersCache, this.users);
 	
 	logger.info("Writing labels cache at " + this.labelsCache);
-	OptCache.writeCache(this.labelsCache, this.labels);
+	CacheHelpers.writeCache(this.labelsCache, this.labels);
     }
     
     /**
@@ -313,19 +313,19 @@ public class BloomParamOpt {
        (aclemmer) didn't bother to figure it out, and simply mandated that
        all of them must be there, or we start over again.
     */
-    private void readAll () throws IOException {
+    private void readCaches () throws IOException {
 	logger.info("Reading features cache");
-	this.features = OptCache.readFeaturesCache(this.featuresCache);
+	this.features = CacheHelpers.readFeaturesCache(this.featuresCache);
 	
 	logger.info("Reading training batches cache");
-	this.trainInst = OptCache.readTrainInstCache (this.trainInstCache,
+	this.trainInst = CacheHelpers.readTrainInstCache (this.trainInstCache,
 						      this.delimiter);
 	
 	logger.info("Reading users cache");
-	this.users = OptCache.readUsersCache(this.usersCache);
+	this.users = CacheHelpers.readUsersCache(this.usersCache);
 	
 	logger.info("Reading labels cache");
-	this.labels = OptCache.readLabelsCache(this.labelsCache);
+	this.labels = CacheHelpers.readLabelsCache(this.labelsCache);
     }
 
 
