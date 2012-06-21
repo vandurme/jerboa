@@ -19,6 +19,7 @@ import edu.jhu.jerboa.processing.*;
 import edu.jhu.jerboa.util.JerboaProperties;
 import edu.jhu.jerboa.util.FileManager;
 import edu.jhu.jerboa.counting.bloomopt.CacheHelpers;
+import edu.jhu.jerboa.counting.bloomopt.DataHelpers;
 
 /**
    @author Alex Clemmer <clemmer.alexander@gmail.com>
@@ -163,124 +164,22 @@ public class BloomParamOpt {
 
 		tmpLabels.put(communicant, (Double) data.get("label"));
 		String[] trainInst =
-		    trainingInstance(state.inspect(data), featureSet);
-		appendFeatures(trainInst, tmpTrainInst, communicant);
+		    DataHelpers.trainingInstance(state.inspect(data),
+						 featureSet);
+		DataHelpers.appendFeatures(trainInst, tmpTrainInst, communicant);
 	    }
 	}
-	removeAllDupFeats(tmpTrainInst, featureSet);
+	DataHelpers.removeAllDupFeats(tmpTrainInst, featureSet);
 
-	this.features = featuresFromSet(featureSet);
+	this.features = DataHelpers.featuresFromSet(featureSet);
 	this.trainInst = tmpTrainInst;
-	addUsersBelowThreshold(tmpUsers);
+	this.users = DataHelpers.addUsersBelowThreshold(tmpUsers,
+							this.threshold);
 	this.labels = tmpLabels;
 
 	writeCaches();
     }
 
-    private void addUsersBelowThreshold (Hashtable<String,Integer> users) {
-	this.users = new Hashtable<String,Integer>();
-	
-	Enumeration<String> e = users.keys();
-	while (e.hasMoreElements()) {
-	    String k = e.nextElement();
-	    int v = users.get(k);
-	    if (v >= this.threshold) {
-		this.users.put(k, v);
-	    }
-	}
-    }
-    
-    private Hashtable<String,Integer> featuresFromSet (HashSet<String>
-						       featureSet) {
-	Hashtable<String,Integer> features = new Hashtable<String,Integer>();
-	Iterator<String> iter = featureSet.iterator();
-
-	for (int i = 0; iter.hasNext(); i++) {
-	    features.put(iter.next(), i);
-	}
-
-	return features;
-    }
-    
-    private void removeAllDupFeats (Hashtable<String,String[]> trainFeats,
-				    HashSet<String> features) {
-	Enumeration<String> e = trainFeats.keys();
-	while (e.hasMoreElements()) {
-	    String k = e.nextElement();
-	    String[] feats = trainFeats.get(k);
-	    String[] deDupd = removeDupsAfterFirst(feats);
-	    trainFeats.put(k, deDupd);
-	}
-	// TODO: Cause this to return rather than by-default mutating state!
-    }
-    
-    private static String[] removeDupsAfterFirst (String[] content) {
-	HashSet<String> seen = new HashSet<String>();
-	LinkedList<String> noDups = new LinkedList<String>();
-
-	for (int i = 0; i < content.length; i++) {
-	    if (seen.contains(content[i])) {
-		continue;
-	    }
-	    else if (content[i].equals("")) {
-		continue;
-	    }
-	    else {
-		seen.add(content[i]);
-		noDups.add(content[i]);
-	    }
-	}
-
-	return noDups.toArray(new String[0]);
-    }
-    
-    /**
-       Appends a new set of features to the set of features we've seen up till
-       now, concatenates them, returns the new array of "seen" features.
-     */
-    private void appendFeatures (String[] trainInst,
-				 Hashtable<String,String[]> trainFeats,
-				 String communicant) {
-	try {
-	    // Concat the two arrays together; no clean way of doing this, :(
-	    String[] prevTrainInst = trainFeats.get(communicant);
-	    String[] c = new String[trainInst.length + prevTrainInst.length];
-	    System.arraycopy(prevTrainInst, 0, c, 0, prevTrainInst.length);
-	    System.arraycopy(trainInst, 0, c, prevTrainInst.length,
-			     trainInst.length);
-
-	    // TODO: return instead of mutating the state!
-	    trainFeats.put(communicant, c);
-	}
-	catch (NullPointerException err) {
-	    trainFeats.put(communicant, trainInst);
-	}
-    }
-
-    /**
-       Takes a set of features and our current feature set as input, makes a
-       String[] representing the features in sequence. Updates the feature set
-       to reflect that we've seen these features.
-     */
-    private String[] trainingInstance (Hashtable<String,Object> message,
-				       HashSet<String> featureSet) {
-	// featureInstance ususally looks like: something + ".instance"
-	String featureInstance = message.keys().nextElement();
-	Hashtable<String,Double> instance = (Hashtable<String,Double>)
-	    message.get(featureInstance);
-
-	Enumeration<String> e = instance.keys();
-
-	ArrayList<String> trainInst = new ArrayList<String>();
-	while (e.hasMoreElements()) {
-	    String k = e.nextElement();
-
-	    trainInst.add(k);
-	    featureSet.add(k);
-	}
-
-	return trainInst.toArray(new String[0]);
-    }
     
     private void writeCaches () throws Exception {
 	/*
@@ -318,16 +217,24 @@ public class BloomParamOpt {
     private void readCaches () throws IOException {
 	logger.info("Reading features cache");
 	this.features = CacheHelpers.readFeaturesCache(this.featuresCache);
+	logger.info("Features cache read. # of features=" +
+		    this.features.size());
 	
 	logger.info("Reading training batches cache");
 	this.trainInst = CacheHelpers.readTrainInstCache (this.trainInstCache,
 						      this.delimiter);
+	logger.info("Training instances cache read. # of training instances=" +
+		    this.trainInst.size());
 	
 	logger.info("Reading users cache");
 	this.users = CacheHelpers.readUsersCache(this.usersCache);
+	logger.info("Users cache read. # of users=" +
+		    this.users.size());
 	
 	logger.info("Reading labels cache");
 	this.labels = CacheHelpers.readLabelsCache(this.labelsCache);
+	logger.info("Labels cache read. # of labels=" +
+		    this.labels.size());
     }
 
 
