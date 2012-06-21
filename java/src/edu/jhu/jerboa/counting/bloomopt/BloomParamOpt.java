@@ -29,252 +29,252 @@ import edu.jhu.jerboa.counting.bloomopt.DataHelpers;
    Optimizes the hash allocation scheme for a Bloom filter.
 */
 public class BloomParamOpt {
-    private static Logger logger =
-	Logger.getLogger(BloomParamOpt.class.getName());
-    private static String propPrefix;
+  private static Logger logger =
+    Logger.getLogger(BloomParamOpt.class.getName());
+  private static String propPrefix;
 
-    private String name;
-    private String streamTypeName;
+  private String name;
+  private String streamTypeName;
 
-    private long numElements = -1;
-    private long numBits;
-    private double kmax;
-    int[] allocdHashes;
-    private int[][] ranges;
-    private Hashtable<String,Double> weights;
-    private Hashtable<String,Integer> features;
-    private Hashtable<String,String[]> trainInst;
-    private Hashtable<String,Integer> users;
-    private Hashtable<String,Double> labels;
-    private int userThreshold;
-    private int optThreshold;
+  private long numElements = -1;
+  private long numBits;
+  private double kmax;
+  int[] allocdHashes;
+  private int[][] ranges;
+  private Hashtable<String,Double> weights;
+  private Hashtable<String,Integer> features;
+  private Hashtable<String,String[]> trainInst;
+  private Hashtable<String,Integer> users;
+  private Hashtable<String,Double> labels;
+  private int userThreshold;
+  private int optThreshold;
 
-    private String outputFilename;
+  private String outputFilename;
     
-    private boolean coreValsCached;  // cache files will either be read from
-    private String featuresCache;    // or they will be written to; they are
-    private String trainInstCache;   // required to be specified
-    private String usersCache;
-    private String labelsCache;
+  private boolean coreValsCached;  // cache files will either be read from
+  private String featuresCache;    // or they will be written to; they are
+  private String trainInstCache;   // required to be specified
+  private String usersCache;
+  private String labelsCache;
 
-    private final String delimiter = "=-=-=-=";
+  private final String delimiter = "=-=-=-=";
 
 
-    public BloomParamOpt () throws Exception {
-	this.propPrefix = "BloomParamOpt";
+  public BloomParamOpt () throws Exception {
+    this.propPrefix = "BloomParamOpt";
 	
-	this.name = JerboaProperties.getString(propPrefix + ".name", "");
-	this.streamTypeName =
+    this.name = JerboaProperties.getString(propPrefix + ".name", "");
+    this.streamTypeName =
 	    JerboaProperties.getString(propPrefix + ".contentStreamType");
 	
-	this.weights = getWeights();
-	this.allocdHashes = arrset(this.weights.size(),1);
-	this.ranges = initRanges();
+    this.weights = getWeights();
+    this.allocdHashes = arrset(this.weights.size(),1);
+    this.ranges = initRanges();
 	
-	this.numElements =
+    this.numElements =
 	    JerboaProperties.getInt(propPrefix + ".numElements",
-				    this.weights.size());
-	this.numBits =
+                              this.weights.size());
+    this.numBits =
 	    parseNumBits(JerboaProperties.getString(propPrefix + ".numBits"));
-	this.kmax = JerboaProperties.getDouble(propPrefix + ".kmax", 2);
-	this.userThreshold = JerboaProperties.getInt(propPrefix +
-						     ".userThreshold", 0);
+    this.kmax = JerboaProperties.getDouble(propPrefix + ".kmax", 2);
+    this.userThreshold = JerboaProperties.getInt(propPrefix +
+                                                 ".userThreshold", 0);
 	
-	this.outputFilename =
+    this.outputFilename =
 	    JerboaProperties.getString(propPrefix + ".outputFilename");
 
-	this.coreValsCached =
+    this.coreValsCached =
 	    JerboaProperties.getBoolean(propPrefix + ".coreValsCached");
-	this.featuresCache =
+    this.featuresCache =
 	    JerboaProperties.getString(propPrefix + ".featuresCache");
-	this.trainInstCache =
+    this.trainInstCache =
 	    JerboaProperties.getString(propPrefix + ".trainInstCache");
-	this.usersCache =
+    this.usersCache =
 	    JerboaProperties.getString(propPrefix + ".usersCache");
-	this.labelsCache =
+    this.labelsCache =
 	    JerboaProperties.getString(propPrefix + ".labelsCache");
 	
-	populateCoreValues();
-    }
+    populateCoreValues();
+  }
     
-    public void optimizeAndWO () throws IOException {
-	logger.config("Optimizing Bloom filter with parameters numElements="
-		      + this.numElements + " numBits=" + this.numBits +
-		      " kmax=" + this.kmax);
+  public void optimizeAndWO () throws IOException {
+    logger.config("Optimizing Bloom filter with parameters numElements="
+                  + this.numElements + " numBits=" + this.numBits +
+                  " kmax=" + this.kmax);
 
-	int[] allocations;
+    int[] allocations;
 
-	double[][] coeffs = coefficients();
-	int i = 0;
-	while (true) {
+    double[][] coeffs = coefficients();
+    int i = 0;
+    while (true) {
 	    if (++i == this.optThreshold) {
-		break;
+        break;
 	    }
 	    
 	    allocations = program(coeffs);
 	    if (Arrays.equals(allocations, this.allocdHashes)) {
-		logger.info("OPTIMUM FOUND");
-		this.allocdHashes = allocations;
-		break;
+        logger.info("OPTIMUM FOUND");
+        this.allocdHashes = allocations;
+        break;
 	    }
 	    else {
-		this.allocdHashes = allocations;
+        this.allocdHashes = allocations;
 	    }
-	}
-
-	System.out.println("numBits\tnumElements\tkmax");
-	System.out.println(this.numBits + "\t" + this.numElements + "\t" +
-			   this.kmax);
-
-	OptIO.writeParamFile(this.numBits, this.numElements,
-			     (int) this.kmax,
-			     DataHelpers.allocationsTable(this.features,
-							  this.allocdHashes),
-			     this.weights,
-			     this.outputFilename);
     }
+
+    System.out.println("numBits\tnumElements\tkmax");
+    System.out.println(this.numBits + "\t" + this.numElements + "\t" +
+                       this.kmax);
+
+    OptIO.writeParamFile(this.numBits, this.numElements,
+                         (int) this.kmax,
+                         DataHelpers.allocationsTable(this.features,
+                                                      this.allocdHashes),
+                         this.weights,
+                         this.outputFilename);
+  }
     
-    private int[] program (double[][] coeffs) {
-	int[] ks = {};
+  private int[] program (double[][] coeffs) {
+    int[] ks = {};
 	
-	try {
+    try {
 	    double[] flatCoeffs = flatten(coeffs);
 	
 	    IloCplex cplex = new IloCplex();
 
 	    // set lower bounds, upper bounds, types, etc
 	    IloNumVar[] x = cplex.numVarArray(flatCoeffs.length, 0.0, 1.0,
-					      IloNumVarType.Bool);
+                                        IloNumVarType.Bool);
 
 	    // Make this a minimization problem, solve
 	    cplex.addMaximize(cplex.scalProd(x, flatCoeffs));
 	    addOptConstraints(flatCoeffs, coeffs, cplex, x);
 	    
 	    if (cplex.solve()) {
-		cplex.output().println("Solution status = " +
-				       cplex.getStatus());
-		cplex.output().println("Solution value = " +
-				       cplex.getObjValue());
+        cplex.output().println("Solution status = " +
+                               cplex.getStatus());
+        cplex.output().println("Solution value = " +
+                               cplex.getObjValue());
 
-		double[] val = cplex.getValues(x);
-		int ncols = cplex.getNcols();
+        double[] val = cplex.getValues(x);
+        int ncols = cplex.getNcols();
 
-		ks = collapseKs(val);
+        ks = collapseKs(val);
 	    }
 	    cplex.end();
-	}
-	catch (IloException err) {
+    }
+    catch (IloException err) {
 	    System.out.println("CPLEX failed to optimize hash allocation");
 	    System.err.println(err);
 	    System.exit(1);
-	}
-
-	return ks;
     }
+
+    return ks;
+  }
     
-    private void addOptConstraints (double[] flatCoeffs, double[][] coeffs,
-				    IloCplex cplex, IloNumVar[] x)
-	throws IloException {
-	// iterate through coeffs k-at-a-time
-	// set the or-and condition
-	// add constraint
-	for (int i = 0; i < coeffs.length; i++) {
+  private void addOptConstraints (double[] flatCoeffs, double[][] coeffs,
+                                  IloCplex cplex, IloNumVar[] x)
+    throws IloException {
+    // iterate through coeffs k-at-a-time
+    // set the or-and condition
+    // add constraint
+    for (int i = 0; i < coeffs.length; i++) {
 	    int flatIdx = (int) (i * this.kmax);
 
 	    IloConstraint[] excls = new IloConstraint[(int) this.kmax];
 	    for (int k = 0, j = flatIdx; j < flatIdx + this.kmax; k++, j++) {
-		// TODO FIND OUT IF THIS IS CORRECT; SEEMS WRONG.
-		if (this.kmax == 1) {
-		    IloConstraint[] tmp = new IloConstraint[] {cplex.eq(x[flatIdx], 0.0),
-							       cplex.eq(x[flatIdx], 1.0)};
-		    excls[k] = cplex.or(tmp);
-		    continue;
-		}
-		// END SECTION THAT MAY BE INCORRECT
-		excls[k] = exclConst(flatCoeffs, cplex, x, flatIdx,
-				     (int) (flatIdx + this.kmax), j);
+        // TODO FIND OUT IF THIS IS CORRECT; SEEMS WRONG.
+        if (this.kmax == 1) {
+          IloConstraint[] tmp = new IloConstraint[] {cplex.eq(x[flatIdx], 0.0),
+                                                     cplex.eq(x[flatIdx], 1.0)};
+          excls[k] = cplex.or(tmp);
+          continue;
+        }
+        // END SECTION THAT MAY BE INCORRECT
+        excls[k] = exclConst(flatCoeffs, cplex, x, flatIdx,
+                             (int) (flatIdx + this.kmax), j);
 	    }
 	    if (this.kmax == 1) {
-		cplex.add(cplex.and(excls));
+        cplex.add(cplex.and(excls));
 	    }
 	    else {
-		cplex.add(cplex.or(excls));
+        cplex.add(cplex.or(excls));
 	    }
-	}
     }
+  }
     
-    private IloAnd exclConst (double[] flatCoeffs, IloCplex cplex,
-			      IloNumVar[] x, int start, int stop,
-			      int exclude) throws IloException {
-	IloRange[] constraint = new IloRange[stop-start-1];
-	for (int i = start, j = 0; i < stop; i++) {
+  private IloAnd exclConst (double[] flatCoeffs, IloCplex cplex,
+                            IloNumVar[] x, int start, int stop,
+                            int exclude) throws IloException {
+    IloRange[] constraint = new IloRange[stop-start-1];
+    for (int i = start, j = 0; i < stop; i++) {
 	    if (i == exclude)
-		continue;
+        continue;
 	    constraint[j++] = cplex.eq(x[i], 0.0);
-	}
-	return cplex.and(constraint);
     }
+    return cplex.and(constraint);
+  }
     
-    /**
-       Returns the nonzero k values in kmax-sized windows of a flattened array
+  /**
+     Returns the nonzero k values in kmax-sized windows of a flattened array
 
-       Arg `val` is generateed by flattening a list of lists that has
-       dimensions n*kmax. This method looks at windows of size kmax and finds
-       the (unique) k-value that is nonzero (if any), returning an array of
-       size n integers.
-     */
-    private int[] collapseKs (double[] val) {
-	int[] ks = new int[weights.size()];
+     Arg `val` is generateed by flattening a list of lists that has
+     dimensions n*kmax. This method looks at windows of size kmax and finds
+     the (unique) k-value that is nonzero (if any), returning an array of
+     size n integers.
+  */
+  private int[] collapseKs (double[] val) {
+    int[] ks = new int[weights.size()];
 	
-	int k = 1, j = 0;
-	boolean sawK = false;
-	for (int i = 0; i < val.length; i++, k++) {
+    int k = 1, j = 0;
+    boolean sawK = false;
+    for (int i = 0; i < val.length; i++, k++) {
 	    if (val[i] > 0.0) {
-		ks[j] = k + this.ranges[j][0];
-		j++;
-		sawK = true;
+        ks[j] = k + this.ranges[j][0];
+        j++;
+        sawK = true;
 	    }
 	    
 	    if (k == this.kmax) {
-		if (! sawK) {
-		    // array defaults to value of 0, so we don't need to set it
-		    j++;
-		}
-		k = 0;
-		sawK = false;
+        if (! sawK) {
+          // array defaults to value of 0, so we don't need to set it
+          j++;
+        }
+        k = 0;
+        sawK = false;
 	    }
-	}
-
-	return ks;
     }
 
-    private double[] flatten (double[][] coeffs) {
-	double[] flattened = new double[(int) this.kmax * coeffs.length];
+    return ks;
+  }
+
+  private double[] flatten (double[][] coeffs) {
+    double[] flattened = new double[(int) this.kmax * coeffs.length];
 	
-	int index = 0;
-	for (int i = 0; i < coeffs.length; i++) {
+    int index = 0;
+    for (int i = 0; i < coeffs.length; i++) {
 	    for (int j = 0; j < this.kmax; j++) {
-		flattened[index++] = coeffs[i][j];
+        flattened[index++] = coeffs[i][j];
 	    }
-	}
-
-	return flattened;
     }
 
-    private double[][] coefficients () {
-	/*
-	  Here is a key of the properties used here
-	  
-	  this.weights : feature string -> weight
-	  this.labels : user id -> label
-	  this.features : feature -> index
-	  this.trainFeatures : user id -> features
-	  this.users : users -> # of times seen
-	*/
-	double[][] coeffs = new double[this.weights.size()][(int) this.kmax];
+    return flattened;
+  }
 
-	Enumeration<String> e = this.trainInst.keys();
-	while (e.hasMoreElements()) {
+  private double[][] coefficients () {
+    /*
+      Here is a key of the properties used here
+	  
+      this.weights : feature string -> weight
+      this.labels : user id -> label
+      this.features : feature -> index
+      this.trainFeatures : user id -> features
+      this.users : users -> # of times seen
+    */
+    double[][] coeffs = new double[this.weights.size()][(int) this.kmax];
+
+    Enumeration<String> e = this.trainInst.keys();
+    while (e.hasMoreElements()) {
 	    String user = e.nextElement();
 	    double label = this.labels.get(user);
 
@@ -282,252 +282,252 @@ public class BloomParamOpt {
 	    int qSoFar = 0;
 
 	    for (int i = 0; i < userFeats.length; i++) {
-		String currFeat = userFeats[i];
-		// TODO: THIS MUST CHANGE, IT IS A BRITTLE, DESPERATE HACK TO
-		// GET THINGS WORKING
-		if (currFeat.equals("") || currFeat.equals("bN:"))
-		    continue;
-		double weight = this.weights.get(currFeat);
-		int currIdx = this.features.get(currFeat);
-		int kOffset = this.ranges[currIdx][0];
+        String currFeat = userFeats[i];
+        // TODO: THIS MUST CHANGE, IT IS A BRITTLE, DESPERATE HACK TO
+        // GET THINGS WORKING
+        if (currFeat.equals("") || currFeat.equals("bN:"))
+          continue;
+        double weight = this.weights.get(currFeat);
+        int currIdx = this.features.get(currFeat);
+        int kOffset = this.ranges[currIdx][0];
 		
-		for (int k = 0; k < this.kmax; k++) {
-		    double prFalsePos =
-			Math.pow(1 - Math.pow((1 - 1/((double) this.numBits)),
-					      qSoFar), k + kOffset);
-		    coeffs[currIdx][k] += label * weight * (1 - prFalsePos);
-		}
-		//print("\t" + this.allocdHashes[currIdx]);
-		qSoFar += this.allocdHashes[currIdx];
+        for (int k = 0; k < this.kmax; k++) {
+          double prFalsePos =
+            Math.pow(1 - Math.pow((1 - 1/((double) this.numBits)),
+                                  qSoFar), k + kOffset);
+          coeffs[currIdx][k] += label * weight * (1 - prFalsePos);
+        }
+        //print("\t" + this.allocdHashes[currIdx]);
+        qSoFar += this.allocdHashes[currIdx];
 	    }
-	}
-	
-	return coeffs;
     }
+	
+    return coeffs;
+  }
     
-    /**
-       Reads core values from cache, writes to global variables. On failure,
-       we generate and cache all from scratch. Optionally, we can choose not
-       to read the cache using java `.properties`. MUTATES GLOBAL STATE via
-       method call to `generateAndCacheCore`. 
-    */
-    public void populateCoreValues () throws Exception {
-	if (this.coreValsCached) {
+  /**
+     Reads core values from cache, writes to global variables. On failure,
+     we generate and cache all from scratch. Optionally, we can choose not
+     to read the cache using java `.properties`. MUTATES GLOBAL STATE via
+     method call to `generateAndCacheCore`. 
+  */
+  public void populateCoreValues () throws Exception {
+    if (this.coreValsCached) {
 	    // try to read cache
 	    try {
-		logger.info("Attempting to read from cache files");
-		readCaches();
+        logger.info("Attempting to read from cache files");
+        readCaches();
 		
 		
-		return;
+        return;
 	    }
 	    catch (IOException err) {
-		logger.info("FAILED to read from cache files; generating " +
-			    "cache files instead");
+        logger.info("FAILED to read from cache files; generating " +
+                    "cache files instead");
 	    }
 
 	    // no? generate and write cache values instead
 	    logger.info("Attempting to generate cache from scratch.");
 
-	}
-	else {
-	    generateAndCacheCore();
-	}
     }
+    else {
+	    generateAndCacheCore();
+    }
+  }
 
-    /**
-       Generates all the data we need, writes to cache files, and sticks
-       them all in the global state. MUTATES GLOBAL STATE.
-    */
-    private void generateAndCacheCore () throws Exception {
-	Hashtable<String,Object> data;
-	Hashtable<String,Integer> tmpUsers = new Hashtable<String,Integer>();
-	Hashtable<String,Double> tmpLabels = new Hashtable<String,Double>();
-	Hashtable<String,String[]> tmpTrainInst =
+  /**
+     Generates all the data we need, writes to cache files, and sticks
+     them all in the global state. MUTATES GLOBAL STATE.
+  */
+  private void generateAndCacheCore () throws Exception {
+    Hashtable<String,Object> data;
+    Hashtable<String,Integer> tmpUsers = new Hashtable<String,Integer>();
+    Hashtable<String,Double> tmpLabels = new Hashtable<String,Double>();
+    Hashtable<String,String[]> tmpTrainInst =
 	    new Hashtable<String,String[]>();
-	HashSet<String> featureSet = new HashSet<String>();
+    HashSet<String> featureSet = new HashSet<String>();
 
-	IStream stream = (IStream)
+    IStream stream = (IStream)
 	    Class.forName(this.streamTypeName).newInstance();
 
-	// initializing here cuts running time by an order of magnitude
-	ClassifierState state = new ClassifierState(this.name);
-	state.initialize();
+    // initializing here cuts running time by an order of magnitude
+    ClassifierState state = new ClassifierState(this.name);
+    state.initialize();
 
-	for (int i = 0; stream.hasNext(); ) {
+    for (int i = 0; stream.hasNext(); ) {
 	    if (((data = stream.next()) != null) && (data.size() > 0)) {
-		if (++i % 10000 == 0) {
-		    System.out.println(i);
-		    logger.info("Processed " + i + " communicants");
-		}
+        if (++i % 10000 == 0) {
+          System.out.println(i);
+          logger.info("Processed " + i + " communicants");
+        }
 		
-		ClassifierState currState = state.newState();
-		String communicant = (String) data.get("communicant");
+        ClassifierState currState = state.newState();
+        String communicant = (String) data.get("communicant");
 
-		// This is a terrible hack, I (aclemmer) know, but it speeds
-		// up processing by a lot.
-		try {
-		    tmpUsers.put(communicant, tmpUsers.get(communicant) + 1);
-		}
-		catch (NullPointerException err) {
-		    tmpUsers.put(communicant, 0);
-		}
+        // This is a terrible hack, I (aclemmer) know, but it speeds
+        // up processing by a lot.
+        try {
+          tmpUsers.put(communicant, tmpUsers.get(communicant) + 1);
+        }
+        catch (NullPointerException err) {
+          tmpUsers.put(communicant, 0);
+        }
 
-		tmpLabels.put(communicant, (Double) data.get("label"));
-		String[] trainInst =
-		    DataHelpers.trainingInstance(state.inspect(data),
-						 featureSet);
-		DataHelpers.appendFeatures(trainInst, tmpTrainInst, communicant);
+        tmpLabels.put(communicant, (Double) data.get("label"));
+        String[] trainInst =
+          DataHelpers.trainingInstance(state.inspect(data),
+                                       featureSet);
+        DataHelpers.appendFeatures(trainInst, tmpTrainInst, communicant);
 	    }
-	}
-	DataHelpers.removeAllDupFeats(tmpTrainInst, featureSet);
-
-	this.features = DataHelpers.featuresFromSet(featureSet);
-	this.trainInst = tmpTrainInst;
-	this.users = DataHelpers.addUsersBelowThreshold(tmpUsers,
-							this.userThreshold);
-	this.labels = tmpLabels;
-
-	writeCaches();
-
-
     }
+    DataHelpers.removeAllDupFeats(tmpTrainInst, featureSet);
+
+    this.features = DataHelpers.featuresFromSet(featureSet);
+    this.trainInst = tmpTrainInst;
+    this.users = DataHelpers.addUsersBelowThreshold(tmpUsers,
+                                                    this.userThreshold);
+    this.labels = tmpLabels;
+
+    writeCaches();
+
+
+  }
 
     
-    private void writeCaches () throws Exception {
-	/*
-	  Here is a key of the properties used here
+  private void writeCaches () throws Exception {
+    /*
+      Here is a key of the properties used here
 	  
-	  this.weights : feature string -> weight
-	  this.labels : user id -> label
-	  this.features : feature -> index
-	  this.trainFeatures : user id -> features
-	  this.users : users -> # of times seen
-	*/
-	logger.info("Writing features cache at " + this.featuresCache);
-	OptIO.writeCache(this.featuresCache, this.features);
-	
-	logger.info("Writing traning instances cache at " + this.trainInstCache);
-	OptIO.writeTrainFeats(this.trainInstCache, this.trainInst,
-				 this.delimiter);
-	
-	logger.info("Writing users cache at " + this.usersCache);
-	OptIO.writeCache(this.usersCache, this.users);
-	
-	logger.info("Writing labels cache at " + this.labelsCache);
-	OptIO.writeCache(this.labelsCache, this.labels);
-    }
-    
-    /**
-       Attempts to read users, feature list, users, user labels, and the
-       training features of every user.
-
-       If even one of these cache files is missing, we will probably have to
-       generate all of them from scratch. This isn't *always* true, but I
-       (aclemmer) didn't bother to figure it out, and simply mandated that
-       all of them must be there, or we start over again.
+      this.weights : feature string -> weight
+      this.labels : user id -> label
+      this.features : feature -> index
+      this.trainFeatures : user id -> features
+      this.users : users -> # of times seen
     */
-    private void readCaches () throws IOException {
-	this.features = OptIO.readFeaturesCache(this.featuresCache);
-	logger.info("Features cache read. # of features=" +
-		    this.features.size());
+    logger.info("Writing features cache at " + this.featuresCache);
+    OptIO.writeCache(this.featuresCache, this.features);
 	
-	this.trainInst = OptIO.readTrainInstCache (this.trainInstCache,
-						      this.delimiter);
-	logger.info("Training instances cache read. # of training instances=" +
-		    this.trainInst.size());
+    logger.info("Writing traning instances cache at " + this.trainInstCache);
+    OptIO.writeTrainFeats(this.trainInstCache, this.trainInst,
+                          this.delimiter);
 	
-	this.users = OptIO.readUsersCache(this.usersCache);
-	logger.info("Users cache read. # of users=" +
-		    this.users.size());
+    logger.info("Writing users cache at " + this.usersCache);
+    OptIO.writeCache(this.usersCache, this.users);
 	
-	this.labels = OptIO.readLabelsCache(this.labelsCache);
-	logger.info("Labels cache read. # of labels=" +
-		    this.labels.size());
-    }
+    logger.info("Writing labels cache at " + this.labelsCache);
+    OptIO.writeCache(this.labelsCache, this.labels);
+  }
+    
+  /**
+     Attempts to read users, feature list, users, user labels, and the
+     training features of every user.
+
+     If even one of these cache files is missing, we will probably have to
+     generate all of them from scratch. This isn't *always* true, but I
+     (aclemmer) didn't bother to figure it out, and simply mandated that
+     all of them must be there, or we start over again.
+  */
+  private void readCaches () throws IOException {
+    this.features = OptIO.readFeaturesCache(this.featuresCache);
+    logger.info("Features cache read. # of features=" +
+                this.features.size());
+	
+    this.trainInst = OptIO.readTrainInstCache (this.trainInstCache,
+                                               this.delimiter);
+    logger.info("Training instances cache read. # of training instances=" +
+                this.trainInst.size());
+	
+    this.users = OptIO.readUsersCache(this.usersCache);
+    logger.info("Users cache read. # of users=" +
+                this.users.size());
+	
+    this.labels = OptIO.readLabelsCache(this.labelsCache);
+    logger.info("Labels cache read. # of labels=" +
+                this.labels.size());
+  }
 
 
-    /**
-       Returns a hashtable that pairs features (strings) with their weights
-       (doubles).
-     */
-    private Hashtable<String,Double> getWeights () throws Exception {
-	String modelClass = JerboaProperties.getString(propPrefix +
-						       ".modelClass");
-	IClassifier classifier = (IClassifier)
+  /**
+     Returns a hashtable that pairs features (strings) with their weights
+     (doubles).
+  */
+  private Hashtable<String,Double> getWeights () throws Exception {
+    String modelClass = JerboaProperties.getString(propPrefix +
+                                                   ".modelClass");
+    IClassifier classifier = (IClassifier)
 	    Class.forName(modelClass).newInstance();
-	classifier.initialize();
-	classifier.readState();
+    classifier.initialize();
+    classifier.readState();
 
-	return classifier.getWeights();
-    }
+    return classifier.getWeights();
+  }
 
-    /**
-       Intended to parse the `BloomParamOpt.numBits` field in the .properties
-       file that is fed to this class.
+  /**
+     Intended to parse the `BloomParamOpt.numBits` field in the .properties
+     file that is fed to this class.
 
-       Basically, either checks for a simple number (i.e., "16") or looks for
-       a number with n at the end, like "8n". In the latter case, it takes
-       `this.numElements` and multiplies it by that number.
-     */
-    private long parseNumBits (String input) {
-	int indexOfN = input.indexOf('n');
-	int len = input.length();
+     Basically, either checks for a simple number (i.e., "16") or looks for
+     a number with n at the end, like "8n". In the latter case, it takes
+     `this.numElements` and multiplies it by that number.
+  */
+  private long parseNumBits (String input) {
+    int indexOfN = input.indexOf('n');
+    int len = input.length();
 
-	if (indexOfN == -1) {
+    if (indexOfN == -1) {
 	    return (long) Double.parseDouble(input);
-	}
-	else if (indexOfN == len - 1) {
+    }
+    else if (indexOfN == len - 1) {
 	    if (this.numElements < 0) {
-		throw new ClassFormatError("Called parseNumBits before " +
-					   "BloomParamOpt.numElements was set");
+        throw new ClassFormatError("Called parseNumBits before " +
+                                   "BloomParamOpt.numElements was set");
 	    }
 	    
 	    return (long) (this.numElements *
-			   Double.parseDouble(input.substring(0, len - 1)));
-	}
-	else {
+                     Double.parseDouble(input.substring(0, len - 1)));
+    }
+    else {
 	    throw new NumberFormatException("Invalid format to parseNumBits");
-	}
     }
+  }
 
-    private int[][] initRanges () {
-	int[][] ranges = new int[this.weights.size()][2];
-	for (int i = 0; i < ranges.length; i++) {
+  private int[][] initRanges () {
+    int[][] ranges = new int[this.weights.size()][2];
+    for (int i = 0; i < ranges.length; i++) {
 	    ranges[i][1] = (int) this.kmax;
-	}
-
-	return ranges;
     }
 
-    private static int[] arrset (int size, int c) {
-	int[] arr = new int[size];
-	for (int i = 0; i < arr.length; i++) {
+    return ranges;
+  }
+
+  private static int[] arrset (int size, int c) {
+    int[] arr = new int[size];
+    for (int i = 0; i < arr.length; i++) {
 	    arr[i] = c;
-	}
-	return arr;
     }
+    return arr;
+  }
     
-    private static double[] arrset (int size, double c) {
-	double[] arr = new double[size];
-	for (int i = 0; i < arr.length; i++) {
+  private static double[] arrset (int size, double c) {
+    double[] arr = new double[size];
+    for (int i = 0; i < arr.length; i++) {
 	    arr[i] = c;
-	}
-	return arr;
     }
+    return arr;
+  }
 
-    private static IloNumVarType[] arrset (int size, IloNumVarType t) {
-	IloNumVarType[] arr = new IloNumVarType[size];
+  private static IloNumVarType[] arrset (int size, IloNumVarType t) {
+    IloNumVarType[] arr = new IloNumVarType[size];
 
-	for (int i = 0; i < arr.length; i++) {
+    for (int i = 0; i < arr.length; i++) {
 	    arr[i] = t;
-	}
+    }
 
-	return arr;
-    }
+    return arr;
+  }
     
-    public static void main(String[] args) throws Exception {
-	BloomParamOpt optimizer = new BloomParamOpt();
-	optimizer.optimizeAndWO();
-    }
+  public static void main(String[] args) throws Exception {
+    BloomParamOpt optimizer = new BloomParamOpt();
+    optimizer.optimizeAndWO();
+  }
 }
