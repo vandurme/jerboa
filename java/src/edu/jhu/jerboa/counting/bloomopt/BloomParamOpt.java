@@ -1,4 +1,4 @@
-package edu.jhu.jerboa.counting;
+package edu.jhu.jerboa.counting.bloomopt;
 
 import java.util.logging.Logger;
 import java.util.Hashtable;
@@ -18,6 +18,7 @@ import edu.jhu.jerboa.classification.*;
 import edu.jhu.jerboa.processing.*;
 import edu.jhu.jerboa.util.JerboaProperties;
 import edu.jhu.jerboa.util.FileManager;
+import edu.jhu.jerboa.counting.bloomopt.OptCache;
 
 /**
    @author Alex Clemmer <clemmer.alexander@gmail.com>
@@ -171,7 +172,7 @@ public class BloomParamOpt {
 	addUsersBelowThreshold(tmpUsers);
 	this.labels = tmpLabels;
 
-	writeAll();
+	writeCaches();
     }
 
     private void addUsersBelowThreshold (Hashtable<String,Integer> users) {
@@ -279,7 +280,7 @@ public class BloomParamOpt {
 	return trainInst.toArray(new String[0]);
     }
     
-    private void writeAll () throws Exception {
+    private void writeCaches () throws Exception {
 	/*
 	  Here is a key of the properties used here
 	  
@@ -289,77 +290,18 @@ public class BloomParamOpt {
 	  this.trainFeatures : user id -> features
 	  this.users : users -> # of times seen
 	*/
-	System.out.println(this.featuresCache);
 	logger.info("Writing features cache at " + this.featuresCache);
-	writeCache(this.featuresCache, this.features);
+	OptCache.writeCache(this.featuresCache, this.features);
 	
-	System.out.println(this.trainInstCache);
 	logger.info("Writing traning instances cache at " + this.trainInstCache);
-	writeTrainFeats(this.trainInstCache, this.trainInst);
+	OptCache.writeTrainFeats(this.trainInstCache, this.trainInst,
+				 this.delimiter);
 	
-	System.out.println(this.usersCache);	
 	logger.info("Writing users cache at " + this.usersCache);
-	writeCache(this.usersCache, this.users);
+	OptCache.writeCache(this.usersCache, this.users);
 	
-	System.out.println(this.labelsCache);
 	logger.info("Writing labels cache at " + this.labelsCache);
-	writeCache(this.labelsCache, this.labels);
-    }
-    
-    private void writeTrainFeats (String filename,
-				  Hashtable<String,String[]> trainFeats) {
-	try {
-	    BufferedWriter w = FileManager.getWriter(filename);
-
-	    Enumeration<String> e = trainFeats.keys();
-	    while (e.hasMoreElements()) {
-		String k = e.nextElement();
-		String[] feats = trainFeats.get(k);
-		w.write(k + "\t");
-		for (int i = 0; i < feats.length; i++) {
-		    w.write(feats[i] + this.delimiter);
-		}
-		w.write("\n");
-	    }
-	    w.close();
-	}
-	catch (IOException err) {
-	    System.err.println(err);
-	    System.exit(1);
-	}
-    }
-    
-    private void writeCache (String filename, String[] arr) {
-	try {
-	    BufferedWriter w = FileManager.getWriter(filename);
-
-	    for (int i = 0; i < arr.length; i++) {
-		w.write(arr[i] + "\n");
-	    }
-	    w.close();
-	}
-	catch (IOException err) {
-	    System.err.println(err);
-	    System.exit(1);
-	}
-    }
-    
-    private void writeCache (String filename,
-			     Hashtable<String,? extends Object> dict) {
-	try {
-	    BufferedWriter w = FileManager.getWriter(filename);
-
-	    Enumeration<String> e = dict.keys();
-	    while (e.hasMoreElements()) {
-		String k = e.nextElement();
-		w.write(k + "\t" + dict.get(k) + "\n");
-	    }
-	    w.close();
-	}
-	catch (IOException err) {
-	    System.err.println(err);
-	    System.exit(1);
-	}
+	OptCache.writeCache(this.labelsCache, this.labels);
     }
     
     /**
@@ -373,86 +315,19 @@ public class BloomParamOpt {
     */
     private void readAll () throws IOException {
 	logger.info("Reading features cache");
-	this.features = readFeaturesCache();
+	this.features = OptCache.readFeaturesCache(this.featuresCache);
 	
 	logger.info("Reading training batches cache");
-	this.trainInst = readTrainInstCache ();
+	this.trainInst = OptCache.readTrainInstCache (this.trainInstCache,
+						      this.delimiter);
 	
 	logger.info("Reading users cache");
-	this.users = readUsersCache();
+	this.users = OptCache.readUsersCache(this.usersCache);
 	
 	logger.info("Reading labels cache");
-	this.labels = readLabelsCache();
+	this.labels = OptCache.readLabelsCache(this.labelsCache);
     }
 
-    private Hashtable<String,Integer> readFeaturesCache () throws IOException {
-	String[] lines = getLines(this.featuresCache);
-	Hashtable<String,Integer> featCache = new Hashtable<String,Integer>();
-
-	for (int i = 0; i < lines.length; i++) {
-	    String[] spl = lines[i].split("\t");
-	    featCache.put(spl[0], Integer.parseInt(spl[1]));
-	}
-
-	return featCache;
-    }
-
-    private Hashtable<String,String[]> readTrainInstCache () throws IOException {
-	String[] lines = getLines(this.trainInstCache);
-	Hashtable<String,String[]> trainInstCache =
-	    new Hashtable<String,String[]>();
-
-	for (int i = 0; i < lines.length; i++) {
-	    String[] spl = lines[i].split("\t");
-
-	    if (spl.length > 1) {
-		String[] feats = spl[1].split(this.delimiter);
-		trainInstCache.put(spl[0], feats);
-	    }
-	    else {
-		trainInstCache.put(spl[0], new String[0]);
-	    }
-	}
-
-	return trainInstCache;
-    }
-
-    private Hashtable<String,Integer> readUsersCache () throws IOException {
-	String[] lines = getLines(this.usersCache);
-	Hashtable<String,Integer> usersCache = new Hashtable<String,Integer>();
-
-	for (int i = 0; i < lines.length; i++) {
-	    String[] spl = lines[i].split("\t");
-	    usersCache.put(spl[0], Integer.parseInt(spl[1]));
-	}
-
-	return usersCache;
-    }
-
-    private Hashtable<String,Double> readLabelsCache () throws IOException {
-	String[] lines = getLines(this.labelsCache);
-	Hashtable<String,Double> labelsCache = new Hashtable<String,Double>();
-
-	for(int i = 0; i < lines.length; i++) {
-	    String[] spl = lines[i].split("\t");
-	    labelsCache.put(spl[0], Double.parseDouble(spl[1]));
-	}
-
-	return labelsCache;
-    }
-
-    private String[] getLines (String filename) throws IOException {
-	ArrayList<String> lines = new ArrayList<String>();
-	BufferedReader r = FileManager.getReader(filename);
-
-	String buffer;
-	while ((buffer = r.readLine()) != null) {
-	    lines.add(buffer);
-	}
-	r.close();
-
-	return lines.toArray(new String[0]);
-    }
 
     /**
        Returns a hashtable that pairs features (strings) with their weights
