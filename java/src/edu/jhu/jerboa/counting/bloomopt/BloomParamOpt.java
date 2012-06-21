@@ -40,13 +40,14 @@ public class BloomParamOpt {
     private long numBits;
     private double kmax;
     int[] allocdHashes;
-    private int userThreshold;
-    private int optThreshold;
+    private int[][] ranges;
     private Hashtable<String,Double> weights;
     private Hashtable<String,Integer> features;
     private Hashtable<String,String[]> trainInst;
     private Hashtable<String,Integer> users;
     private Hashtable<String,Double> labels;
+    private int userThreshold;
+    private int optThreshold;
 
     private String outputFilename;
     
@@ -67,6 +68,9 @@ public class BloomParamOpt {
 	    JerboaProperties.getString(propPrefix + ".contentStreamType");
 	
 	this.weights = getWeights();
+	this.allocdHashes = arrset(this.weights.size(),1);
+	this.ranges = initRanges();
+	
 	this.numElements =
 	    JerboaProperties.getInt(propPrefix + ".numElements",
 				    this.weights.size());
@@ -93,7 +97,7 @@ public class BloomParamOpt {
 	populateCoreValues();
     }
     
-    public void optimize () {
+    public void optimizeAndWO () {
 	logger.config("Optimizing Bloom filter with parameters numElements="
 		      + this.numElements + " numBits=" + this.numBits +
 		      " kmax=" + this.kmax);
@@ -117,6 +121,10 @@ public class BloomParamOpt {
 		this.allocdHashes = allocations;
 	    }
 	}
+
+	System.out.println("numBits\tnumElements\tkmax");
+	System.out.println(this.numBits + "\t" + this.numElements + "\t" +
+			   this.kmax);
     }
     
     private int[] program (double[][] coeffs) {
@@ -157,6 +165,95 @@ public class BloomParamOpt {
 	return ks;
     }
     
+    private void addOptConstraints (double[] flatCoeffs, double[][] coeffs,
+				    IloCplex cplex, IloNumVar[] x)
+	throws IloException {
+	// iterate through coeffs k-at-a-time
+	// set the or-and condition
+	// add constraint
+	for (int i = 0; i < coeffs.length; i++) {
+	    int flatIdx = (int) (i * this.kmax);
+
+	    IloConstraint[] excls = new IloConstraint[(int) this.kmax];
+	    for (int k = 0, j = flatIdx; j < flatIdx + this.kmax; k++, j++) {
+		// TODO FIND OUT IF THIS IS CORRECT; SEEMS WRONG.
+		if (this.kmax == 1) {
+		    IloConstraint[] tmp = new IloConstraint[] {cplex.eq(x[flatIdx], 0.0),
+							       cplex.eq(x[flatIdx], 1.0)};
+		    excls[k] = cplex.or(tmp);
+		    continue;
+		}
+		// END SECTION THAT MAY BE INCORRECT
+		excls[k] = exclConst(flatCoeffs, cplex, x, flatIdx,
+				     (int) (flatIdx + this.kmax), j);
+	    }
+	    if (this.kmax == 1) {
+		cplex.add(cplex.and(excls));
+	    }
+	    else {
+		cplex.add(cplex.or(excls));
+	    }
+	}
+    }
+    
+    private IloAnd exclConst (double[] flatCoeffs, IloCplex cplex,
+			      IloNumVar[] x, int start, int stop,
+			      int exclude) throws IloException {
+	IloRange[] constraint = new IloRange[stop-start-1];
+	for (int i = start, j = 0; i < stop; i++) {
+	    if (i == exclude)
+		continue;
+	    constraint[j++] = cplex.eq(x[i], 0.0);
+	}
+	return cplex.and(constraint);
+    }
+    
+    /**
+       Returns the nonzero k values in kmax-sized windows of a flattened array
+
+       Arg `val` is generateed by flattening a list of lists that has
+       dimensions n*kmax. This method looks at windows of size kmax and finds
+       the (unique) k-value that is nonzero (if any), returning an array of
+       size n integers.
+     */
+    private int[] collapseKs (double[] val) {
+	int[] ks = new int[weights.size()];
+	
+	int k = 1, j = 0;
+	boolean sawK = false;
+	for (int i = 0; i < val.length; i++, k++) {
+	    if (val[i] > 0.0) {
+		ks[j] = k + this.ranges[j][0];
+		j++;
+		sawK = true;
+	    }
+	    
+	    if (k == this.kmax) {
+		if (! sawK) {
+		    // array defaults to value of 0, so we don't need to set it
+		    j++;
+		}
+		k = 0;
+		sawK = false;
+	    }
+	}
+
+	return ks;
+    }
+
+    private double[] flatten (double[][] coeffs) {
+	double[] flattened = new double[(int) this.kmax * coeffs.length];
+	
+	int index = 0;
+	for (int i = 0; i < coeffs.length; i++) {
+	    for (int j = 0; j < this.kmax; j++) {
+		flattened[index++] = coeffs[i][j];
+	    }
+	}
+
+	return flattened;
+    }
+
     private double[][] coefficients () {
 	/*
 	  Here is a key of the properties used here
@@ -185,13 +282,12 @@ public class BloomParamOpt {
 		    continue;
 		double weight = this.weights.get(currFeat);
 		int currIdx = this.features.get(currFeat);
-		//int kOffset = this.ranges[currIdx][0];
+		int kOffset = this.ranges[currIdx][0];
 		
 		for (int k = 0; k < this.kmax; k++) {
 		    double prFalsePos =
 			Math.pow(1 - Math.pow((1 - 1/((double) this.numBits)),
-					      //qSoFar), k + kOffset);
-					      qSoFar), k);
+					      qSoFar), k + kOffset);
 		    coeffs[currIdx][k] += label * weight * (1 - prFalsePos);
 		}
 		//print("\t" + this.allocdHashes[currIdx]);
@@ -214,6 +310,8 @@ public class BloomParamOpt {
 	    try {
 		logger.info("Attempting to read from cache files");
 		readCaches();
+		
+		
 		return;
 	    }
 	    catch (IOException err) {
@@ -285,7 +383,7 @@ public class BloomParamOpt {
 
 	writeCaches();
 
-	this.allocdHashes = arrset(this.weights.size(),1);
+
     }
 
     
@@ -389,7 +487,16 @@ public class BloomParamOpt {
 	    throw new NumberFormatException("Invalid format to parseNumBits");
 	}
     }
-    
+
+    private int[][] initRanges () {
+	int[][] ranges = new int[this.weights.size()][2];
+	for (int i = 0; i < ranges.length; i++) {
+	    ranges[i][1] = (int) this.kmax;
+	}
+
+	return ranges;
+    }
+
     private static int[] arrset (int size, int c) {
 	int[] arr = new int[size];
 	for (int i = 0; i < arr.length; i++) {
@@ -418,6 +525,6 @@ public class BloomParamOpt {
     
     public static void main(String[] args) throws Exception {
 	BloomParamOpt optimizer = new BloomParamOpt();
-	optimizer.optimize();
+	optimizer.optimizeAndWO();
     }
 }
