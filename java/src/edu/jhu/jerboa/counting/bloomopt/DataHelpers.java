@@ -15,6 +15,20 @@ import java.util.Enumeration;
    that are crucial to our Bloom filter parameter optimization routine.
  */
 public class DataHelpers {
+    public static Hashtable<String,Integer> allocationsTable
+	(Hashtable<String,Integer> features, int[] allocdHashes) {
+	Hashtable<String,Integer> alloctable = new Hashtable<String,Integer>();
+	Enumeration<String> e = features.keys();
+
+	while (e.hasMoreElements()) {
+	    String k = e.nextElement();
+	    int index = features.get(k);
+	    alloctable.put(k, allocdHashes[index]);
+	}
+
+	return alloctable;
+    }
+    
     public static Hashtable<String,Integer> addUsersBelowThreshold
 	(Hashtable<String,Integer> currUsers,
 	 int threshold) {
