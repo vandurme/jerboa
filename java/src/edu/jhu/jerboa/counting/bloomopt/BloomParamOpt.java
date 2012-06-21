@@ -40,7 +40,7 @@ public class BloomParamOpt {
     private long numBits;
     private double kmax;
     int[] allocdHashes;
-    private int threshold;
+    private int userThreshold;
     private int optThreshold;
     private Hashtable<String,Double> weights;
     private Hashtable<String,Integer> features;
@@ -119,6 +119,51 @@ public class BloomParamOpt {
 	}
     }
 
+    private double[][] coefficients () {
+	/*
+	  Here is a key of the properties used here
+	  
+	  this.weights : feature string -> weight
+	  this.labels : user id -> label
+	  this.features : feature -> index
+	  this.trainFeatures : user id -> features
+	  this.users : users -> # of times seen
+	*/
+	double[][] coeffs = new double[this.weights.size()][(int) this.kmax];
+
+	Enumeration<String> e = this.trainInst.keys();
+	while (e.hasMoreElements()) {
+	    String user = e.nextElement();
+	    double label = this.labels.get(user);
+
+	    String[] userFeats = trainInst.get(user);
+	    int qSoFar = 0;
+
+	    for (int i = 0; i < userFeats.length; i++) {
+		String currFeat = userFeats[i];
+		// TODO: THIS MUST CHANGE, IT IS A BRITTLE, DESPERATE HACK TO
+		// GET THINGS WORKING
+		if (currFeat.equals("") || currFeat.equals("bN:"))
+		    continue;
+		double weight = this.weights.get(currFeat);
+		int currIdx = this.features.get(currFeat);
+		//int kOffset = this.ranges[currIdx][0];
+		
+		for (int k = 0; k < this.kmax; k++) {
+		    double prFalsePos =
+			Math.pow(1 - Math.pow((1 - 1/((double) this.numBits)),
+					      //qSoFar), k + kOffset);
+					      qSoFar), k);
+		    coeffs[currIdx][k] += label * weight * (1 - prFalsePos);
+		}
+		//print("\t" + this.allocdHashes[currIdx]);
+		qSoFar += this.allocdHashes[currIdx];
+	    }
+	}
+	
+	return coeffs;
+    }
+    
     /**
        Reads core values from cache, writes to global variables. On failure,
        we generate and cache all from scratch. Optionally, we can choose not
@@ -202,7 +247,7 @@ public class BloomParamOpt {
 
 	writeCaches();
 
-	this.allocdHashes = arrset.(this.weights.size(),1);
+	this.allocdHashes = arrset(this.weights.size(),1);
     }
 
     
