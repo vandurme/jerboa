@@ -5,6 +5,7 @@ import java.util.Hashtable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.HashSet;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.io.BufferedReader;
@@ -38,7 +39,9 @@ public class BloomParamOpt {
     private long numElements = -1;
     private long numBits;
     private double kmax;
+    int[] allocdHashes;
     private int threshold;
+    private int optThreshold;
     private Hashtable<String,Double> weights;
     private Hashtable<String,Integer> features;
     private Hashtable<String,String[]> trainInst;
@@ -70,8 +73,8 @@ public class BloomParamOpt {
 	this.numBits =
 	    parseNumBits(JerboaProperties.getString(propPrefix + ".numBits"));
 	this.kmax = JerboaProperties.getDouble(propPrefix + ".kmax", 2);
-	this.threshold = JerboaProperties.getInt(propPrefix + ".threshold",
-						 0);
+	this.userThreshold = JerboaProperties.getInt(propPrefix +
+						     ".userThreshold", 0);
 	
 	this.outputFilename =
 	    JerboaProperties.getString(propPrefix + ".outputFilename");
@@ -94,6 +97,26 @@ public class BloomParamOpt {
 	logger.config("Optimizing Bloom filter with parameters numElements="
 		      + this.numElements + " numBits=" + this.numBits +
 		      " kmax=" + this.kmax);
+
+	int[] allocations;
+
+	double[][] coeffs = coefficients();
+	int i = 0;
+	while (true) {
+	    if (++i == this.optThreshold) {
+		break;
+	    }
+	    
+	    allocations = program(coeffs);
+	    if (Arrays.equals(allocations, this.allocdHashes)) {
+		logger.info("OPTIMUM FOUND");
+		this.allocdHashes = allocations;
+		break;
+	    }
+	    else {
+		this.allocdHashes = allocations;
+	    }
+	}
     }
 
     /**
@@ -174,10 +197,12 @@ public class BloomParamOpt {
 	this.features = DataHelpers.featuresFromSet(featureSet);
 	this.trainInst = tmpTrainInst;
 	this.users = DataHelpers.addUsersBelowThreshold(tmpUsers,
-							this.threshold);
+							this.userThreshold);
 	this.labels = tmpLabels;
 
 	writeCaches();
+
+	this.allocdHashes = arrset.(this.weights.size(),1);
     }
 
     
@@ -280,6 +305,32 @@ public class BloomParamOpt {
 	else {
 	    throw new NumberFormatException("Invalid format to parseNumBits");
 	}
+    }
+    
+    private static int[] arrset (int size, int c) {
+	int[] arr = new int[size];
+	for (int i = 0; i < arr.length; i++) {
+	    arr[i] = c;
+	}
+	return arr;
+    }
+    
+    private static double[] arrset (int size, double c) {
+	double[] arr = new double[size];
+	for (int i = 0; i < arr.length; i++) {
+	    arr[i] = c;
+	}
+	return arr;
+    }
+
+    private static IloNumVarType[] arrset (int size, IloNumVarType t) {
+	IloNumVarType[] arr = new IloNumVarType[size];
+
+	for (int i = 0; i < arr.length; i++) {
+	    arr[i] = t;
+	}
+
+	return arr;
     }
     
     public static void main(String[] args) throws Exception {
