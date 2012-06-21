@@ -118,7 +118,45 @@ public class BloomParamOpt {
 	    }
 	}
     }
+    
+    private int[] program (double[][] coeffs) {
+	int[] ks = {};
+	
+	try {
+	    double[] flatCoeffs = flatten(coeffs);
+	
+	    IloCplex cplex = new IloCplex();
 
+	    // set lower bounds, upper bounds, types, etc
+	    IloNumVar[] x = cplex.numVarArray(flatCoeffs.length, 0.0, 1.0,
+					      IloNumVarType.Bool);
+
+	    // Make this a minimization problem, solve
+	    cplex.addMaximize(cplex.scalProd(x, flatCoeffs));
+	    addOptConstraints(flatCoeffs, coeffs, cplex, x);
+	    
+	    if (cplex.solve()) {
+		cplex.output().println("Solution status = " +
+				       cplex.getStatus());
+		cplex.output().println("Solution value = " +
+				       cplex.getObjValue());
+
+		double[] val = cplex.getValues(x);
+		int ncols = cplex.getNcols();
+
+		ks = collapseKs(val);
+	    }
+	    cplex.end();
+	}
+	catch (IloException err) {
+	    System.out.println("CPLEX failed to optimize hash allocation");
+	    System.err.println(err);
+	    System.exit(1);
+	}
+
+	return ks;
+    }
+    
     private double[][] coefficients () {
 	/*
 	  Here is a key of the properties used here
