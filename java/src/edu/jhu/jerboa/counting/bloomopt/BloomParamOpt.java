@@ -29,40 +29,38 @@ import edu.jhu.jerboa.counting.bloomopt.DataHelpers;
    Optimizes the hash allocation scheme for a Bloom filter.
 */
 public class BloomParamOpt {
-  private static Logger logger =
+  private final static Logger logger =
     Logger.getLogger(BloomParamOpt.class.getName());
-  private static String propPrefix;
+  static String propPrefix = "BloomParamOpt";
 
-  private String name;
-  private String streamTypeName;
+  String name;
+  String streamTypeName;
 
-  private long numElements = -1;
-  private long numBits;
-  private double kmax;
-  int[] allocdHashes;
+  long numElements = -1;
+  long numBits;
+  double kmax;
+  protected int[] allocdHashes;
   private int[][] ranges;
-  private Hashtable<String,Double> weights;
-  private Hashtable<String,Integer> features;
-  private Hashtable<String,String[]> trainInst;
-  private Hashtable<String,Integer> users;
-  private Hashtable<String,Double> labels;
-  private int userThreshold;
-  private int optThreshold;
+  protected Hashtable<String,Double> weights;
+  protected Hashtable<String,Integer> features;
+  protected Hashtable<String,String[]> trainInst;
+  protected Hashtable<String,Integer> users;
+  protected Hashtable<String,Double> labels;
+  int userThreshold;
+  int optThreshold;
 
-  private String outputFilename;
+  String outputFilename;
     
-  private boolean coreValsCached;  // cache files will either be read from
-  private String featuresCache;    // or they will be written to; they are
-  private String trainInstCache;   // required to be specified
-  private String usersCache;
-  private String labelsCache;
+  boolean coreValsCached;  // cache files will either be read from
+  String featuresCache;    // or they will be written to; they are
+  String trainInstCache;   // required to be specified
+  String usersCache;
+  String labelsCache;
 
-  private final String delimiter = "=-=-=-=";
+  private final String delimiter = "=-=-=-=";  // must be pretty unique
 
 
   public BloomParamOpt () throws Exception {
-    this.propPrefix = "BloomParamOpt";
-	
     this.name = JerboaProperties.getString(propPrefix + ".name", "");
     this.streamTypeName =
 	    JerboaProperties.getString(propPrefix + ".contentStreamType");
