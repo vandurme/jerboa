@@ -3,6 +3,7 @@ package edu.jhu.jerboa.counting.bloomopt;
 import java.util.Hashtable;
 import java.util.Enumeration;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -18,6 +19,7 @@ import edu.jhu.jerboa.util.FileManager;
    structure of data that is imposed by `BloomParamOpt` class.
  */
 public class OptIO {
+    private static final Logger logger = Logger.getLogger(OptIO.class.getName());
     private static final String stdheader = "### BLOOM FILTER PARAMS ###";
     private static final String optheader =
 	"### OPTIMIZED BLOOM FILTER PARAMS ###";
@@ -25,6 +27,8 @@ public class OptIO {
     public static void writeParamFile (long numBits, long numElements,
 				       int numHashes,
 				       String filename) throws IOException {
+	logger.info("Writing Bloom filter parameter file [" + filename + "]");
+	
 	BufferedWriter writer = FileManager.getWriter(filename);
 
 	writer.write(stdheader + "\n");
@@ -40,6 +44,8 @@ public class OptIO {
 				       Hashtable<String, Integer> allocations,
 				       Hashtable<String,Double> weights,
 				       String filename) throws IOException {
+	logger.info("Writing Bloom filter parameter file [" + filename + "]");
+
 	BufferedWriter writer = FileManager.getWriter(filename);
 
 	writer.write(optheader + "\n");
@@ -60,6 +66,8 @@ public class OptIO {
 
     public static Hashtable<String,Object> readParamFile (String filename)
 	throws IOException {
+	logger.info("Writing Bloom filter parameter file [" + filename + "]");
+
 	BufferedReader reader = FileManager.getReader(filename);
 	Hashtable<String,Object> params = new Hashtable<String,Object>();
 
@@ -154,6 +162,8 @@ public class OptIO {
 
     public static Hashtable<String,Integer> readFeaturesCache (String filename)
 	throws IOException {
+	logger.info("Reading features cache [" + filename + "]");
+
 	String[] lines = getLines(filename);
 	Hashtable<String,Integer> featCache = new Hashtable<String,Integer>();
 
@@ -168,6 +178,8 @@ public class OptIO {
     public static Hashtable<String,String[]> readTrainInstCache (String filename,
 							  String delimiter)
 	throws IOException {
+	logger.info("Reading training batches cache [" + filename + "]");
+	
 	String[] lines = getLines(filename);
 	Hashtable<String,String[]> trainInstCache =
 	    new Hashtable<String,String[]>();
@@ -189,6 +201,8 @@ public class OptIO {
 
     public static Hashtable<String,Integer> readUsersCache (String filename)
 	throws IOException {
+	logger.info("Reading users cache [" + filename + "]");
+	
 	String[] lines = getLines(filename);
 	Hashtable<String,Integer> usersCache = new Hashtable<String,Integer>();
 
@@ -202,6 +216,8 @@ public class OptIO {
 
     public static Hashtable<String,Double> readLabelsCache (String filename)
 	throws IOException {
+	logger.info("Reading labels cache [" + filename + "]");
+	
 	String[] lines = getLines(filename);
 	Hashtable<String,Double> labelsCache = new Hashtable<String,Double>();
 
