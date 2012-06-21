@@ -19,7 +19,7 @@ import edu.jhu.jerboa.classification.*;
 import edu.jhu.jerboa.processing.*;
 import edu.jhu.jerboa.util.JerboaProperties;
 import edu.jhu.jerboa.util.FileManager;
-import edu.jhu.jerboa.counting.bloomopt.CacheHelpers;
+import edu.jhu.jerboa.counting.bloomopt.OptIO;
 import edu.jhu.jerboa.counting.bloomopt.DataHelpers;
 
 /**
@@ -125,6 +125,8 @@ public class BloomParamOpt {
 	System.out.println("numBits\tnumElements\tkmax");
 	System.out.println(this.numBits + "\t" + this.numElements + "\t" +
 			   this.kmax);
+
+	// TODO: WRITE OUT
     }
     
     private int[] program (double[][] coeffs) {
@@ -398,17 +400,17 @@ public class BloomParamOpt {
 	  this.users : users -> # of times seen
 	*/
 	logger.info("Writing features cache at " + this.featuresCache);
-	CacheHelpers.writeCache(this.featuresCache, this.features);
+	OptIO.writeCache(this.featuresCache, this.features);
 	
 	logger.info("Writing traning instances cache at " + this.trainInstCache);
-	CacheHelpers.writeTrainFeats(this.trainInstCache, this.trainInst,
+	OptIO.writeTrainFeats(this.trainInstCache, this.trainInst,
 				 this.delimiter);
 	
 	logger.info("Writing users cache at " + this.usersCache);
-	CacheHelpers.writeCache(this.usersCache, this.users);
+	OptIO.writeCache(this.usersCache, this.users);
 	
 	logger.info("Writing labels cache at " + this.labelsCache);
-	CacheHelpers.writeCache(this.labelsCache, this.labels);
+	OptIO.writeCache(this.labelsCache, this.labels);
     }
     
     /**
@@ -422,23 +424,23 @@ public class BloomParamOpt {
     */
     private void readCaches () throws IOException {
 	logger.info("Reading features cache");
-	this.features = CacheHelpers.readFeaturesCache(this.featuresCache);
+	this.features = OptIO.readFeaturesCache(this.featuresCache);
 	logger.info("Features cache read. # of features=" +
 		    this.features.size());
 	
 	logger.info("Reading training batches cache");
-	this.trainInst = CacheHelpers.readTrainInstCache (this.trainInstCache,
+	this.trainInst = OptIO.readTrainInstCache (this.trainInstCache,
 						      this.delimiter);
 	logger.info("Training instances cache read. # of training instances=" +
 		    this.trainInst.size());
 	
 	logger.info("Reading users cache");
-	this.users = CacheHelpers.readUsersCache(this.usersCache);
+	this.users = OptIO.readUsersCache(this.usersCache);
 	logger.info("Users cache read. # of users=" +
 		    this.users.size());
 	
 	logger.info("Reading labels cache");
-	this.labels = CacheHelpers.readLabelsCache(this.labelsCache);
+	this.labels = OptIO.readLabelsCache(this.labelsCache);
 	logger.info("Labels cache read. # of labels=" +
 		    this.labels.size());
     }
