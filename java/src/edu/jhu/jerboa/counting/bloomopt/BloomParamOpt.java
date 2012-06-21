@@ -23,6 +23,8 @@ import edu.jhu.jerboa.counting.bloomopt.CacheHelpers;
 /**
    @author Alex Clemmer <clemmer.alexander@gmail.com>
    @since 2012-5-22
+
+   Optimizes the hash allocation scheme for a Bloom filter.
 */
 public class BloomParamOpt {
     private static Logger logger =
