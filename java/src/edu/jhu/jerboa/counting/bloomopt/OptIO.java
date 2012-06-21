@@ -17,7 +17,84 @@ import edu.jhu.jerboa.util.FileManager;
    much faster. Basically handles structured file IO, assumes the canonical
    structure of data that is imposed by `BloomParamOpt` class.
  */
-public class CacheHelpers {
+public class OptIO {
+    private static final String stdheader = "### BLOOM FILTER PARAMS ###";
+    private static final String optheader =
+	"### OPTIMIZED BLOOM FILTER PARAMS ###";
+    
+    public static void writeParamFile (long numBits, long numElements,
+				       int numHashes,
+				       String filename) throws IOException {
+	BufferedWriter writer = FileManager.getWriter(filename);
+
+	writer.write(stdheader + "\n");
+	writer.write("m\t" + Long.toString(numBits) + "\n");
+	writer.write("n\t" + Long.toString(numElements) + "\n");
+	writer.write("k\t" + Long.toString(numHashes) + "\n");
+
+	writer.flush();
+	writer.close();
+    }
+
+    public static void writeParamFile (long numBits, long numElements, int kmax,
+				       Hashtable<String, Integer> allocations,
+				       Hashtable<String,Double> weights,
+				       String filename) throws IOException {
+	BufferedWriter writer = FileManager.getWriter(filename);
+
+	writer.write(optheader + "\n");
+	writer.write("m\t" + numBits + "\n");
+	writer.write("n\t" + numElements + "\n");
+	writer.write("kmax\t" + kmax + "\n");
+
+	Enumeration<String> e = allocations.keys();
+	while (e.hasMoreElements()) {
+	    String k = e.nextElement();
+	    writer.write(k + "\t" + allocations.get(k) + "\t" +
+			 weights.get(k) + "\n");
+	}
+
+	writer.flush();
+	writer.close();
+    }
+
+    public static Hashtable<String,Object> readParamFile (String filename)
+	throws IOException {
+	BufferedReader reader = FileManager.getReader(filename);
+	Hashtable<String,Object> params = new Hashtable<String,Object>();
+
+	String buffer = reader.readLine();
+	paramLine(params, reader);
+	paramLine(params, reader);
+	paramLine(params, reader);
+	
+	if (buffer.equals(stdheader)) {
+	    return params;
+	} else if (buffer.equals(optheader)) {
+	    Hashtable<String,Object> allocs = new Hashtable<String,Object>();
+	    while (paramLine(allocs, reader))
+		;
+	    params.put("allocations", allocs);
+	    return params;
+	} else {
+	    throw new IllegalArgumentException("Bloom param file not " +
+					       "properly formatted");
+	}
+    }
+
+    private static boolean paramLine(Hashtable<String,Object> params,
+				     BufferedReader reader) throws IOException {
+	String line = reader.readLine();
+
+	if (line == null)
+	    return false;
+	else {
+	    String[] buffarr = line.split("\t");
+	    params.put(buffarr[0], Integer.parseInt(buffarr[1]));
+	    return true;
+	}
+    }
+
     public static void writeTrainFeats (String filename,
 					Hashtable<String,String[]> trainFeats,
 					String delimiter) {
