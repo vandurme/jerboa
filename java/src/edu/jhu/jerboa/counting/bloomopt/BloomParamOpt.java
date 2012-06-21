@@ -97,7 +97,7 @@ public class BloomParamOpt {
 	populateCoreValues();
     }
     
-    public void optimizeAndWO () {
+    public void optimizeAndWO () throws IOException {
 	logger.config("Optimizing Bloom filter with parameters numElements="
 		      + this.numElements + " numBits=" + this.numBits +
 		      " kmax=" + this.kmax);
@@ -126,7 +126,12 @@ public class BloomParamOpt {
 	System.out.println(this.numBits + "\t" + this.numElements + "\t" +
 			   this.kmax);
 
-	// TODO: WRITE OUT
+	OptIO.writeParamFile(this.numBits, this.numElements,
+			     (int) this.kmax,
+			     DataHelpers.allocationsTable(this.features,
+							  this.allocdHashes),
+			     this.weights,
+			     this.outputFilename);
     }
     
     private int[] program (double[][] coeffs) {
@@ -423,23 +428,19 @@ public class BloomParamOpt {
        all of them must be there, or we start over again.
     */
     private void readCaches () throws IOException {
-	logger.info("Reading features cache");
 	this.features = OptIO.readFeaturesCache(this.featuresCache);
 	logger.info("Features cache read. # of features=" +
 		    this.features.size());
 	
-	logger.info("Reading training batches cache");
 	this.trainInst = OptIO.readTrainInstCache (this.trainInstCache,
 						      this.delimiter);
 	logger.info("Training instances cache read. # of training instances=" +
 		    this.trainInst.size());
 	
-	logger.info("Reading users cache");
 	this.users = OptIO.readUsersCache(this.usersCache);
 	logger.info("Users cache read. # of users=" +
 		    this.users.size());
 	
-	logger.info("Reading labels cache");
 	this.labels = OptIO.readLabelsCache(this.labelsCache);
 	logger.info("Labels cache read. # of labels=" +
 		    this.labels.size());
