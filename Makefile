@@ -1,5 +1,5 @@
 JFLAGS = -g
-JAVAC = javac -cp java/src
+JAVAC = javac -sourcepath java/src
 JAR = jar cvf
 JAR_NAME = jerboa.jar
 
@@ -16,7 +16,12 @@ jar: $(CLASSES)
 	$(shell mkdir -p java/dist)
 	$(JAR) java/dist/$(JAR_NAME) -C java/src/ edu
 
-opt-rebar: $(CLASSES)
+OPT_REBAR_SRC = $(shell find java/opt/rebar -name "*.java")
+OPT_REBAR_CLASSES = $(OPT_REBAR_SRC:.java=.class) 
+# you'll need: CLASSPATH = ${CLASSPATH}:${REBAR}/java/lib/protobuf-java-2.4.1.jar:${REBAR}/java/dist/'*'
+opt-rebar: $(OPT_REBAR_CLASSES)
+	$(shell mkdir -p java/dist)
+	$(JAR) java/dist/jerboa-rebar.jar -C java/opt/rebar edu
 
 tags:
 	${RM} TAGS
