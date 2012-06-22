@@ -8,12 +8,14 @@ package edu.jhu.jerboa.counting;
 
 import java.util.Random;
 import java.util.Vector;
+import java.util.Hashtable;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.io.IOException;
 import java.util.BitSet;
 import java.util.logging.Logger;
 
+import edu.jhu.jerboa.counting.bloomopt.OptIO;
 import edu.jhu.jerboa.util.JerboaProperties;
 import edu.jhu.jerboa.util.Hash;
 
@@ -30,6 +32,7 @@ public class BloomFilter implements ICounterContainer {
   private static Logger logger = Logger.getLogger(BloomFilter.class.getName());
   private static final long serialVersionUID = 1L;
 
+  Hashtable<String,Object> paramsFromFile;
   BitSet[] bitSets;
   int numBitSets;
   public long width;
@@ -70,15 +73,30 @@ public class BloomFilter implements ICounterContainer {
      {@code this.optimalNumHashes(this.width,this.numElements)}
   */
   private void initialize () throws Exception {
-    if (width == 0)
-	    width = JerboaProperties.getLong("BloomFilter.width");
-    if (numElements == 0)
-	    numElements = JerboaProperties.getLong("BloomFilter.numElements", width/2);
+    String paramFilename =
+      JerboaProperties.getString("BloomFilter.paramFile", null);
+    if (paramFilename != null) {
+      logger.config("Reading Optimized Bloom filter parameters " +
+                    "from file: " + paramFilename);
+      this.paramsFromFile = OptIO.readParamFile(paramFilename);
+
+      // TODO: Change m and n here to be properties
+      this.width = (Integer) this.paramsFromFile.get("m");
+      this.numElements = (Integer) this.paramsFromFile.get("n");
+    }
+    else {
+      if (width == 0)
+        width = JerboaProperties.getLong("BloomFilter.width");
+      if (numElements == 0)
+        numElements = JerboaProperties.getLong("BloomFilter.numElements",
+                                               width/2);
+    }
 
     logger.config("Constructed BloomFilter: width=" + width
                   + " numHashes=" + numHashes
                   + " numElements=" + numElements);
 	
+    // Don't put more elements in bitset than we can possibly access with int
     numBitSets = (int) (width/(long)Integer.MAX_VALUE) + 1;
     bitSets = new BitSet[numBitSets];
     bitSetWidth = (int) (width / numBitSets);
