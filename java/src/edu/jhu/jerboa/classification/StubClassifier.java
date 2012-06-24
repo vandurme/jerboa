@@ -111,7 +111,7 @@ public class StubClassifier implements IClassifier {
 	    propPrefix = name + "." + propPrefix;
   }
 
-    public Hashtable<String,Double> getWeights () { return null; }
+    public Hashtable[] getWeights () { return null; }
 
 
   public void readState() throws IOException {}

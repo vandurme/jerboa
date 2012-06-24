@@ -227,8 +227,8 @@ public class Logistic implements IClassifier {
     in.close();
   }
 
-    public Hashtable<String,Double> getWeights () {
-	return this.weights;
+    public Hashtable[] getWeights () {
+      return new Hashtable[] {this.weights};
     }
 
   /** Not supported */
