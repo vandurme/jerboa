@@ -9,7 +9,7 @@ FILE=$2
 shift
 shift
 
-java -cp ${ROOT}/java/dist/jerboa.jar \
+java -cp ${ROOT}/java/dist/*: \
     -DJerboaProperties.filename=${FILE} \
     -Djava.util.logging.config.file=${ROOT}/java/config/logging.properties \
     $* \
