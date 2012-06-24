@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.util.BitSet;
 import java.util.logging.Logger;
 
-import edu.jhu.jerboa.counting.bloomopt.OptIO;
 import edu.jhu.jerboa.util.JerboaProperties;
 import edu.jhu.jerboa.util.Hash;
 
@@ -73,24 +72,15 @@ public class BloomFilter implements ICounterContainer {
      {@code this.optimalNumHashes(this.width,this.numElements)}
   */
   private void initialize () throws Exception {
-    String paramFilename =
-      JerboaProperties.getString("BloomFilter.paramFile", null);
-    if (paramFilename != null) {
-      logger.config("Reading Optimized Bloom filter parameters " +
-                    "from file: " + paramFilename);
-      this.paramsFromFile = OptIO.readParamFile(paramFilename);
-
-      // TODO: Change m and n here to be properties
-      this.width = (Integer) this.paramsFromFile.get("m");
-      this.numElements = (Integer) this.paramsFromFile.get("n");
+    if (JerboaProperties.getString("BloomFilter.optParamFile", null) != null) {
+      return;
     }
-    else {
-      if (width == 0)
-        width = JerboaProperties.getLong("BloomFilter.width");
-      if (numElements == 0)
-        numElements = JerboaProperties.getLong("BloomFilter.numElements",
-                                               width/2);
-    }
+    
+    if (width == 0)
+      width = JerboaProperties.getLong("BloomFilter.width");
+    if (numElements == 0)
+      numElements = JerboaProperties.getLong("BloomFilter.numElements",
+                                             width/2);
 
     logger.config("Constructed BloomFilter: width=" + width
                   + " numHashes=" + numHashes
