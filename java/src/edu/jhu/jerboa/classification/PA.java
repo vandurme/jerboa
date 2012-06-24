@@ -575,6 +575,14 @@ public class PA implements IClassifier {
   }
 
   /**
+     Returns the weight vector. Calling this before or during the training
+     will result in an incomplete weight vector.
+   */
+  public Hashtable<String,Double> getWeights () {
+    return this.weights;
+  }
+
+  /**
      Configures a PA object as per its inclusion in a larger pipeline, but
      then runs a train or test without the larger infrastructure.
 
