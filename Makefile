@@ -1,4 +1,4 @@
-JFLAGS = -g
+JFLAGS = -g -cp java/dist/*:
 JAVAC = javac -sourcepath java/src
 JAR = jar cvf
 JAR_NAME = jerboa.jar
@@ -22,6 +22,13 @@ OPT_REBAR_CLASSES = $(OPT_REBAR_SRC:.java=.class)
 opt-rebar: $(OPT_REBAR_CLASSES)
 	$(shell mkdir -p java/dist)
 	$(JAR) java/dist/jerboa-rebar.jar -C java/opt/rebar edu
+
+OPT_BFOPTIMIZE_SRC = $(shell find java/opt/bfoptimize -name "*.java")
+OPT_BFOPTIMIZE_CLASSES = $(OPT_BFOPTIMIZE_SRC:.java=.class)
+# this library has a dependency on CPLEX and its ILOG Java interface
+opt-bfoptimize: $(OPT_BFOPTIMIZE_CLASSES)
+	$(shell mkdir -p java/dist)
+	$(JAR) java/dist/jerboa-bfoptimize.jar -C java/opt/bfoptimize edu
 
 tags:
 	${RM} TAGS
