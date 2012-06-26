@@ -16,23 +16,17 @@ jar: $(CLASSES)
 	$(shell mkdir -p java/dist)
 	$(JAR) java/dist/$(JAR_NAME) -C java/src/ edu
 
-OPT_REBAR_SRC = $(shell find java/opt/rebar -name "*.java")
-OPT_REBAR_CLASSES = $(OPT_REBAR_SRC:.java=.class) 
-# you'll need: CLASSPATH = ${CLASSPATH}:${REBAR}/java/lib/protobuf-java-2.4.1.jar:${REBAR}/java/dist/'*'
-opt-rebar: $(OPT_REBAR_CLASSES)
-	$(shell mkdir -p java/dist)
-	$(JAR) java/dist/jerboa-rebar.jar -C java/opt/rebar edu
+rebar:
+	$(MAKE) -C java/opt/rebar
 
-OPT_BFOPTIMIZE_SRC = $(shell find java/opt/bfoptimize -name "*.java")
-OPT_BFOPTIMIZE_CLASSES = $(OPT_BFOPTIMIZE_SRC:.java=.class)
-# this library has a dependency on CPLEX and its ILOG Java interface
-opt-bfoptimize: $(OPT_BFOPTIMIZE_CLASSES)
-	$(shell mkdir -p java/dist)
-	$(JAR) java/dist/jerboa-bfoptimize.jar -C java/opt/bfoptimize edu
+bfoptimize:
+	$(MAKE) -C java/opt/bfoptimize
 
 tags:
 	${RM} TAGS
 	`find java/src -name "*.java" | xargs etags -a`
 
 clean:
+	$(MAKE) -C java/opt/rebar clean
+	$(MAKE) -C java/opt/bfoptimize clean
 	$(RM) $(ALL_CLASSES) $(JAR_NAME)
