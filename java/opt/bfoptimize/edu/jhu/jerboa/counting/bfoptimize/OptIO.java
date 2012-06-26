@@ -1,4 +1,4 @@
-package edu.jhu.jerboa.counting.bloomopt;
+package edu.jhu.jerboa.counting.bfoptimize;
 
 import java.util.Hashtable;
 import java.util.Enumeration;

@@ -6,6 +6,8 @@ import java.util.logging.Logger;
 
 import edu.jhu.jerboa.util.JerboaProperties;
 import edu.jhu.jerboa.util.Hash;
+import edu.jhu.jerboa.counting.BloomFilter;
+import edu.jhu.jerboa.counting.bfoptimize.OptIO;
 
 /**
    Importance-sensitive Bloom filter. Optimized specifically so that the
@@ -33,10 +35,35 @@ public class OptBloomFilter extends BloomFilter {
   }
 
   private void initialize () throws Exception {
-    if (JerboaProperties.getString("BloomFilter.paramFile", null) == null)
+    String optParamFilename =
+      JerboaProperties.getString("BloomFilter.optParamFile", null);
+    if (optParamFilename == null)
 	    throw new RuntimeException("Must set BloomFilter.paramFile " +
                                  "to use OptBloomFilter");
-	
+    
+    
+    logger.config("Reading Optimized Bloom filter parameters " +
+                  "from file: " + optParamFilename);
+    this.paramsFromFile = OptIO.readParamFile(optParamFilename);
+
+    // TODO: Change m and n here to be properties
+    this.width = (Integer) this.paramsFromFile.get("m");
+    this.numElements = (Integer) this.paramsFromFile.get("n");
+    	
+    /* THIS IS COPY-PASTED FROM BloomFilter.java */
+    // Don't put more elements in bitset than we can possibly access with int
+    numBitSets = (int) (width/(long)Integer.MAX_VALUE) + 1;
+    bitSets = new BitSet[numBitSets];
+    bitSetWidth = (int) (width / numBitSets);
+    for (int i = 0; i < bitSets.length; i++)
+	    bitSets[i] = new BitSet(bitSetWidth);
+    if (numHashes == 0)
+	    numHashes = JerboaProperties.getInt("BloomFilter.numHashes",
+                                          optimalNumHashes(width,numElements));
+    salts = Hash.generateSalts(numHashes);
+    bitSetSalt = Hash.generateSalts(1)[0];
+    /* END COPY-PASTED OF BloomFilter.java */
+    
     this.allocations = (Hashtable<String,Integer>)
       this.paramsFromFile.get("allocations");
     this.kmax = (Integer) this.paramsFromFile.get("kmax");

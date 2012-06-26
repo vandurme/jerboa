@@ -575,6 +575,23 @@ public class PA implements IClassifier {
   }
 
   /**
+     Returns the weight vector. Calling this before or during the training
+     will result in an incomplete weight vector.
+     
+     Outputs Hashtable<String,Double>[], but thanks to Java's type erasure
+     we can't specify this in the method signature specifically. Life is pain.
+     
+     This passes back an array of size 1. This is because Java's type erasure
+     causes it to be unable to distinguish between Object[] and Object at
+     runtime, causing it to see a method that returns the first as the same
+     as the second. Practically, this means we can't have a method that
+     returns one *and* a method that returns the other.
+   */
+  public Hashtable[] getWeights () {
+    return new Hashtable[] {this.weights};
+  }
+
+  /**
      Configures a PA object as per its inclusion in a larger pipeline, but
      then runs a train or test without the larger infrastructure.
 

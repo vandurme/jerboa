@@ -1,4 +1,4 @@
-package edu.jhu.jerboa.counting.bloomopt;
+package edu.jhu.jerboa.counting.bfoptimize;
 
 import java.util.logging.Logger;
 import java.util.Hashtable;
@@ -19,8 +19,8 @@ import edu.jhu.jerboa.classification.*;
 import edu.jhu.jerboa.processing.*;
 import edu.jhu.jerboa.util.JerboaProperties;
 import edu.jhu.jerboa.util.FileManager;
-import edu.jhu.jerboa.counting.bloomopt.OptIO;
-import edu.jhu.jerboa.counting.bloomopt.DataHelpers;
+import edu.jhu.jerboa.counting.bfoptimize.OptIO;
+import edu.jhu.jerboa.counting.bfoptimize.DataHelpers;
 
 /**
    @author Alex Clemmer <clemmer.alexander@gmail.com>
@@ -457,7 +457,7 @@ public class BloomParamOpt {
     classifier.initialize();
     classifier.readState();
 
-    return classifier.getWeights();
+    return classifier.getWeights()[0];
   }
 
   /**
