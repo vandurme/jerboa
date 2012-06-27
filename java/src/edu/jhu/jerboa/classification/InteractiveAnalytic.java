@@ -43,7 +43,7 @@ public class InteractiveAnalytic {
 
 	System.out.print("> ");
 	while ((line = in.readLine()) != null) {
-	    data.put("content", Tokenizer.tokenize(line,Tokenization.PTB));
+	    data.put("content", Tokenizer.tokenize(line,TokenizationKind.PTB));
 	    analytic.update(states, analytic.processData(data));
 	    System.out.print(analytic.report(states));
 	    System.out.print("> ");

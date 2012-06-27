@@ -26,7 +26,7 @@ public class YarowskyLineParser implements ILineParser {
   Hashtable<String,Boolean> classPolarity;
   boolean caseSensitive, ignoreAttribute;
   ClassifierForm form;
-  Tokenization tokenization;
+  TokenizationKind tokenization;
 
   /**
      propPrefix: YarowskyLineParser
@@ -39,7 +39,7 @@ public class YarowskyLineParser implements ILineParser {
      classLabels : (String), when classifier form is BINARY, then the first label will be treated +1, and the second -1
      ignoreAttribute : (Boolean) if true, will not look for an attribute in the message
 
-     tokenization : (Tokenization) defaults to PTB
+     tokenization : (TokenizationKind) defaults to PTB
   */
   public YarowskyLineParser () throws Exception {
     caseSensitive = JerboaProperties.getBoolean("YarowskyLineParser.caseSensitive", true);
@@ -55,7 +55,7 @@ public class YarowskyLineParser implements ILineParser {
 	    classPolarity.put(classLabels[0].toLowerCase(),true);
 	    classPolarity.put(classLabels[1].toLowerCase(),false);
     }
-    tokenization = Tokenization.valueOf(JerboaProperties.getString("YarowskyLineParser.tokenization", "PTB"));
+    tokenization = TokenizationKind.valueOf(JerboaProperties.getString("YarowskyLineParser.tokenization", "PTB"));
   }
 
   /**

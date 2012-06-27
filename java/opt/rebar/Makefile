@@ -1,5 +1,6 @@
 REBAR = ~bvandurme/rebar/java
 #JFLAGS = -g -sourcepath . -cp ../../dist/jerboa.jar:$(REBAR)/dist/scale.jar:$(REBAR)/dist/rebar-protobuf.jar:$(REBAR)/lib/protobuf-java-2.4.1.jar
+JFLAGS = -g -sourcepath . -cp $(REBAR)/dist/scale.jar:../../dist/jerboa.jar:$(REBAR)/dist/rebar-protobuf.jar:$(REBAR)/lib/protobuf-java-2.4.1.jar
 JAVAC = javac
 JAR = jar cvf
 JAR_NAME = ../../dist/jerboa-rebar.jar

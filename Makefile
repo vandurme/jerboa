@@ -1,7 +1,7 @@
 JFLAGS = -g -cp java/dist/*:
 JAVAC = javac -sourcepath java/src
 JAR = jar cvf
-JAR_NAME = jerboa.jar
+JAR_NAME = java/dist/jerboa.jar
 
 .SUFFIXES: .java .class
 .java.class:
@@ -14,7 +14,7 @@ ALL_CLASSES = `find java/src -name "*.class"`
 
 jar: $(CLASSES)
 	$(shell mkdir -p java/dist)
-	$(JAR) java/dist/$(JAR_NAME) -C java/src/ edu
+	$(JAR) $(JAR_NAME) -C java/src/ edu
 
 rebar:
 	$(MAKE) -C java/opt/rebar

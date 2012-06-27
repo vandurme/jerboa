@@ -5,4 +5,4 @@
 package edu.jhu.jerboa.processing;
 
 /** @author Benjamin Van Durme */
-public enum Tokenization { PTB, WHITESPACE, TWITTER_TDT, TWITTER, BASIC };
+public enum TokenizationKind { PTB, WHITESPACE, TWITTER_TDT, TWITTER, BASIC };

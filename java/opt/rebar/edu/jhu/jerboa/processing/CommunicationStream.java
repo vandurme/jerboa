@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Logger;
 
 import edu.jhu.jerboa.util.*;
 
@@ -32,10 +33,12 @@ import edu.jhu.hltcoe.rebar.data.access.protobuf.Knowledge.*;
    @author Benjamin Van Durme
 */
 public class CommunicationStream implements IStream {
+  private static Logger logger = Logger.getLogger(CommunicationStream.class.getName());
   private static String[] stringArr = new String[0];
   private Map<ParticipantRef,Vertex> participantMap;
   private Iterator<Communication> commIter;
   private String propPrefix = "CommunicationStream";
+  private ICommunicationParser commParser;
 
   public CommunicationStream () throws Exception {
     Corpus corpus = Corpus.Factory.getCorpus(JerboaProperties.getString(propPrefix + ".corpus"));
@@ -53,26 +56,20 @@ public class CommunicationStream implements IStream {
                               JerboaProperties.getString(propPrefix + ".kbStage"));
     participantMap = corpus.getParticipantVertexMap(kbStage, CorpusSubset.ALL);
     commIter = corpus.getCommunications(commStage, commIds);
+
+    String name = JerboaProperties.getString(propPrefix + ".commParser");
+    logger.info("Creating instance of [" + name + "]");
+    Class c = Class.forName(name);
+    commParser = (ICommunicationParser) c.newInstance();
   }
 
   public int getLength() { return 0; }
-  public boolean hasNext() { return true; }
+  public boolean hasNext() { return commParser.hasNext() || commIter.hasNext(); }
 
-  /**
-     Result includes:
-     "communication" : (Communication) communication object
-     "participantMap" : (Map<ParticipantRef,Vertex>) global map for
-                      linking participants in the communication to
-                      the participants and their information
-  */
   public Hashtable<String,Object> next () throws Exception {
-    Communication c = commIter.next();
-    Hashtable<String,Object> h = new Hashtable();
-
-    h.put("communication",c);
-    h.put("participantMap",participantMap);
-
-    return h;
+    if (!commParser.hasNext())
+      commParser.parse(commIter.next(),participantMap);
+    return commParser.next();
   }
 }
 
