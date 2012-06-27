@@ -92,11 +92,11 @@ public class YarowskyLineParser implements ILineParser {
      "label" : String, the class label, if not binary
      "content" : String[], tokenized content
 
-     "communicant" : String, a unique ID identifying the communicant, possible shared across multiple communications
+     "key" : String, a unique ID identifying the communicant, possible shared across multiple communications
 
      label is derived from the field specified by the property "attributeField"
 
-     communicant is set by the "communicantField" property (e.g., "communicant", "recipient", ...)
+     key is set by the "communicantField" property (e.g., "communicant", "recipient", ...)
 
      content comes from everything between the begin and end of message, with newlines removed.
 
@@ -124,7 +124,7 @@ public class YarowskyLineParser implements ILineParser {
           else
             h.put("label",fieldPair[1]);
         } else if (fieldPair[0].equals(communicantField)) {
-          h.put("communicant",fieldPair[1]);
+          h.put("key",fieldPair[1]);
         }
 	    }
 	    String content = "";
