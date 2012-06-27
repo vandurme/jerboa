@@ -90,7 +90,7 @@ public class YarowskyLineParser implements ILineParser {
      "label" : {1,-1}, if binary (positive, negative determined by order of the property: classLabels)
      or
      "label" : String, the class label, if not binary
-     "content" : String[], content tokenized on whitespace
+     "content" : String[], tokenized content
 
      "communicant" : String, a unique ID identifying the communicant, possible shared across multiple communications
 
