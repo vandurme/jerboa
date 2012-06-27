@@ -95,7 +95,7 @@ public class NGram extends Feature {
      if non-binary, will insert a field called propPrefix + ".norm", that is
      a rolling normalization constant.
   */
-  public Hashtable<String,Object> run(Hashtable<String,Object> data) {
+  public Hashtable<String,Object> run(Hashtable<String,Object> data) throws Exception {
     Hashtable<String,Double> instance = new Hashtable();
     Hashtable<String,Object> stateMessage = new Hashtable();
 

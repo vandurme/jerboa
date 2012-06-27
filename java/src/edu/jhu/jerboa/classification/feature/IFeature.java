@@ -44,7 +44,7 @@ public interface IFeature {
   /**
      Return a message of key:value pairs representing whatever information is needed for updating state
   */
-  public Hashtable<String,Object> run (Hashtable<String,Object> data);
+  public Hashtable<String,Object> run (Hashtable<String,Object> data) throws Exception;
     
   public void update(ClassifierState state, Hashtable<String,Object> stateMessage);
 
