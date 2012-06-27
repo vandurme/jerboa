@@ -387,7 +387,7 @@ public class Tokenizer {
   }
 
 
-  public static String[] tokenize (String text, Tokenization type) throws IOException {
+  public static String[] tokenize (String text, TokenizationKind type) throws IOException {
     switch (type) {
     case PTB:
       return rewrite(text,ptbPatterns).split("\\s+");
@@ -414,7 +414,7 @@ public class Tokenizer {
     boolean test = JerboaProperties.getBoolean("Tokenizer.test",false);
 
     while ((line = reader.readLine()) != null) {
-      tokens = tokenize(line, Tokenization.valueOf(args[0]));
+      tokens = tokenize(line, TokenizationKind.valueOf(args[0]));
       if (tokens.length > 0) {
         if (test)
           System.out.println(line);
