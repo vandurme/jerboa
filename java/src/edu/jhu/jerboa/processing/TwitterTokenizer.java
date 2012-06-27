@@ -341,7 +341,7 @@ public class TwitterTokenizer {
 
     SimpleImmutableEntry<String,String>[] x
       = recursiveTokenize(text.trim(),
-                          patterns, 0, Tokenization.BASIC);
+                          patterns, 0, TokenizationKind.BASIC);
  
     String[][] y = new String[3][];
     y[0] = new String[x.length];
@@ -360,10 +360,10 @@ public class TwitterTokenizer {
   }
 
   public static String[] tokenizeTweet (String text) throws IOException {
-    return tokenizeTweet(text, Tokenization.BASIC);
+    return tokenizeTweet(text, TokenizationKind.BASIC);
   }
 
-  public static String[] tokenizeTweet (String text, Tokenization tokenization) throws IOException {
+  public static String[] tokenizeTweet (String text, TokenizationKind tokenization) throws IOException {
     if (patterns == null)
       initializePatterns();
 
@@ -404,7 +404,7 @@ public class TwitterTokenizer {
   private static SimpleImmutableEntry<String,String>[] recursiveTokenize (String text,
                                                                           SimpleImmutableEntry<Pattern,String>[] patterns,
                                                                           int index,
-                                                                          Tokenization tokenization) throws IOException {
+                                                                          TokenizationKind tokenization) throws IOException {
     if (index < patterns.length) {
       Pattern pattern = patterns[index].getKey();
       String tag = patterns[index].getValue();
