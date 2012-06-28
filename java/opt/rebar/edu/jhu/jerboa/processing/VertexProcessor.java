@@ -29,17 +29,20 @@ public class VertexProcessor {
   InvocationTargetException {
     // Buckle up. This is going to get ugly quick.
     
-    Class attrClass =
-      Class.forName("edu.jhu.hltcoe.rebar.data.access.protobuf.Knowledge$" +
-                    this.labelAttr + "Attribute");
-    
     PersonInfo pi = v.getPersonInfo();
 
     Method m1 = pi.getClass().getMethod("get" + this.labelAttr + "List");
     List attributeList = (List) m1.invoke(pi, new Object[0]);
     
-    Object attribute = (GenderAttribute) attributeList.get(this.attrIdx);
+    Object attribute = attributeList.get(this.attrIdx);
 
+    // `attribute` is of object type, so calling this method will definitely
+    // result in an exception. Thus, we must find the name of attribute's class,
+    // and call the method on that class instead. It's a dynamic typecast: the
+    // class could be anything at runtime.
+    Class attrClass =
+      Class.forName("edu.jhu.hltcoe.rebar.data.access.protobuf.Knowledge$" +
+                    this.labelAttr + "Attribute");
     Method m = attrClass.getMethod("get" + this.labelAttr);
     String label = m.invoke(attribute, new Object[0]).toString();
     return label;
