@@ -55,13 +55,14 @@ public class MessageSenderParser implements ICommunicationParser {
   Hashtable<String,Boolean> classPolarity;
   ClassifierForm form;
   String propPrefix = "MessageSenderParser";
-	String[] classLabels;
   VertexProcessor processor;
 
   public MessageSenderParser () throws Exception {
     form = ClassifierForm.valueOf(JerboaProperties.getString(propPrefix + "classifierForm","BINARY"));
     if (form == ClassifierForm.BINARY) {
-	    this.classLabels = JerboaProperties.getStrings(propPrefix + ".classLabels",new String[] {"1","-1"});
+	    String[] classLabels =JerboaProperties.getStrings(propPrefix +
+                                                        ".classLabels",
+                                                        new String[] {"1","-1"});
 	    if (classLabels.length != 2)
         throw new Exception("When binary, requires that there are just 2 classLabels, not [" + classLabels.length + "]");
 	    classPolarity = new Hashtable();
@@ -99,8 +100,7 @@ public class MessageSenderParser implements ICommunicationParser {
     //String label = participantMap.get(m.getSender()).getPersonInfo().
     //getGenderList().get(0).getGender().toString();
     if (form == ClassifierForm.BINARY)
-      h.put("label",classPolarity.get(label.toLowerCase()) ?
-            this.classLabels[0] : this.classLabels[1]);
+      h.put("label",classPolarity.get(label.toLowerCase()) ? 1.0 : -1.0);
     else if (form == ClassifierForm.REGRESSION)
       h.put("label",Double.parseDouble(label));
     else
