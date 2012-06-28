@@ -56,9 +56,7 @@ public class MessageSenderParser implements ICommunicationParser {
   ClassifierForm form;
   String propPrefix = "MessageSenderParser";
 	String[] classLabels;
-  String labelAttr;
-
-  //Clemmer clemmer;
+  VertexProcessing processor;
 
   public MessageSenderParser () throws Exception {
     form = ClassifierForm.valueOf(JerboaProperties.getString(propPrefix + "classifierForm","BINARY"));
@@ -71,12 +69,7 @@ public class MessageSenderParser implements ICommunicationParser {
 	    classPolarity.put(classLabels[1].toLowerCase(),false);
     }
 
-    char[] tmpAttr = JerboaProperties.getString(propPrefix + ".labelAttribute")
-      .toLowerCase().toCharArray();
-    tmpAttr[0] = Character.toUpperCase(tmpAttr[0]);
-    this.labelAttr = new String(tmpAttr);
-    // TODO Alex replaces this
-    //clemmer = new Clemmer();
+    this.processor = new VertexProcessing();
   }
 
   public void parse (Communication comm, Map<ParticipantRef,Vertex> participantMap) {
@@ -92,7 +85,7 @@ public class MessageSenderParser implements ICommunicationParser {
     return messageIter.hasNext();
   }
 
-  public Hashtable<String,Object> next () {
+  public Hashtable<String,Object> next () throws Exception {
     if (messageIter == null)
       return null;
 
@@ -102,8 +95,7 @@ public class MessageSenderParser implements ICommunicationParser {
     h.put("participants",participants);
     h.put("participantMap",participantMap);
     h.put("key", m.getSender().getCommunicationId());
-    String label = VertexProcessing.getLabel(participantMap.get(m.getSender()),
-                                             this.labelAttr);
+    String label = processor.getLabel(participantMap.get(m.getSender()));
     //String label = participantMap.get(m.getSender()).getPersonInfo().
     //getGenderList().get(0).getGender().toString();
     if (form == ClassifierForm.BINARY)
