@@ -56,6 +56,7 @@ public class MessageSenderParser implements ICommunicationParser {
   ClassifierForm form;
   String propPrefix = "MessageSenderParser";
 	String[] classLabels;
+  String labelAttr;
 
   //Clemmer clemmer;
 
@@ -70,6 +71,10 @@ public class MessageSenderParser implements ICommunicationParser {
 	    classPolarity.put(classLabels[1].toLowerCase(),false);
     }
 
+    char[] tmpAttr = JerboaProperties.getString(propPrefix + ".labelAttribute")
+      .toLowerCase().toCharArray();
+    tmpAttr[0] = Character.toUpperCase(tmpAttr[0]);
+    this.labelAttr = new String(tmpAttr);
     // TODO Alex replaces this
     //clemmer = new Clemmer();
   }
@@ -97,14 +102,13 @@ public class MessageSenderParser implements ICommunicationParser {
     h.put("participants",participants);
     h.put("participantMap",participantMap);
     h.put("key", m.getSender().getCommunicationId());
-    //h.put("label", clemmer.getLabel(message.getSender()));
-    //h.put("label", VertexProcessing.getLabel(message.getSender()));
-    String label = participantMap.get(m.getSender()).getPersonInfo().
-      getGenderList().get(0).getGender().toString();
-    if (form == ClassifierForm.BINARY) {
+    String label = VertexProcessing.getLabel(participantMap.get(m.getSender()),
+                                             this.labelAttr);
+    //String label = participantMap.get(m.getSender()).getPersonInfo().
+    //getGenderList().get(0).getGender().toString();
+    if (form == ClassifierForm.BINARY)
       h.put("label",classPolarity.get(label.toLowerCase()) ?
             this.classLabels[0] : this.classLabels[1]);
-    }
     else if (form == ClassifierForm.REGRESSION)
       h.put("label",Double.parseDouble(label));
     else
