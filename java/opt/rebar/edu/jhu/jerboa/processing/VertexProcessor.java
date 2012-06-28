@@ -7,14 +7,14 @@ import java.lang.reflect.*;
 import edu.jhu.hltcoe.rebar.data.access.protobuf.Knowledge.*;
 import edu.jhu.jerboa.util.JerboaProperties;
 
-public class VertexProcessing {
+public class VertexProcessor {
   String propPrefix;
   
   String labelAttr;
   int attrIdx;
 
-  public VertexProcessing () throws IOException {
-    this.propPrefix = "VertexProcessing";
+  public VertexProcessor () throws IOException {
+    this.propPrefix = "VertexProcessor";
     
     char[] tmpAttr = JerboaProperties.getString(this.propPrefix +
                                                 ".labelAttribute").toCharArray();

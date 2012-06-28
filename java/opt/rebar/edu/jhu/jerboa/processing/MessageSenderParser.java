@@ -20,7 +20,7 @@ import java.util.Map.Entry;
 
 import edu.jhu.jerboa.util.*;
 import edu.jhu.jerboa.classification.ClassifierForm;
-import edu.jhu.jerboa.processing.VertexProcessing;
+import edu.jhu.jerboa.processing.VertexProcessor;
 
 
 import edu.jhu.hltcoe.rebar.data.access.Corpus;
@@ -56,7 +56,7 @@ public class MessageSenderParser implements ICommunicationParser {
   ClassifierForm form;
   String propPrefix = "MessageSenderParser";
 	String[] classLabels;
-  VertexProcessing processor;
+  VertexProcessor processor;
 
   public MessageSenderParser () throws Exception {
     form = ClassifierForm.valueOf(JerboaProperties.getString(propPrefix + "classifierForm","BINARY"));
@@ -69,7 +69,7 @@ public class MessageSenderParser implements ICommunicationParser {
 	    classPolarity.put(classLabels[1].toLowerCase(),false);
     }
 
-    this.processor = new VertexProcessing();
+    this.processor = new VertexProcessor();
   }
 
   public void parse (Communication comm, Map<ParticipantRef,Vertex> participantMap) {
