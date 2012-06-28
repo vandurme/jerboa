@@ -1,0 +1,3 @@
+vandurme: property files and scripts for building analytics under the HLTCOE Rebar framework, first created/used for HLTCOE SCALE 12
+
+Contained within these property files are an example workflow.  You should copy these files to someplace new, per experiment, and modify them as needed.
