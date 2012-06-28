@@ -42,7 +42,6 @@ public class VertexProcessing {
 
     Method m = attrClass.getMethod("get" + this.labelAttr);
     String label = m.invoke(attribute, new Object[0]).toString();
-    System.out.println(label);
     return label;
   }
 }
