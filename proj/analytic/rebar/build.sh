@@ -77,8 +77,8 @@ case $TYPE in
 	      echo "--------------------"
 	      echo "Training model with liblinear"
 	      echo ""
-	      echo "${ROOT}/proj/analytic/train-liblinear.sh ${ROOT} ${BUILD}/train.instances ${BUILD}/model.logistic"
-	      ${ROOT}/proj/analytic/train-liblinear.sh ${ROOT} ${BUILD}/train.instances ${BUILD}/model.logistic
+	      echo "${SRC}/train-liblinear.sh ${ROOT} ${BUILD}/train.instances ${BUILD}/model.logistic"
+	      ${SRC}/train-liblinear.sh ${ROOT} ${BUILD}/train.instances ${BUILD}/model.logistic
 	      TEST=test.logistic.properties
 	      ;;
 
@@ -108,7 +108,7 @@ case $TYPE in
 	      ;;
 esac
 
-${ROOT}/src/scripts/align-logistic-model-features.pl ${BUILD}/model.logistic ${BUILD}/feature-map.tsv | sort -k2 -t'	' -gr > ${BUILD}/feature-weights.tsv
+${SRC}/align-logistic-model-features.pl ${BUILD}/model.logistic ${BUILD}/feature-map.tsv | sort -k2 -t'	' -gr > ${BUILD}/feature-weights.tsv
 
 echo "--------------------"
 echo "--------------------"
