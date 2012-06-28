@@ -21,9 +21,9 @@ import edu.jhu.hltcoe.rebar.data.access.protobuf.Knowledge.*;
 */
 public interface ICommunicationParser {
 
-  public void parse (Communication comm, Map<ParticipantRef,Vertex> participantMap);
+  public void parse (Communication comm, Map<ParticipantRef,Vertex> participantMap) throws Exception;
 
   public boolean hasNext();
   
-  public Hashtable<String,Object> next();
+  public Hashtable<String,Object> next() throws Exception;
 }
