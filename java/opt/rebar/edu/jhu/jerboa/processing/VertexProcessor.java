@@ -117,7 +117,7 @@ public class VertexProcessor {
     // and call the method on that class instead. It's a dynamic typecast: the
     // class could be anything at runtime.
     Method m3 = attrClass.getMethod("get" + this.labelAttr);
-    String label = m3.invoke(attribute, new Object[0]).toString();
+    String label = String.valueOf(m3.invoke(attribute, new Object[0]));
     return label;
   }
 }
