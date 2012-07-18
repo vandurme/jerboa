@@ -137,6 +137,8 @@ public class Tokenizer {
     
     // cut-n-paste, then modified from getPTBPatterns
     String[] v = {
+      "\"", " \" ",
+
       // Ellipsis
       "\\.\\.\\.", " ... ",
 
