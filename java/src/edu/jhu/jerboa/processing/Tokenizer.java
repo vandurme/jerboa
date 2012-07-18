@@ -145,6 +145,9 @@ public class Tokenizer {
 
       "([,;:@#$%&\\*])", " $1 ",
 
+      // HTML escaped (stop gap)
+      "& ([gl])t ;", "&$1t;",
+
       // vandurme: carefully with final .
       "([^\\.])(\\.)(\\s|$)", "$1 $2$3",
 
