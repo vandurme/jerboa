@@ -134,7 +134,7 @@ public class TwitterTokenizer {
     String nose = "[\\-oO\\*\\']";
     // * can be a nose: :*)
     //   or a mouth, for "kisses" : :*
-    String mouth = "[\\*\\)\\]\\(\\[$sSdDpP/\\:\\}\\{@\\|\\\\]";
+    String mouth = "[\\*\\)\\]\\(\\[$sSdDpP/\\}\\{@\\|\\\\]";
 
     return getPairs(START + "((" +
                     eyebrows + "?" + eyes + nose + "?" + mouth + "+"
