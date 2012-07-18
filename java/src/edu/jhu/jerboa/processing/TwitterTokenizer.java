@@ -3,7 +3,6 @@
 // See jerboa/LICENSE, or http://cs.jhu.edu/~vandurme/jerboa/LICENSE
 
 // Benjamin Van Durme, vandurme@cs.jhu.edu, 14 May 2012
-// Time-stamp: <>
 
 package edu.jhu.jerboa.processing;
 
@@ -137,17 +136,17 @@ public class TwitterTokenizer {
     //   or a mouth, for "kisses" : :*
     String mouth = "[\\*\\)\\]\\(\\[$sSdDpP/\\:\\}\\{@\\|\\\\]";
 
-    return getPairs(START + "(" +
+    return getPairs(START + "((" +
                     eyebrows + "?" + eyes + nose + "?" + mouth + "+"
                     + ")|(" +
                     // reverse
                     mouth + "+" + nose + "?" + eyes + eyebrows + "?"
-                    + ")" + END,
+                    + "))" + END,
                     "WEST_EMOTICON");
   }
 
   static SimpleImmutableEntry<Pattern,String>[] getEasternEmoticonPatterns () {
-    return getPairs(START + "(-_-|^_^|=_=|^\\.^|>_<|\\*-\\*|\\*_\\*)" + END,
+    return getPairs(START + "((-_-)|(^_^)|(=_=)|(^\\.^)|(>_<)|(\\*-\\*)|(\\*_\\*))" + END,
                     "EAST_EMOTICON");
   }
 
@@ -179,7 +178,7 @@ public class TwitterTokenizer {
 
   public static SimpleImmutableEntry<Pattern,String>[] getHeartPatterns () {
     // grabbed from twokenize
-    return getPairs(START + "(<|&lt)+/?3+" + END, "HEART");
+    return getPairs(START + "((<)|(&lt))+/?3+" + END, "HEART");
   }
 
   public static SimpleImmutableEntry<Pattern,String>[] getHashtagPatterns () {
@@ -192,13 +191,13 @@ public class TwitterTokenizer {
   public static SimpleImmutableEntry<Pattern,String>[] getLeftArrowPatterns () {
     // twokenize: """(<*[-=]*>+|<+[-=]*>*)"""
     // this is more conservative
-    return getPairs("((<|&lt)+[-=]+)" + END, "LEFT_ARROW");
+    return getPairs("((<|(&lt))+[-=]+)" + END, "LEFT_ARROW");
   }
 
   public static SimpleImmutableEntry<Pattern,String>[] getRightArrowPatterns () {
     // twokenize: """(<*[-=]*>+|<+[-=]*>*)"""
     // this is more conservative
-    return getPairs(START + "([-=]+(>|&gt)+)", "RIGHT_ARROW");
+    return getPairs(START + "([-=]+(>|(&gt))+)", "RIGHT_ARROW");
   }
 
   /**
