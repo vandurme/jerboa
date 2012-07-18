@@ -181,6 +181,11 @@ public class TwitterTokenizer {
     return getPairs(START + "((<)|(&lt))+/?3+" + END, "HEART");
   }
 
+  public static SimpleImmutableEntry<Pattern,String>[] getMiscEmoticonPatterns () {
+    return getPairs(START + "((\\\\m/)|(\\\\o/))" + END, "MISC_EMOTICON");
+  }
+
+
   public static SimpleImmutableEntry<Pattern,String>[] getHashtagPatterns () {
     // Potts: "(\\#+[\\w_]+[\\w\\'_\\-]*[\\w_]+)"
     // twokenize: #[a-zA-Z0-9_]+
@@ -311,6 +316,7 @@ public class TwitterTokenizer {
     x.add(getURLPatterns());
     x.add(getWesternEmoticonPatterns());
     x.add(getEasternEmoticonPatterns());
+    x.add(getMiscEmoticonPatterns());
     x.add(getHeartPatterns());
     x.add(getHashtagPatterns());
     x.add(getLeftArrowPatterns());
