@@ -94,13 +94,23 @@ public class TwitterTokenizer {
   public static SimpleImmutableEntry<Pattern,String>[] getURLPatterns () {
     // "p:" gets picked up by the emoticon pattern, so order of patterns is
     // important. Matching <, > pairs without verifying both are present.
-    return getPairs(START_W_PAREN + "(" +
-                    "<?(https?:|www\\.)\\S+>?"
+    SimpleImmutableEntry<Pattern,String>[] p = new SimpleImmutableEntry[2];
+    p[0] = getPairs(START + "(" +
+                    "(https?:|www\\.)\\S+"
                     + "|" +
                     // inspired by twokenize
-                    "<?[^\\s@]+\\.(com|co\\.uk|org|net|info|ca|ly|mp|edu|gov)(/(\\S*))?"
-                    + ")" + END_W_PAREN,
-                    "URL");
+                    "[^\\s@]+\\.(com|co\\.uk|org|net|info|ca|ly|mp|edu|gov)(/(\\S*))?"
+                    + ")" + END,
+                    "URL")[0];
+    p[1] = getPairs("(?<=\\(|<)" + "(" +
+                    "(https?:|www\\.)\\S+"
+                    + "|" +
+                    // inspired by twokenize
+                    "[^\\s@]+\\.(com|co\\.uk|org|net|info|ca|ly|mp|edu|gov)(/(\\S*))?"
+                    + ")" + "(?=\\)|>)",
+                    "URL")[0];
+    return p;
+
   }
 
   // emoticons: (here just for misc reference, not all nec. supported)
