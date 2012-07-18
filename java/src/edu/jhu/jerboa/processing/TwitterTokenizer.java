@@ -166,7 +166,6 @@ public class TwitterTokenizer {
     return getPairs("(\\d+([:,\\./]\\d+)+)", "NUMBER");
   }
 
-
   public static SimpleImmutableEntry<Pattern,String>[] getPhoneNumberPatterns () {
     // From Potts
 
