@@ -137,12 +137,13 @@ public class Tokenizer {
     
     // cut-n-paste, then modified from getPTBPatterns
     String[] v = {
-      "\"", " \" ",
+      // double quotes
+      "([\"\u201c\u201d\u201e\u201f\u275d\u275e])", " $1 ",
 
       // Ellipsis
       "\\.\\.\\.", " ... ",
 
-      "([,;:@#$%&])", " $1 ",
+      "([,;:@#$%&\\*])", " $1 ",
 
       // vandurme: carefully with final .
       "([^\\.])(\\.)(\\s|$)", "$1 $2$3",
