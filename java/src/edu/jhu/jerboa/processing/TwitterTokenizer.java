@@ -146,7 +146,7 @@ public class TwitterTokenizer {
   }
 
   static SimpleImmutableEntry<Pattern,String>[] getEasternEmoticonPatterns () {
-    return getPairs(START + "((-_-)|(^_^)|(=_=)|(^\\.^)|(>_<)|(\\*-\\*)|(\\*_\\*))" + END,
+    return getPairs(START + "((-_-)|(\\^_\\^)|(=_=)|(\\^\\.\\^)|(\\._\\.)|(>_<)|(\\*-\\*)|(\\*_\\*))" + END,
                     "EAST_EMOTICON");
   }
 
