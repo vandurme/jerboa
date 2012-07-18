@@ -147,6 +147,8 @@ public class Tokenizer {
 
       // HTML escaped (stop gap)
       "& ([gl])t ;", "&$1t;",
+      "& nbsp ;", " &nbsp; ",
+      "& hearts ;", " &hearts; ",
 
       // vandurme: carefully with final .
       "([^\\.])(\\.)(\\s|$)", "$1 $2$3",
