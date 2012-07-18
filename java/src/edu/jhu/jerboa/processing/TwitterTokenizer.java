@@ -75,6 +75,7 @@ public class TwitterTokenizer {
   private static SimpleImmutableEntry<Pattern,String>[] patterns;
   private static String START = "(?<=^|\\s)";
   private static String START_W_PAREN = "(?<=^|\\s|\\()";
+  private static String START_W_PAREN_DBQUOTE = "(?<=^|\\s|\\(|\"|\u201c|\u201d|\u201e|\u201f|\u275d|\u275e)";
   private static String END = "(?=$|\\s)";
   private static String END_W_PAREN = "(?=$|\\s|\\))";
 
@@ -160,6 +161,12 @@ public class TwitterTokenizer {
                     "EAST_EMOTICON");
   }
 
+  public static SimpleImmutableEntry<Pattern,String>[] getNumberPatterns () {
+    // times, dates, money, ...
+    return getPairs("(\\d+([:,\\./]\\d+)+)", "NUMBER");
+  }
+
+
   public static SimpleImmutableEntry<Pattern,String>[] getPhoneNumberPatterns () {
     // From Potts
 
@@ -183,7 +190,8 @@ public class TwitterTokenizer {
 
   public static SimpleImmutableEntry<Pattern,String>[] getMentionPatterns () {
     //return Pattern.compile(START + "(@[_A-Za-z0-9]+)" + "(?=$|\\s|:)");
-    return getPairs(START_W_PAREN + "(@[_A-Za-z0-9]+)", "MENTION");
+    return getPairs(START_W_PAREN_DBQUOTE + "(@[_A-Za-z0-9]+)", "MENTION");
+    //return getPairs("(?<=^|\\s|\\()" + "(@[_A-Za-z0-9]+)", "MENTION");
   }
 
   public static SimpleImmutableEntry<Pattern,String>[] getHeartPatterns () {
@@ -333,6 +341,7 @@ public class TwitterTokenizer {
     x.add(getRightArrowPatterns());
     x.add(getRepeatedPatterns());
     x.add(getUnicodePatterns());
+    x.add(getNumberPatterns());
 
     Vector<SimpleImmutableEntry<Pattern,String>> y = new Vector();
     for (int i = 0; i < x.size(); i++)
@@ -426,19 +435,24 @@ public class TwitterTokenizer {
       Matcher matcher;
       matcher = pattern.matcher(text);
       int groupCount = matcher.groupCount();
+      String textFragment = "";
       if (groupCount > 0) {
         Vector<SimpleImmutableEntry<String,String>[]> arrays = new Vector();
         int lastEnd = 0;
         while (matcher.find()) {
-          if (matcher.start() > lastEnd)
-            arrays.add(recursiveTokenize(text.substring(lastEnd,matcher.start()).trim(),
-                                         patterns, index + 1, tokenization));
+          if (matcher.start() > lastEnd) {
+            textFragment = text.substring(lastEnd,matcher.start()).trim();
+            if (textFragment.length() > 0) // possible could have started all as whitespace
+              arrays.add(recursiveTokenize(textFragment, patterns, index + 1, tokenization));
+          }
+          //System.out.println("[" + matcher.group() + "] " + matcher.start() + " " + matcher.end());
           arrays.add(new SimpleImmutableEntry[] {new SimpleImmutableEntry(matcher.group(), tag)});
           lastEnd = matcher.end();
         }
         if (lastEnd < text.length())
           arrays.add(recursiveTokenize(text.substring(lastEnd,text.length()).trim(),
                                        patterns, index + 1, tokenization));
+
         return concatAll(arrays);
       } else {
         return recursiveTokenize(text.trim(), patterns, index + 1, tokenization);
