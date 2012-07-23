@@ -19,6 +19,19 @@ import java.util.AbstractMap.SimpleImmutableEntry;
 public class Loader {
 
   /**
+     returns each line of the given file as an entry, in order
+   */
+  public static Vector<String> readLines(String filename) throws Exception {
+    BufferedReader reader = FileManager.getReader(filename);
+    String line;
+    Vector<String> vector = new Vector();
+    while ((line = reader.readLine()) != null)
+      vector.add(line);
+    return vector;
+  }
+
+
+  /**
      Default to separator: "\\t"
    */
   public static Hashtable<String,Vector<SimpleImmutableEntry<String,Double>>> readWeightedDictionary (String filename) throws Exception {
