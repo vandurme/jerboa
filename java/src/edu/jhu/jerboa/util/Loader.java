@@ -30,7 +30,6 @@ public class Loader {
     return vector;
   }
 
-
   /**
      Default to separator: "\\t"
    */

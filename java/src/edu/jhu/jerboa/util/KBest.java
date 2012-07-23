@@ -11,6 +11,7 @@ import java.util.Comparator;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.Hashtable;
 
 /**
    @author Benjamin Van Durme
@@ -25,9 +26,10 @@ public class KBest<T> {
   boolean max;
   // If false, we need to check for duplicates before an Insert
   public boolean allowDuplicates = true;
+  Hashtable<T,Boolean> contents;
 
   public KBest (int k, boolean max, boolean allowDuplicates) {
-    this.allowDuplicates = false;
+    this.allowDuplicates = allowDuplicates;
     if (max)
       heap = new PriorityQueue<SimpleImmutableEntry<T,Double>>(k,Greater);
     else
@@ -35,6 +37,9 @@ public class KBest<T> {
 
     this.k = k;
     this.max = max;
+
+    if (!allowDuplicates)
+      contents = new Hashtable();
   }
 
   public KBest (int k, boolean max) {
@@ -45,6 +50,9 @@ public class KBest<T> {
 
     this.k = k;
     this.max = max;
+
+    if (!allowDuplicates)
+      contents = new Hashtable();
   }
 
   final Comparator<SimpleImmutableEntry<T,Double>> Lesser =
@@ -78,20 +86,24 @@ public class KBest<T> {
 	    if (allowDuplicates)
         heap.add(new SimpleImmutableEntry<T,Double>(key, value));
 	    else {
-        SimpleImmutableEntry<T,Double> pair = new SimpleImmutableEntry<T,Double>(key, value);
-        if (! heap.contains(pair))
-          heap.add(pair);
+        if (! contents.containsKey(key)) {
+          heap.add(new SimpleImmutableEntry<T,Double>(key, value));
+          contents.put(key,true);
+        }
 	    }
     } else if ((max && (heap.peek().getValue() < value)) ||
                ((!max) && (heap.peek().getValue() > value))) {
+      SimpleImmutableEntry<T,Double> pair;
+      pair = heap.peek();
 	    if (allowDuplicates) {
-        heap.remove(heap.peek());
+        heap.remove(pair);
         heap.add(new SimpleImmutableEntry<T,Double>(key, value));
 	    } else {
-        SimpleImmutableEntry<T,Double> pair = new SimpleImmutableEntry<T,Double>(key, value);
-        if (! heap.contains(pair)) {
-          heap.remove(heap.peek());
-          heap.add(pair);
+        if (! contents.containsKey(key)) {
+          contents.remove(pair.getKey());
+          contents.put(key,true);
+          heap.remove(pair);
+          heap.add(new SimpleImmutableEntry<T,Double>(key, value));
         }
 	    }
     }
