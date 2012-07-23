@@ -8,6 +8,7 @@ package edu.jhu.jerboa.sim;
 
 import edu.jhu.jerboa.util.*;
 import java.util.Arrays;
+import java.util.Vector;
 import java.util.logging.Logger;
 import java.lang.reflect.Array;
 import java.util.Enumeration;
@@ -93,6 +94,17 @@ public class PLEBIndex<T> implements Serializable {
   }
 
   /**
+     Will deserialize a PLEBIndex stored in filename.
+   */
+  public static PLEBIndex load (String filename, SLSH slsh) throws Exception {
+    ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename));
+    PLEBIndex pleb = (PLEBIndex) in.readObject();
+    pleb.slshAlign(slsh);
+    in.close();
+    return pleb;
+  }
+
+  /**
      Sets this.keys to keys, and this.sorts to the results of P different
      calls to buildIndex, under different permutations.
   */
@@ -153,6 +165,67 @@ public class PLEBIndex<T> implements Serializable {
 	    }
     }
 
+    return kbest;
+  }
+
+  // /**
+  //    Writer will write each KBest entry in the form:
+  //      key <tab> key0:score <tab> key1:score ...
+  //    sorted by score, greatest first.
+  // */
+  // public static void writeKBest (BufferedWriter writer, KBest[] kbests) throws Exception {
+  //   for (KBest kbest : kbests) {
+  //     // TODO
+  //   }
+  // }
+
+  ///**
+  //For each element in the structure, finds approx nearest neighbors.
+  //*/
+    // can either keep n KBest objects (hrm...) through all permutations, or
+    // have a single global KBest, where we keep the best global edges in the
+    // graph. This sounds best if most pairs have low scores, if not, the many
+    // good edges will be ignored unless K is very large
+  /**
+   * Approximately finds the best edges in the graph as a whole
+   *
+   * It would be reasonable to set k as a function of the number of nodes (signatures).
+   */
+  //public KBest<Integer[]> kbestGraph (int k, int B, int P) {
+  public KBest<String> kbestGraph (int k, int B, int P) {
+    // TODO: walk through each permutation directly, make this multithreaded
+    //KBest[] kbests = new KBest[sorts[0].length];
+    //KBest<Integer[]> kbest = new KBest(k,true,false);
+    KBest<String> kbest = new KBest(k,true,false);
+
+    if (sorts == null || sorts.length == 0 || sorts[0].length == 0) {
+      System.err.println("PLEBIndex.kbestGraph(" + k + "," + B + "," + P + ") : PLEB.sorts not initialized.");
+      return kbest;
+    }
+    byte[] iBytes;
+
+    // The following does a forward sweep of size B/2 for each element in each
+    // permutation of sorts. Since the comparison is symmetric we don't need to
+    // look behind for any element.
+    int end = sorts[0].length;
+    int W = B / 2;
+    for (int p = 0; p < P; p++) {
+      for (int i = 0; i < sorts[0].length; i++) {
+        iBytes = signatures[sorts[p][i]].bytes;
+        for (int j = i + 1; j < Math.min(end,W); j++) {
+          // TODO: this is an expensive thing to have in an inner loop if we
+          // ever really use this in something, then we need to revist the
+          // implementation it more wed to the info that KBest can provide
+          // inline
+          //kbest.insert(new Integer[] {Math.min(sorts[p][i],sorts[p][j]),
+          //Math.max(sorts[p][i],sorts[p][j])},
+          kbest.insert("" + keys[Math.min(sorts[p][i],sorts[p][j])] + "\t" +
+                       keys[Math.max(sorts[p][i],sorts[p][j])],
+                       SLSH.approximateCosine(iBytes,
+                                              signatures[sorts[p][j]].bytes));
+        }
+      }
+    }
     return kbest;
   }
 
@@ -336,9 +409,9 @@ public class PLEBIndex<T> implements Serializable {
     pleb.initialize(slsh.signatures, P, true);
 
     DecimalFormat formatter = new DecimalFormat("#.####");
-    SimpleImmutableEntry<String,Double>[] best = pleb.kbest("the dog",10,10,4).toArray();
-    for (SimpleImmutableEntry<String,Double> pair : best)
-	    System.out.println(pair.getKey() + "\t" + formatter.format(pair.getValue()));
+    // SimpleImmutableEntry<String,Double>[] best = pleb.kbest("the dog",10,10,4).toArray();
+    // for (SimpleImmutableEntry<String,Double> pair : best)
+	  //   System.out.println(pair.getKey() + "\t" + formatter.format(pair.getValue()));
 
     String outputFilename = JerboaProperties.getString("PLEBIndex.indexFile");
     pleb.logger.info("Writing output [" + outputFilename + "]");
