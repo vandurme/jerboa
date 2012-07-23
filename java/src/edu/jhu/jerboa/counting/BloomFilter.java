@@ -8,7 +8,6 @@ package edu.jhu.jerboa.counting;
 
 import java.util.Random;
 import java.util.Vector;
-import java.util.Hashtable;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.io.IOException;
@@ -31,7 +30,6 @@ public class BloomFilter implements ICounterContainer {
   private static Logger logger = Logger.getLogger(BloomFilter.class.getName());
   private static final long serialVersionUID = 1L;
 
-  Hashtable<String,Object> paramsFromFile;
   BitSet[] bitSets;
   int numBitSets;
   public long width;
@@ -42,6 +40,8 @@ public class BloomFilter implements ICounterContainer {
   int[] salts;
   // The single hash ID we use for picking a bitSet for a given key
   int bitSetSalt;
+  int[] addresses; // a scratch space
+  int size; // how many elements have we set?
 
   public BloomFilter () throws Exception {
     width = 0;
@@ -72,21 +72,15 @@ public class BloomFilter implements ICounterContainer {
      {@code this.optimalNumHashes(this.width,this.numElements)}
   */
   private void initialize () throws Exception {
-    if (JerboaProperties.getString("BloomFilter.optParamFile", null) != null) {
-      return;
-    }
-    
     if (width == 0)
-      width = JerboaProperties.getLong("BloomFilter.width");
+	    width = JerboaProperties.getLong("BloomFilter.width");
     if (numElements == 0)
-      numElements = JerboaProperties.getLong("BloomFilter.numElements",
-                                             width/2);
+	    numElements = JerboaProperties.getLong("BloomFilter.numElements", width/2);
 
     logger.config("Constructed BloomFilter: width=" + width
                   + " numHashes=" + numHashes
                   + " numElements=" + numElements);
 	
-    // Don't put more elements in bitset than we can possibly access with int
     numBitSets = (int) (width/(long)Integer.MAX_VALUE) + 1;
     bitSets = new BitSet[numBitSets];
     bitSetWidth = (int) (width / numBitSets);
@@ -95,6 +89,8 @@ public class BloomFilter implements ICounterContainer {
     if (numHashes == 0)
 	    numHashes = JerboaProperties.getInt("BloomFilter.numHashes",
                                           optimalNumHashes(width,numElements));
+    numSeen = 0;
+    addresses = new int[numHashes];
     salts = Hash.generateSalts(numHashes);
     bitSetSalt = Hash.generateSalts(1)[0];
   }
@@ -110,10 +106,24 @@ public class BloomFilter implements ICounterContainer {
     return (long) (Runtime.getRuntime().freeMemory() * percentage);
   }
 
+  public int size() {
+    return size;
+  }
+
   public void set (String key) {
+    boolean in;
+    int address;
     BitSet memory = bitSets[Hash.hash(key,bitSetSalt,numBitSets)];
-    for (int i = 0; i < numHashes; i++)
-	    memory.set(Hash.hash(key,salts[i],bitSetWidth));
+    
+    for (int i = 0; i < numHashes; i++) {
+      address[i] = Hash.hash(key,salts[i],bitSetWidth);
+	    in = in && memory.get(address[i]);
+    }
+    if (! in) {
+      for (int i = 0; i < numHashes; i++)
+        memory.set(address[i]);
+      numSeen++;
+    }
   }
 
   /**
