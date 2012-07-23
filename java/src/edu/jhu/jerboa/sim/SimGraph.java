@@ -19,9 +19,9 @@ import java.util.AbstractMap.SimpleImmutableEntry;
 
    Outputs an approximation of the KBest edges over the signatures as vertices.
 
-   Writes result to KBestGraph.output
+   Writes result to SimGraph.output
 */
-public class KBestGraph {
+public class SimGraph {
   private static void writeResults (BufferedWriter writer, PLEBIndex pleb, KBest<String> kbest) throws Exception {
     DecimalFormat formatter = new DecimalFormat("#.####");
     for (SimpleImmutableEntry<String,Double> pair : kbest.toArray()) {
@@ -31,19 +31,32 @@ public class KBestGraph {
     }
   }
 
+  public static void kbestGraph (SLSH slsh, PLEBIndex pleb, int k, int B, int P) throws Exception {
+    KBest<String> kbest = pleb.kbestGraph(k,B,P);
+    BufferedWriter writer = FileManager.getWriter(JerboaProperties.getString("SimGraph.outputPrefix") + ".kbest");
+    writeResults(writer,pleb,kbest);
+    writer.close();
+  }
+  public static void thresholdGraph (SLSH slsh, PLEBIndex pleb, int k, int B, int P) throws Exception {
+    BufferedWriter writer = FileManager.getWriter(JerboaProperties.getString("SimGraph.outputPrefix") + ".threshold");
+    double threshold = JerboaProperties.getDouble("SimGraph.threshold");
+    pleb.thresholdGraph(k,B,P,threshold,writer);
+    writer.close();
+  }
+
   public static void main (String[] args) throws Exception {
-    int k = JerboaProperties.getInt("KBestGraph.k");
-    int B = JerboaProperties.getInt("KBestGraph.B");
-    int P = JerboaProperties.getInt("KBestGraph.P");
+    int k = JerboaProperties.getInt("SimGraph.k");
+    int B = JerboaProperties.getInt("SimGraph.B");
+    int P = JerboaProperties.getInt("SimGraph.P");
     
     SLSH slsh;
     slsh = SLSH.load();
     PLEBIndex pleb = PLEBIndex.load(JerboaProperties.getString("PLEBIndex.indexFile"),slsh);
     //KBest<Integer[]> kbest = pleb.kbestGraph(k,B,P);
-    KBest<String> kbest = pleb.kbestGraph(k,B,P);
-
-    BufferedWriter writer = FileManager.getWriter(JerboaProperties.getString("KBestGraph.output"));
-    writeResults(writer,pleb,kbest);
-    writer.close();
+    String method = JerboaProperties.getString("SimGraph.method", "kbestGraph");
+    if (method.equals("kbestGraph"))
+      kbestGraph(slsh,pleb,k,B,P);
+    else if (method.equals("thresholdGraph"))
+      thresholdGraph(slsh,pleb,k,B,P);
   }
 }

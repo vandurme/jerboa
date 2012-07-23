@@ -41,6 +41,7 @@ import java.text.DecimalFormat;
    dynamically query nearest-neighbors for a given item.
 */
 public class PLEBIndex<T> implements Serializable {
+  private static final long serialVersionUID = 1L;
   public static Logger logger = Logger.getLogger(PLEBIndex.class.getName());
   // each array is a sorted list over signatures, where the values stored in
   // each array are pointers back to an index in an array of signatures
@@ -227,6 +228,41 @@ public class PLEBIndex<T> implements Serializable {
       }
     }
     return kbest;
+  }
+
+  /**
+   * Writes all edges found above a certain threshold.
+   *
+   * Does not filter duplicates; output could have up to P duplicates of each
+   * edge.
+   */
+  public void thresholdGraph (int k, int B, int P, double threshold, BufferedWriter writer) throws Exception {
+    if (sorts == null || sorts.length == 0 || sorts[0].length == 0) {
+      System.err.println("PLEBIndex.kbestGraph(" + k + "," + B + "," + P + ") : PLEB.sorts not initialized.");
+      return;
+    }
+    byte[] iBytes;
+
+    // The following does a forward sweep of size B/2 for each element in each
+    // permutation of sorts. Since the comparison is symmetric we don't need to
+    // look behind for any element.
+    int end = sorts[0].length;
+    int W = B / 2;
+    double score;
+    for (int p = 0; p < P; p++) {
+      for (int i = 0; i < sorts[0].length; i++) {
+        iBytes = signatures[sorts[p][i]].bytes;
+        for (int j = i + 1; j < Math.min(end,W); j++) {
+          if ((score = SLSH.approximateCosine(iBytes,
+                                              signatures[sorts[p][j]].bytes)) >= threshold) {
+            writer.write(keys[Math.min(sorts[p][i],sorts[p][j])] + "\t" +
+                         keys[Math.max(sorts[p][i],sorts[p][j])] + "\t" +
+                         score);
+            writer.newLine();
+          }
+        }
+      }
+    }
   }
 
   static final Comparator<Integer> LexGreater =
