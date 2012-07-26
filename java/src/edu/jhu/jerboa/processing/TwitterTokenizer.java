@@ -10,6 +10,7 @@ import edu.jhu.jerboa.util.*;
 import java.util.regex.*;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Vector;
+import java.io.PrintStream;
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -231,7 +232,7 @@ public class TwitterTokenizer {
                     // added the [^.] guard: much more likely to catch punctuation ahead of an
                     // @-mention then an email address that ends in '.'
                     // That guard also requires email address to be at least 2 characters long
-                    "([a-zA-Z0-9._%+-]+[^.]@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4})" + END_W_PAREN,
+                    "([a-zA-Z0-9\\._%+-]+[^\\.\\!\\?\\:\\;\\s]@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4})" + END_W_PAREN,
                     "EMAIL");
   }
 
@@ -491,6 +492,8 @@ public class TwitterTokenizer {
     else
       reader = FileManager.getReader(args[0]);
 
+    PrintStream out = new PrintStream(System.out, true, "UTF-8");
+
     String line;
     String[][] tokens;
 
@@ -501,31 +504,31 @@ public class TwitterTokenizer {
       tokens = tokenize(line);
       if (tokens[0].length > 0) {
         if (full)
-          System.out.println(line);
-        System.out.print(tokens[0][0]);
+          out.println(line);
+        out.print(tokens[0][0]);
         for (int i = 1; i < tokens[0].length; i++)
-          System.out.print(" " + tokens[0][i]);
-        System.out.println();
+          out.print(" " + tokens[0][i]);
+        out.println();
         if (full) {
-          System.out.print(tokens[1][0]);
+          out.print(tokens[1][0]);
           for (int i = 1; i < tokens[1].length; i++)
-            System.out.print(" " + tokens[1][i]);
-          System.out.println();
+            out.print(" " + tokens[1][i]);
+          out.println();
         }
         if (full) {
-          System.out.print(tokens[2][0]);
+          out.print(tokens[2][0]);
           for (int i = 1; i < tokens[2].length; i++)
-            System.out.print(" " + tokens[2][i]);
-          System.out.println();
+            out.print(" " + tokens[2][i]);
+          out.println();
         }
       } else {
         if (full) {
-          System.out.println("");
-          System.out.println("");
-          System.out.println("");
-          System.out.println("");
+          out.println("");
+          out.println("");
+          out.println("");
+          out.println("");
         } else {
-          System.out.println("");
+          out.println("");
         }
       }
     }
