@@ -487,7 +487,7 @@ public class TwitterTokenizer {
   public static void main (String[] args) throws Exception {
     BufferedReader reader;
     if (args.length == 0)
-      reader = new BufferedReader(new InputStreamReader(System.in));
+      reader = new BufferedReader(new InputStreamReader(System.in,"UTF-8"));
     else
       reader = FileManager.getReader(args[0]);
 
