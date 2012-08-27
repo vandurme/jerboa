@@ -40,7 +40,7 @@ public class BloomFilter implements ICounterContainer {
   int[] salts;
   // The single hash ID we use for picking a bitSet for a given key
   int bitSetSalt;
-  int[] addresses; // a scratch space
+  int[] address; // a scratch space
   int size; // how many elements have we set?
 
   public BloomFilter () throws Exception {
@@ -89,8 +89,8 @@ public class BloomFilter implements ICounterContainer {
     if (numHashes == 0)
 	    numHashes = JerboaProperties.getInt("BloomFilter.numHashes",
                                           optimalNumHashes(width,numElements));
-    numSeen = 0;
-    addresses = new int[numHashes];
+    size = 0;
+    address = new int[numHashes];
     salts = Hash.generateSalts(numHashes);
     bitSetSalt = Hash.generateSalts(1)[0];
   }
@@ -110,9 +110,8 @@ public class BloomFilter implements ICounterContainer {
     return size;
   }
 
-  public void set (String key) {
-    boolean in;
-    int address;
+  public boolean set (String key) {
+    boolean in = true;
     BitSet memory = bitSets[Hash.hash(key,bitSetSalt,numBitSets)];
     
     for (int i = 0; i < numHashes; i++) {
@@ -122,15 +121,16 @@ public class BloomFilter implements ICounterContainer {
     if (! in) {
       for (int i = 0; i < numHashes; i++)
         memory.set(address[i]);
-      numSeen++;
+      size += 1;
     }
+    return in;
   }
 
   /**
      For compatability with ICounterContainer; value is ignored, call is same as {@code set(key)}
   */
-  public void set (String key, int value) {
-    set(key);
+  public boolean set (String key, int value) {
+    return set(key);
   }
     
   /**
