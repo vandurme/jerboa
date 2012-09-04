@@ -8,9 +8,10 @@ package edu.jhu.jerboa.sim;
 
 //import java.io.Serializable;
 import edu.jhu.jerboa.util.*;
+import java.io.File;
 import java.io.BufferedReader;
 import java.io.ObjectOutputStream;
-import java.io.ObjectInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 
@@ -98,10 +99,11 @@ public class Signature { //implements Serializable {
     int numBits = Integer.parseInt(args[0]);
     BufferedReader keysIn = FileManager.getReader(args[1]);
     String key;
-    ObjectInputStream bytesIn = FileManager.getFileObjectInputStream(args[2]);
+    //ObjectInputStream bytesIn = FileManager.getFileObjectInputStream(args[2]);
+    FileInputStream bytesIn = FileManager.getFileInputStream(new File(args[2]));
     byte[] bytes = new byte[numBits/8];
     while ((key = keysIn.readLine()) != null) {
-	    bytesIn.readFully(bytes);
+	    bytesIn.read(bytes);
 	    System.out.println(key + "\t" + Signature.toString(bytes));
     }
   }

@@ -8,6 +8,7 @@ import edu.jhu.jerboa.util.*;
 import java.io.*;
 import edu.jhu.jerboa.processing.IStreamingContainer;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.Vector;
 import java.util.Hashtable;
@@ -159,7 +160,17 @@ public class SLSH implements IFeatureContainer, ISimilarity {
     }
     containsSigs = true;
   }
-				
+  
+  public void buildSignature (String key, boolean clearSums) {
+    Signature sig;
+    if ((sig = signatures.get(key)) != null) {
+      sig.bytes = makeBitVector(sig.sums);
+      if (clearSums)
+        sig.sums = null;
+    }
+  }
+
+
   // based on http://infolab.stanford.edu/~manku/bitcount/bitcount.html
   final static int bitsIn[] = {0,1,1,2,1,2,2,3,1,2,2,3,2,3,3,4,1,2,2,3,2,3,3,4,2,3,3,4,3,4,4,5,1,2,2,3,2,3,3,4,2,3,3,4,3,4,4,5,2,3,3,4,3,4,4,5,3,4,4,5,4,5,5,6,1,2,2,3,2,3,3,4,2,3,3,4,3,4,4,5,2,3,3,4,3,4,4,5,3,4,4,5,4,5,5,6,2,3,3,4,3,4,4,5,3,4,4,5,4,5,5,6,3,4,4,5,4,5,5,6,4,5,5,6,5,6,6,7,1,2,2,3,2,3,3,4,2,3,3,4,3,4,4,5,2,3,3,4,3,4,4,5,3,4,4,5,4,5,5,6,2,3,3,4,3,4,4,5,3,4,4,5,4,5,5,6,3,4,4,5,4,5,5,6,4,5,5,6,5,6,6,7,2,3,3,4,3,4,4,5,3,4,4,5,4,5,5,6,3,4,4,5,4,5,5,6,4,5,5,6,5,6,6,7,3,4,4,5,4,5,5,6,4,5,5,6,5,6,6,7,4,5,5,6,5,6,6,7,5,6,6,7,6,7,7,8};
   final static double factor = Math.PI/8.0;
@@ -233,6 +244,28 @@ public class SLSH implements IFeatureContainer, ISimilarity {
 
     for (int i = 0; i < numBits; i++)
       sig.sums[i] += value * pool[Hash.hash(feature,salts[i],pool.length)];
+  }
+
+  /**
+     Uitlity equiv. to calling update(String, String, 1.0) on each feature separately
+   */
+  public void update (String key, Iterator<String> features) {
+    Signature sig;
+    if (! signatures.containsKey(key)) {
+	    if (filter)
+        return;
+      signatures.put(key, new Signature());
+    }
+    String feature;
+    while (features.hasNext()) {
+      sig = signatures.get(key);
+      sig.strength++;
+      if (sig.sums == null)
+        sig.sums = new float[numBits];
+      feature = features.next();
+      for (int i = 0; i < numBits; i++)
+        sig.sums[i] += pool[Hash.hash(feature,salts[i],pool.length)];
+    }
   }
 
   public SimpleImmutableEntry<String,Double>[] KBest(String x, int k, boolean max) {
