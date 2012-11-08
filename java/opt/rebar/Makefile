@@ -1,8 +1,8 @@
 #REBAR = ~bvandurme/rebar
-JFLAGS = -g -sourcepath . -cp ../../dist/jerboa.jar:$(REBAR)/java/dist/scale.jar:$(REBAR)/java/dist/rebar-protobuf.jar:$(REBAR)/java/lib/protobuf-java-2.4.1.jar
+JFLAGS = -g -sourcepath . -cp ../../../dist/jerboa.jar:$(REBAR)/java/dist/scale.jar:$(REBAR)/java/dist/rebar-protobuf.jar:$(REBAR)/java/lib/protobuf-java-2.4.1.jar
 JAVAC = javac
 JAR = jar cvf
-JAR_NAME = ../../dist/jerboa-rebar.jar
+JAR_NAME = ../../../dist/jerboa-rebar.jar
 
 .SUFFIXES: .java .class
 .java.class:
@@ -14,7 +14,7 @@ REBAR_CLASSES = $(REBAR_SRC:.java=.class)
 ALL_CLASSES = `find . -name "*.class"`
 
 all: $(REBAR_CLASSES)
-	$(shell mkdir -p ../../dist)
+	$(shell mkdir -p ../../../dist)
 	$(JAR) $(JAR_NAME) edu
 
 clean:
