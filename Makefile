@@ -17,7 +17,7 @@ jar: $(CLASSES)
 	$(JAR) $(JAR_NAME) -C java/src/ edu
 
 analytics: 
-	$(MAKE) -C analytics
+	$(MAKE) -C proj/analytic
 
 rebar:
 	$(MAKE) -C java/opt/rebar
