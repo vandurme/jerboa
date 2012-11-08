@@ -128,7 +128,8 @@ public class WeightedNGram extends Feature {
 
     Map<TokenizationUtil.NGram,Double> bag;
     List<Segment> segments;
-    List<edu.jhu.hltcoe.rebar.data.access.protobuf.Tokens.Tokenization> tokenizations;
+    //List<edu.jhu.hltcoe.rebar.data.access.protobuf.Tokens.Tokenization> tokenizations;
+    List<Tokenization> tokenizations;
     segments = ((Message) data.get("message")).getSegmentations(0).getSegmentsList();
     tokenizations = segments.get(0).getTokenizationsList();
     bag = TokenizationUtil.bagOfNGrams(tokenizations.get(0),

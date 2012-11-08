@@ -16,6 +16,9 @@ jar: $(CLASSES)
 	$(shell mkdir -p java/dist)
 	$(JAR) $(JAR_NAME) -C java/src/ edu
 
+analytics: 
+	$(MAKE) -C analytics
+
 rebar:
 	$(MAKE) -C java/opt/rebar
 

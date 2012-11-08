@@ -87,8 +87,9 @@ class ProcessStream {
     }
 				
     if (container != null)
-	    if (JerboaProperties.getBoolean("ProcessStream.serializeContainer",true))
+	    if (JerboaProperties.getBoolean("ProcessStream.serializeContainer",true)) {
         container.write();
+      }
   }
 
   public static void main (String args[]) throws Exception {

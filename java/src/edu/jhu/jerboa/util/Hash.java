@@ -53,7 +53,7 @@ public class Hash {
      hash += hash << 5;
      return hash;}
   */
-  public static int hash (String key, int salt) {
+  public static final int hash (String key, int salt) {
     int p = 16777619;
     int hash = 1315423911;
     hash = (hash ^ salt) * p;

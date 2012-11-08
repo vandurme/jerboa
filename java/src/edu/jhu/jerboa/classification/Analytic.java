@@ -116,6 +116,12 @@ public class Analytic {
     }
   }
 
+  /**
+     source : a convenience variable meant to allow marking the name of, e.g.,
+     an input file. The "source" material that is being processed.
+
+     data : standard data object used in the classification framework.
+   */
   public void process (String source, Hashtable<String,Object> data) throws Exception {
     Hashtable<String,Object> stateMessage;
 

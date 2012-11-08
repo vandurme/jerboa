@@ -72,5 +72,3 @@ public class CommunicationStream implements IStream {
     return commParser.next();
   }
 }
-
-

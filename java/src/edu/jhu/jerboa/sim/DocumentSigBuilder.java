@@ -93,7 +93,7 @@ public class DocumentSigBuilder implements IStreamProcessor {
 	    }
     }
 
-    if (JerboaProperties.getBoolean("DocumentSigBuilder.makeSigs",true))
-	    ((SLSH)container).buildSignatures();
+    //if (JerboaProperties.getBoolean("DocumentSigBuilder.makeSigs",true))
+    //((SLSH)container).buildSignatures();
   }
 }

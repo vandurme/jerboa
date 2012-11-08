@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
    Utility functions for dealing with files.
 */
 public class FileManager {
-  private static final Logger logger = Logger.getLogger(File.class.getName());
+  private static final Logger logger = Logger.getLogger(FileManager.class.getName());
   private static File[] fileArr = new File[0];
 
   /**
