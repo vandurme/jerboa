@@ -1,7 +1,7 @@
-JFLAGS = -g -cp ~bvandurme/local/3rd/cplex/64/cplex/lib/cplex.jar:../../dist/* -sourcepath .
+JFLAGS = -g -cp ~bvandurme/local/3rd/cplex/64/cplex/lib/cplex.jar:../../../dist/* -sourcepath .
 JAVAC = javac
 JAR = jar cvf
-JAR_NAME = ../../dist/jerboa-bfoptimize.jar
+JAR_NAME = ../../../dist/jerboa-bfoptimize.jar
 
 .SUFFIXES: .java .class
 .java.class:
@@ -14,7 +14,7 @@ BFOPTIMIZE_CLASSES = $(BFOPTIMIZE_SRC:.java=.class)
 ALL_CLASSES = `find . -name "*.class"`
 
 all: $(BFOPTIMIZE_CLASSES)
-	$(shell mkdir -p ../../dist)
+	$(shell mkdir -p ../../../dist)
 	$(JAR) $(JAR_NAME) edu
 
 clean:
