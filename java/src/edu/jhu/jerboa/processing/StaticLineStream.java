@@ -51,7 +51,13 @@ public class StaticLineStream implements IStream {
 	    String[] filenames = JerboaProperties.getStrings("StaticLineStream.files");
 	    files = FileManager.getFiles(filenames);
 	    if (files.length == 0) {
-        throw new Exception("No files matched the pattern(s) for StaticLineStream.files");
+        //throw new Exception("No files matched the pattern(s) for StaticLineStream.files");
+	    	String fileNamesString = "[";
+	    	for (String fn : filenames)
+	    		fileNamesString += fn + ", ";
+	    	fileNamesString += "]";
+	    	String errorMsg = "No files matched the pattern(s) for BatchCommunicationStream.files. Check to make sure these files exist. Currently the values are: " + fileNamesString;
+		    throw new Exception(errorMsg);
 	    }
     } else {
 	    String line;

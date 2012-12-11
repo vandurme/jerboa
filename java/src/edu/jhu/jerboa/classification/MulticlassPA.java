@@ -500,5 +500,13 @@ public class MulticlassPA implements IMulticlassClassifier {
     }
     out.close();
   }
+
+  /**
+     Outputs Hashtable<String,Double>[], but thanks to Java's type erasure
+     we can't specify this in the method signature specifically. Life is pain.
+  */
+  public Hashtable[] getWeights () {
+    return this.weights;
+  }
 }
 

@@ -6,16 +6,11 @@
 
 package edu.jhu.jerboa.processing;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.logging.Logger;
-import java.util.logging.Handler;
-import java.util.logging.FileHandler;
-import java.io.FileOutputStream;
-import java.io.FileInputStream;
-import java.io.ObjectOutputStream;
-import java.io.ObjectInputStream;
-import java.io.IOException;
 
-import edu.jhu.jerboa.util.*;
+import edu.jhu.jerboa.util.JerboaProperties;
 
 /**
    @author Benjamin Van Durme
@@ -53,7 +48,7 @@ class ProcessStream {
     String streamProcessorName = 
 	    JerboaProperties.getString("ProcessStream.processor");
     logger.info("Creating instance of [" + streamProcessorName + "]");
-    Class c = Class.forName(streamProcessorName);
+    Class<?> c = Class.forName(streamProcessorName);
     IStreamProcessor processor = (IStreamProcessor) c.newInstance();
 
     IStreamingContainer container = null;
@@ -87,11 +82,21 @@ class ProcessStream {
     }
 				
     if (container != null)
-	    if (JerboaProperties.getBoolean("ProcessStream.serializeContainer",true))
+	    if (JerboaProperties.getBoolean("ProcessStream.serializeContainer",true)) {
         container.write();
+      }
   }
 
-  public static void main (String args[]) throws Exception {
-    run();
+  public static void main (String args[]) {
+    try {
+    	run();
+    } catch (Exception e) {
+    	StringWriter sw = new StringWriter();
+    	PrintWriter pw = new PrintWriter(sw);
+    	e.printStackTrace(pw);
+    	//sw.toString(); // stack trace as a string
+    	logger.severe(sw.toString());
+    }
+    
   }
 }

@@ -13,7 +13,10 @@ import edu.jhu.jerboa.processing.IStreamingContainer;
    @author Benjamin Van Durme
 */
 public interface ICounterContainer extends IStreamingContainer {
-  public void set(String key, int value);
+  /**
+     Returns whether this was previously set before the call.
+   */
+  public boolean set(String key, int value);
   public boolean increment(String key, int value);
   public int get(String key);
 }

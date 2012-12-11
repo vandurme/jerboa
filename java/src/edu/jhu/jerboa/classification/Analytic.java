@@ -6,19 +6,14 @@
 
 package edu.jhu.jerboa.classification;
 
-import edu.jhu.jerboa.util.JerboaProperties;
-import edu.jhu.jerboa.util.FileManager;
-import edu.jhu.jerboa.processing.IDocumentParser;
 import java.util.AbstractMap.SimpleImmutableEntry;
-
 import java.util.Hashtable;
 import java.util.Vector;
 import java.util.logging.Logger;
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.util.Arrays;
+
+import edu.jhu.jerboa.processing.IDocumentParser;
+import edu.jhu.jerboa.util.FileManager;
+import edu.jhu.jerboa.util.JerboaProperties;
 
 /**
    @author Benjamin Van Durme
@@ -38,7 +33,7 @@ public class Analytic {
   */
   public Analytic () throws Exception {
     String[] names = JerboaProperties.getStrings("Analytic.names");
-    starterStates = new Hashtable();
+    starterStates = new Hashtable<String, ClassifierState>();
     for (int i = 0; i < names.length; i++) {
 	    starterStates.put(names[i],new ClassifierState(names[i]));
 	    starterStates.get(names[i]).initialize();
@@ -116,6 +111,12 @@ public class Analytic {
     }
   }
 
+  /**
+     source : a convenience variable meant to allow marking the name of, e.g.,
+     an input file. The "source" material that is being processed.
+
+     data : standard data object used in the classification framework.
+   */
   public void process (String source, Hashtable<String,Object> data) throws Exception {
     Hashtable<String,Object> stateMessage;
 
@@ -157,7 +158,7 @@ public class Analytic {
   public Vector<SimpleImmutableEntry<String,String>> processData (Hashtable<String,Object> data) throws Exception {
     Hashtable<String,Object> stateMessage;
     ClassifierState state;
-    Vector<SimpleImmutableEntry<String,String>> results = new Vector();
+    Vector<SimpleImmutableEntry<String,String>> results = new Vector<SimpleImmutableEntry<String, String>>();
 
     for (String classifierName : starterStates.keySet()) {
 	    state = starterStates.get(classifierName).newState();
@@ -175,7 +176,7 @@ public class Analytic {
 
     String docParserName =
 	    JerboaProperties.getString("Analytic.docParser");
-    Class c;
+    Class<?> c;
     c = Class.forName(docParserName);
     IDocumentParser docParser = (IDocumentParser) c.newInstance();
 

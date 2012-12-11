@@ -159,7 +159,5 @@ public class CorpusNGramSigBuilder implements IStreamProcessor {
         }
 	    }
     }
-    if (JerboaProperties.getBoolean("CorpusNGramSigBuilder.makeSigs",true))
-	    ((SLSH)container).buildSignatures();
   }
 }

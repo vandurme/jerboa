@@ -31,7 +31,7 @@ import java.util.Arrays;
 public class ClassifierStreamProcessor implements IStreamProcessor {
   private static Logger logger = Logger.getLogger(ClassifierStreamProcessor.class.getName());
   String propPrefix;
-  // maps communicant handles to running state
+  // maps keys (e.g., communicant handles) to running state
   Hashtable<String,ClassifierState> stateTable;
   // writes the current classification decision as each element comes through the stream
   BufferedWriter classificationLog = null;
@@ -69,7 +69,7 @@ public class ClassifierStreamProcessor implements IStreamProcessor {
   /**
      Assumes data has:
 
-     communicant : String, a handle identifying the communicant of interest
+     key : String, a handle identifying, e.g., the communicant of interest
 
      ... : additional elements that the features will be able to do something with
   */
@@ -78,20 +78,20 @@ public class ClassifierStreamProcessor implements IStreamProcessor {
     Hashtable<String,Object> message;
 
     int numCommunications;
-    String communicant;
+    String key;
     ClassifierState state;
     double[] results;
     double loss = 0.0;
     while (stream.hasNext()) {
 	    if (((data = stream.next()) != null) &&
           (data.size() > 0)) {
-        if (! data.containsKey("communicant"))
-          throw new Exception("data does not contain a 'communicant' field");
-        communicant = (String) data.get("communicant");
-        if (! stateTable.containsKey(communicant))
-          stateTable.put(communicant,starterState.newState());
+        if (! data.containsKey("key"))
+          throw new Exception("data does not contain a 'key' field");
+        key = (String) data.get("key");
+        if (! stateTable.containsKey(key))
+          stateTable.put(key,starterState.newState());
 
-        state = stateTable.get(communicant);
+        state = stateTable.get(key);
 
         if (data.containsKey("label"))
           state.label = data.get("label");
@@ -101,7 +101,7 @@ public class ClassifierStreamProcessor implements IStreamProcessor {
 
         if (classificationLog != null) {
           results = state.classify();
-          classificationLog.write(communicant + "\t"
+          classificationLog.write(key + "\t"
                                   + state.numObservations);
           loss += state.loss(state.label);
           for (double r : results)
@@ -171,10 +171,10 @@ public class ClassifierStreamProcessor implements IStreamProcessor {
 	
     Enumeration e = stateTable.keys();
     ClassifierState state;
-    String communicantID, featureKey;
+    String key, featureKey;
     while (e.hasMoreElements()) {
-      communicantID = (String) e.nextElement();
-      state = stateTable.get(communicantID);
+      key = (String) e.nextElement();
+      state = stateTable.get(key);
 
 	    switch (starterState.classifier.getForm()) {
 	    case BINARY :
