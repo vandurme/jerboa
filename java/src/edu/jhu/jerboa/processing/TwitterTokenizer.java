@@ -3,7 +3,6 @@
 // See jerboa/LICENSE, or http://cs.jhu.edu/~vandurme/jerboa/LICENSE
 
 // Benjamin Van Durme, vandurme@cs.jhu.edu, 14 May 2012
-// Time-stamp: <>
 
 package edu.jhu.jerboa.processing;
 
@@ -11,6 +10,7 @@ import edu.jhu.jerboa.util.*;
 import java.util.regex.*;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Vector;
+import java.io.PrintStream;
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -76,6 +76,7 @@ public class TwitterTokenizer {
   private static SimpleImmutableEntry<Pattern,String>[] patterns;
   private static String START = "(?<=^|\\s)";
   private static String START_W_PAREN = "(?<=^|\\s|\\()";
+  private static String START_W_PAREN_DBQUOTE = "(?<=^|\\s|\\(|\"|\u201c|\u201d|\u201e|\u201f|\u275d|\u275e)";
   private static String END = "(?=$|\\s)";
   private static String END_W_PAREN = "(?=$|\\s|\\))";
 
@@ -95,13 +96,23 @@ public class TwitterTokenizer {
   public static SimpleImmutableEntry<Pattern,String>[] getURLPatterns () {
     // "p:" gets picked up by the emoticon pattern, so order of patterns is
     // important. Matching <, > pairs without verifying both are present.
-    return getPairs(START_W_PAREN + "(" +
-                    "<?(https?:|www\\.)\\S+>?"
+    SimpleImmutableEntry<Pattern,String>[] p = new SimpleImmutableEntry[2];
+    p[0] = getPairs(START + "(" +
+                    "(https?:|www\\.)\\S+"
                     + "|" +
                     // inspired by twokenize
-                    "<?[^\\s@]+\\.(com|co\\.uk|org|net|info|ca|ly|mp|edu|gov)(/(\\S*))?"
-                    + ")" + END_W_PAREN,
-                    "URL");
+                    "[^\\s@]+\\.(com|co\\.uk|org|net|info|ca|ly|mp|edu|gov)(/(\\S*))?"
+                    + ")" + END,
+                    "URL")[0];
+    p[1] = getPairs("(?<=\\(|<)" + "(" +
+                    "(https?:|www\\.)\\S+"
+                    + "|" +
+                    // inspired by twokenize
+                    "[^\\s@]+\\.(com|co\\.uk|org|net|info|ca|ly|mp|edu|gov)(/(\\S*))?"
+                    + ")" + "(?=\\)|>)",
+                    "URL")[0];
+    return p;
+
   }
 
   // emoticons: (here just for misc reference, not all nec. supported)
@@ -135,20 +146,25 @@ public class TwitterTokenizer {
     String nose = "[\\-oO\\*\\']";
     // * can be a nose: :*)
     //   or a mouth, for "kisses" : :*
-    String mouth = "[\\*\\)\\]\\(\\[$sSdDpP/\\:\\}\\{@\\|\\\\]";
+    String mouth = "[\\*\\)\\]\\(\\[$sSdDpP/\\}\\{@\\|\\\\]";
 
-    return getPairs(START + "(" +
+    return getPairs(START + "((" +
                     eyebrows + "?" + eyes + nose + "?" + mouth + "+"
                     + ")|(" +
                     // reverse
                     mouth + "+" + nose + "?" + eyes + eyebrows + "?"
-                    + ")" + END,
+                    + "))" + END,
                     "WEST_EMOTICON");
   }
 
   static SimpleImmutableEntry<Pattern,String>[] getEasternEmoticonPatterns () {
-    return getPairs(START + "(-_-|^_^|=_=|^\\.^|>_<|\\*-\\*|\\*_\\*)" + END,
+    return getPairs(START + "((-_-)|(\\^_\\^)|(=_=)|(\\^\\.\\^)|(\\._\\.)|(>_<)|(\\*-\\*)|(\\*_\\*))" + END,
                     "EAST_EMOTICON");
+  }
+
+  public static SimpleImmutableEntry<Pattern,String>[] getNumberPatterns () {
+    // times, dates, money, ...
+    return getPairs("(\\d+([:,\\./]\\d+)+)", "NUMBER");
   }
 
   public static SimpleImmutableEntry<Pattern,String>[] getPhoneNumberPatterns () {
@@ -174,13 +190,19 @@ public class TwitterTokenizer {
 
   public static SimpleImmutableEntry<Pattern,String>[] getMentionPatterns () {
     //return Pattern.compile(START + "(@[_A-Za-z0-9]+)" + "(?=$|\\s|:)");
-    return getPairs(START_W_PAREN + "(@[_A-Za-z0-9]+)", "MENTION");
+    return getPairs(START_W_PAREN_DBQUOTE + "(@[_A-Za-z0-9]+)", "MENTION");
+    //return getPairs("(?<=^|\\s|\\()" + "(@[_A-Za-z0-9]+)", "MENTION");
   }
 
   public static SimpleImmutableEntry<Pattern,String>[] getHeartPatterns () {
     // grabbed from twokenize
-    return getPairs(START + "(<|&lt)+/?3+" + END, "HEART");
+    return getPairs(START + "((<)|(&lt))+/?3+" + END, "HEART");
   }
+
+  public static SimpleImmutableEntry<Pattern,String>[] getMiscEmoticonPatterns () {
+    return getPairs(START + "((\\\\m/)|(\\\\o/))" + END, "MISC_EMOTICON");
+  }
+
 
   public static SimpleImmutableEntry<Pattern,String>[] getHashtagPatterns () {
     // Potts: "(\\#+[\\w_]+[\\w\\'_\\-]*[\\w_]+)"
@@ -192,13 +214,13 @@ public class TwitterTokenizer {
   public static SimpleImmutableEntry<Pattern,String>[] getLeftArrowPatterns () {
     // twokenize: """(<*[-=]*>+|<+[-=]*>*)"""
     // this is more conservative
-    return getPairs("((<|&lt)+[-=]+)" + END, "LEFT_ARROW");
+    return getPairs("((<|(&lt))+[-=]+)" + END, "LEFT_ARROW");
   }
 
   public static SimpleImmutableEntry<Pattern,String>[] getRightArrowPatterns () {
     // twokenize: """(<*[-=]*>+|<+[-=]*>*)"""
     // this is more conservative
-    return getPairs(START + "([-=]+(>|&gt)+)", "RIGHT_ARROW");
+    return getPairs(START + "([-=]+(>|(&gt))+)", "RIGHT_ARROW");
   }
 
   /**
@@ -210,7 +232,7 @@ public class TwitterTokenizer {
                     // added the [^.] guard: much more likely to catch punctuation ahead of an
                     // @-mention then an email address that ends in '.'
                     // That guard also requires email address to be at least 2 characters long
-                    "([a-zA-Z0-9._%+-]+[^.]@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4})" + END_W_PAREN,
+                    "([a-zA-Z0-9\\._%+-]+[^\\.\\!\\?\\:\\;\\s]@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4})" + END_W_PAREN,
                     "EMAIL");
   }
 
@@ -312,12 +334,14 @@ public class TwitterTokenizer {
     x.add(getURLPatterns());
     x.add(getWesternEmoticonPatterns());
     x.add(getEasternEmoticonPatterns());
+    x.add(getMiscEmoticonPatterns());
     x.add(getHeartPatterns());
     x.add(getHashtagPatterns());
     x.add(getLeftArrowPatterns());
     x.add(getRightArrowPatterns());
     x.add(getRepeatedPatterns());
     x.add(getUnicodePatterns());
+    x.add(getNumberPatterns());
 
     Vector<SimpleImmutableEntry<Pattern,String>> y = new Vector();
     for (int i = 0; i < x.size(); i++)
@@ -341,7 +365,7 @@ public class TwitterTokenizer {
 
     SimpleImmutableEntry<String,String>[] x
       = recursiveTokenize(text.trim(),
-                          patterns, 0, Tokenization.BASIC);
+                          patterns, 0, TokenizationKind.BASIC);
  
     String[][] y = new String[3][];
     y[0] = new String[x.length];
@@ -360,10 +384,10 @@ public class TwitterTokenizer {
   }
 
   public static String[] tokenizeTweet (String text) throws IOException {
-    return tokenizeTweet(text, Tokenization.BASIC);
+    return tokenizeTweet(text, TokenizationKind.BASIC);
   }
 
-  public static String[] tokenizeTweet (String text, Tokenization tokenization) throws IOException {
+  public static String[] tokenizeTweet (String text, TokenizationKind tokenization) throws IOException {
     if (patterns == null)
       initializePatterns();
 
@@ -404,26 +428,31 @@ public class TwitterTokenizer {
   private static SimpleImmutableEntry<String,String>[] recursiveTokenize (String text,
                                                                           SimpleImmutableEntry<Pattern,String>[] patterns,
                                                                           int index,
-                                                                          Tokenization tokenization) throws IOException {
+                                                                          TokenizationKind tokenization) throws IOException {
     if (index < patterns.length) {
       Pattern pattern = patterns[index].getKey();
       String tag = patterns[index].getValue();
       Matcher matcher;
       matcher = pattern.matcher(text);
       int groupCount = matcher.groupCount();
+      String textFragment = "";
       if (groupCount > 0) {
         Vector<SimpleImmutableEntry<String,String>[]> arrays = new Vector();
         int lastEnd = 0;
         while (matcher.find()) {
-          if (matcher.start() > lastEnd)
-            arrays.add(recursiveTokenize(text.substring(lastEnd,matcher.start()).trim(),
-                                         patterns, index + 1, tokenization));
+          if (matcher.start() > lastEnd) {
+            textFragment = text.substring(lastEnd,matcher.start()).trim();
+            if (textFragment.length() > 0) // possible could have started all as whitespace
+              arrays.add(recursiveTokenize(textFragment, patterns, index + 1, tokenization));
+          }
+          //System.out.println("[" + matcher.group() + "] " + matcher.start() + " " + matcher.end());
           arrays.add(new SimpleImmutableEntry[] {new SimpleImmutableEntry(matcher.group(), tag)});
           lastEnd = matcher.end();
         }
         if (lastEnd < text.length())
           arrays.add(recursiveTokenize(text.substring(lastEnd,text.length()).trim(),
                                        patterns, index + 1, tokenization));
+
         return concatAll(arrays);
       } else {
         return recursiveTokenize(text.trim(), patterns, index + 1, tokenization);
@@ -459,9 +488,11 @@ public class TwitterTokenizer {
   public static void main (String[] args) throws Exception {
     BufferedReader reader;
     if (args.length == 0)
-      reader = new BufferedReader(new InputStreamReader(System.in));
+      reader = new BufferedReader(new InputStreamReader(System.in,"UTF-8"));
     else
       reader = FileManager.getReader(args[0]);
+
+    PrintStream out = new PrintStream(System.out, true, "UTF-8");
 
     String line;
     String[][] tokens;
@@ -473,31 +504,31 @@ public class TwitterTokenizer {
       tokens = tokenize(line);
       if (tokens[0].length > 0) {
         if (full)
-          System.out.println(line);
-        System.out.print(tokens[0][0]);
+          out.println(line);
+        out.print(tokens[0][0]);
         for (int i = 1; i < tokens[0].length; i++)
-          System.out.print(" " + tokens[0][i]);
-        System.out.println();
+          out.print(" " + tokens[0][i]);
+        out.println();
         if (full) {
-          System.out.print(tokens[1][0]);
+          out.print(tokens[1][0]);
           for (int i = 1; i < tokens[1].length; i++)
-            System.out.print(" " + tokens[1][i]);
-          System.out.println();
+            out.print(" " + tokens[1][i]);
+          out.println();
         }
         if (full) {
-          System.out.print(tokens[2][0]);
+          out.print(tokens[2][0]);
           for (int i = 1; i < tokens[2].length; i++)
-            System.out.print(" " + tokens[2][i]);
-          System.out.println();
+            out.print(" " + tokens[2][i]);
+          out.println();
         }
       } else {
         if (full) {
-          System.out.println("");
-          System.out.println("");
-          System.out.println("");
-          System.out.println("");
+          out.println("");
+          out.println("");
+          out.println("");
+          out.println("");
         } else {
-          System.out.println("");
+          out.println("");
         }
       }
     }

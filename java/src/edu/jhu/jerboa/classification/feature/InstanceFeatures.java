@@ -45,7 +45,7 @@ public class InstanceFeatures extends Feature {
 	    String line;
 	    String[] tokens;
 	    
-	    featureIDMap = new Hashtable();
+	    featureIDMap = new Hashtable<Integer, String>();
 	    
 	    while ((line = featureMapReader.readLine()) != null) {
 		lineNumber++;
@@ -65,14 +65,18 @@ public class InstanceFeatures extends Feature {
 	if (! data.containsKey("fields"))
 	    logger.warning("Requires a key/value pair to be stored in provided data of the form \"fields\" => String[]");
 
-	Hashtable<String,Double> instance = new Hashtable();
+	Hashtable<String,Double> instance = new Hashtable<String, Double>();
 	String[] fields = (String[]) data.get("fields");
 	String[] tokens;
 	for (String field : fields) {
 	    tokens = field.split(":");
-	    if (featureIDMap != null)
-		instance.put(featureIDMap.get(Integer.parseInt(tokens[0])),
+	    if (featureIDMap != null) {
+	    	String thingy = featureIDMap.get(Integer.parseInt(tokens[0]));
+	    	if (thingy == null)
+	    		logger.severe("Got a null value for key: " + tokens[0]);
+		instance.put(thingy, 
 			     Double.parseDouble(tokens[1]));
+	    }
 	    else
 		instance.put(tokens[0],
 			     Double.parseDouble(tokens[1]));
@@ -81,7 +85,7 @@ public class InstanceFeatures extends Feature {
     }
 
     public Hashtable<String,Object> run (Hashtable<String,Object> data) {
-	Hashtable<String,Object> stateMessage = new Hashtable();
+	Hashtable<String,Object> stateMessage = new Hashtable<String, Object>();
 	stateMessage.put(propPrefix + ".instance", extractInstance(data));
 	stateMessage.put(propPrefix + ".norm", 1.0);
 

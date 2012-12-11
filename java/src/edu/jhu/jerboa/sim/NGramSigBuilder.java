@@ -136,9 +136,6 @@ public class NGramSigBuilder implements IStreamProcessor {
         }
 	    }
     }
-
-    if (JerboaProperties.getBoolean("NGramSigBuilder.makeSigs",true))
-	    ((SLSH)container).buildSignatures();
   }
 
   // /**

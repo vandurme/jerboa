@@ -27,9 +27,9 @@ import edu.jhu.jerboa.util.*;
    ColumnLineParser.conjoinFields : (String) if present, will use the value of
    this parameter to conjoin fields
    <p>
-   ColumnLineParser.tokenization : (Tokenization) type of tokenization that will
-   be used on the "content" field, if set. Otherwise "content" is returned as a
-   single String, per field.
+   ColumnLineParser.tokenizationKind : (TokenizationKind) type of
+   tokenizationKind that will be used on the "content" field, if set. Otherwise
+   "content" is returned as a single String, per field.
 
 */
 public class ColumnLineParser implements ILineParser {
@@ -38,7 +38,7 @@ public class ColumnLineParser implements ILineParser {
   private int[] fields;
   private String conjoinFields;
   private boolean lowercase;
-  Tokenization tokenization;
+  TokenizationKind tokenization;
 
   public ColumnLineParser () throws Exception {
     separator = JerboaProperties.getString("ColumnLineParser.separator",null);
@@ -52,9 +52,9 @@ public class ColumnLineParser implements ILineParser {
 	    fields = null;
     }
     conjoinFields = JerboaProperties.getString("ColumnLineParser.conjoinFields",null);
-    String type = JerboaProperties.getString("ColumnLineParser.tokenization", null);
+    String type = JerboaProperties.getString("ColumnLineParser.tokenizationKind", null);
     if (type != null)
-	    tokenization = Tokenization.valueOf(type);
+	    tokenization = TokenizationKind.valueOf(type);
     else
 	    tokenization = null;
   }

@@ -7,26 +7,25 @@
 package edu.jhu.jerboa.processing;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.io.File;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 import java.util.logging.Logger;
-import java.util.Enumeration;
 
-import edu.jhu.jerboa.util.*;
+import edu.jhu.jerboa.util.FileManager;
+import edu.jhu.jerboa.util.JerboaProperties;
 
 /**
    @author Benjamin Van Durme
 
    Given a set of files representing communication information, will read in all
-   messages, aggregated on the communicant ID, and then present a streaming view
+   messages, aggregated on the key (communicant ID), and then present a streaming view
    where each data element is the aggregation of all content into the "content"
    field, with a separate field:
 
    "communications" : Vector(Hashtable(String,Object)) that represents an
-   ordered list of all communications from this communicant.
+   ordered list of all communications from this key (communicant).
 
 */
 public class BatchCommunicationStream implements IStream {
@@ -48,9 +47,15 @@ public class BatchCommunicationStream implements IStream {
      lineParser : (String) class name of the ILineParser to use
   */
   public BatchCommunicationStream () throws Exception {
-    files = FileManager.getFiles(JerboaProperties.getStrings("BatchCommunicationStream.files"));
+	  String[] fileNames = JerboaProperties.getStrings("BatchCommunicationStream.files");
+    files = FileManager.getFiles(fileNames);
     if (files.length == 0) {
-	    throw new Exception("No files matched the pattern(s) for BatchCommunicationStream.files");
+    	String fileNamesString = "[";
+    	for (String fn : fileNames)
+    		fileNamesString += fn + ", ";
+    	fileNamesString += "]";
+    	String errorMsg = "No files matched the pattern(s) for BatchCommunicationStream.files. Check to make sure these files exist. Currently the values are: " + fileNamesString;
+	    throw new Exception(errorMsg);
     }
     curDocID = 0;
     reader = FileManager.getReader(files[curDocID]);
@@ -65,7 +70,7 @@ public class BatchCommunicationStream implements IStream {
 
   public int getLength () {
     // TODO: This is not correct
-    System.err.println("ERROR: THIS NEEDS TO BE FIXED in BatchCommunicationStream getLength");
+    logger.severe("ERROR: THIS NEEDS TO BE FIXED in BatchCommunicationStream getLength");
     System.exit(-1);
     return files.length;
   }
@@ -94,26 +99,26 @@ public class BatchCommunicationStream implements IStream {
   private void buildLog () throws Exception {
     Hashtable<String,Object> data;
     Hashtable<String,Object> entry;
-    String communicant;
+    String key;
     String[] content;
     String[] newContent;
     String[] combinedContent;
 
     while (hasNextFile()) {
 	    data = nextCommunication();
-	    if (! data.containsKey("communicant"))
-        throw new Exception("Failed to find expected [communicant]");
-	    communicant = (String) data.get("communicant");
+	    if (! data.containsKey("key"))
+        throw new Exception("Failed to find expected [key]");
+	    key = (String) data.get("key");
 	    // NOTE: all information in the first data element with this
 	    // communicant will be copied to the global communication: things
 	    // like label, but also whoever the first recepient was, or any
 	    // other information specific to the given exchange.
-	    if (! log.containsKey(communicant)) {
+	    if (! log.containsKey(key)) {
         data.put("communications", new Vector());
-        log.put(communicant,data);
+        log.put(key,data);
         data.put("numObservations", 1);
 	    } else {
-        entry = log.get(communicant);
+        entry = log.get(key);
         entry.put("numObservations",((Integer) entry.get("numObservations")) + 1);
         if (data.containsKey("content")) {
           // Concatenate old content with new content

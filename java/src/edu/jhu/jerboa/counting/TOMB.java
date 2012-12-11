@@ -135,9 +135,12 @@ public class TOMB implements ICounterContainer {
     set(key, (int) value);
   }
 
-  public void set(String key, int value) {
+  /**
+     WARNING: the boolean value will always be false; is here for compat with interface
+   */
+  public boolean set(String key, int value) {
     if (value <= 0)
-	    return;
+	    return false; // for compat
 	
     int d = 0;
     int address = 0;
@@ -166,6 +169,7 @@ public class TOMB implements ICounterContainer {
 	    }
 	    d++;
     }
+    return false; // for compat
   }
 
   /**

@@ -26,7 +26,7 @@ public class YarowskyLineParser implements ILineParser {
   Hashtable<String,Boolean> classPolarity;
   boolean caseSensitive, ignoreAttribute;
   ClassifierForm form;
-  Tokenization tokenization;
+  TokenizationKind tokenization;
 
   /**
      propPrefix: YarowskyLineParser
@@ -39,7 +39,7 @@ public class YarowskyLineParser implements ILineParser {
      classLabels : (String), when classifier form is BINARY, then the first label will be treated +1, and the second -1
      ignoreAttribute : (Boolean) if true, will not look for an attribute in the message
 
-     tokenization : (Tokenization) defaults to PTB
+     tokenization : (TokenizationKind) defaults to PTB
   */
   public YarowskyLineParser () throws Exception {
     caseSensitive = JerboaProperties.getBoolean("YarowskyLineParser.caseSensitive", true);
@@ -55,7 +55,7 @@ public class YarowskyLineParser implements ILineParser {
 	    classPolarity.put(classLabels[0].toLowerCase(),true);
 	    classPolarity.put(classLabels[1].toLowerCase(),false);
     }
-    tokenization = Tokenization.valueOf(JerboaProperties.getString("YarowskyLineParser.tokenization", "PTB"));
+    tokenization = TokenizationKind.valueOf(JerboaProperties.getString("YarowskyLineParser.tokenization", "PTB"));
   }
 
   /**
@@ -90,13 +90,13 @@ public class YarowskyLineParser implements ILineParser {
      "label" : {1,-1}, if binary (positive, negative determined by order of the property: classLabels)
      or
      "label" : String, the class label, if not binary
-     "content" : String[], content tokenized on whitespace
+     "content" : String[], tokenized content
 
-     "communicant" : String, a unique ID identifying the communicant, possible shared across multiple communications
+     "key" : String, a unique ID identifying the communicant, possible shared across multiple communications
 
      label is derived from the field specified by the property "attributeField"
 
-     communicant is set by the "communicantField" property (e.g., "communicant", "recipient", ...)
+     key is set by the "communicantField" property (e.g., "communicant", "recipient", ...)
 
      content comes from everything between the begin and end of message, with newlines removed.
 
@@ -124,7 +124,7 @@ public class YarowskyLineParser implements ILineParser {
           else
             h.put("label",fieldPair[1]);
         } else if (fieldPair[0].equals(communicantField)) {
-          h.put("communicant",fieldPair[1]);
+          h.put("key",fieldPair[1]);
         }
 	    }
 	    String content = "";
