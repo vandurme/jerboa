@@ -20,7 +20,7 @@
   <property name="project.description" value="Jerboa Java code" />
   
   <!-- Main package name for the project. Used as the distribution jar name, -->
-  <!-- the release jar name, and expected main directory under "edu.jhuapl." -->
+  <!-- the release jar name, and expected main directory under "edu.jhu." -->
   <property name="project.package.name" value="jerboa" />
   
   <!-- Default executable class name for executing the run target -->
@@ -248,7 +248,7 @@
   <!-- *            if that isn't set, uses the                         * -->
   <!-- *            executable.class property                           * -->
   <!-- * e.g:                                                           * -->
-  <!-- * ant run.class -Dclass=edu.jhuapl.MyNewClass -Dargs="arg1 arg2" * -->
+  <!-- * ant run.class -Dclass=edu.jhu.MyNewClass -Dargs="arg1 arg2" * -->
   <!-- ****************************************************************** -->
   <target name="run.class" depends="compile" description="Run the class specified by -Dclass=[fully.qualified.classname]">
     <condition property="runClass" value="${class}">
