@@ -79,7 +79,8 @@ public class FileManager {
 	  // logic goes here to fork btwn file or jar
 	  // possible stack overflow here if Jerboa.resourceType is not defined. 
 	  // String rt = JerboaProperties.getString("Jerboa.resourceType", "file");
-	  if (System.getProperty("Jerboa.resourceType") != null)
+    String resType = System.getProperty("Jerboa.resourceType");
+	  if (resType != null && resType.equals("jar"))
 		  return new BufferedReader(new InputStreamReader(FileManager.class.getClassLoader().getResourceAsStream(filename)));
 	  else
 		  return getReader(new File(filename), "UTF-8");
