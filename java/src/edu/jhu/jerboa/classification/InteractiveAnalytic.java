@@ -6,19 +6,16 @@
 
 package edu.jhu.jerboa.classification;
 
-import edu.jhu.jerboa.util.JerboaProperties;
-import edu.jhu.jerboa.util.FileManager;
-import edu.jhu.jerboa.processing.*;
-
-import java.util.AbstractMap.SimpleImmutableEntry;
-import java.io.*;
-import java.util.Hashtable;
-import java.util.Enumeration;
-import java.util.logging.Logger;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.File;
-import java.util.Arrays;
+import java.util.Hashtable;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.logging.Logger;
+
+import edu.jhu.jerboa.processing.TokenizationKind;
+import edu.jhu.jerboa.processing.Tokenizer;
+import edu.jhu.jerboa.util.JerboaProperties;
 
 /**
    @author Benjamin Van Durme
@@ -29,24 +26,24 @@ import java.util.Arrays;
    output after each new line.
  */
 public class InteractiveAnalytic {
-    private static Logger logger = Logger.getLogger(InteractiveAnalytic.class.getName());
+	private static Logger logger = Logger.getLogger(InteractiveAnalytic.class.getName());
 
 
     public static void main (String[] args) throws Exception {
-	JerboaProperties.load(args[0]);
+    JerboaProperties.load();
 	Analytic analytic = new Analytic();
 
 	BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 	String line;
-	Hashtable<String,Object> data = new Hashtable();
-	Hashtable<String,ClassifierState> states = new Hashtable();
-
-	System.out.print("> ");
+	Hashtable<String,Object> data = new Hashtable<String,Object>();
+	Hashtable<String,ClassifierState> states = new Hashtable<String,ClassifierState>();
+	logger.info("\n\nReady to process content. Type in words below...\n");
+		
 	while ((line = in.readLine()) != null) {
-	    data.put("content", Tokenizer.tokenize(line,Tokenization.PTB));
+	    data.put("content", Tokenizer.tokenize(line,TokenizationKind.PTB));
 	    analytic.update(states, analytic.processData(data));
-	    System.out.print(analytic.report(states));
-	    System.out.print("> ");
+	    System.out.print(analytic.report(states) + "\n");
+	    
 	}
    }
 }

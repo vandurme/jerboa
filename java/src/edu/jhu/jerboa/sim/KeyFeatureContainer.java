@@ -5,6 +5,7 @@
 package edu.jhu.jerboa.sim;
 
 import edu.jhu.jerboa.util.*;
+import edu.jhu.jerboa.counting.ICounterContainer;
 import java.io.*;
 import edu.jhu.jerboa.processing.IStreamingContainer;
 import java.util.Random;
@@ -29,86 +30,187 @@ import java.util.AbstractMap.SimpleImmutableEntry;
    appear with each feature, and keys, features separately. If holding the
    features and keys fixed in a later stream processing task (such as computing
    LSH signatures), then the statistics gathered via this container can be used
-   for, e.g., PMI or TF IDF weighting.
-
-   In TF IDF terminology:
-   terms == features
-   documents == keys
+   for, e.g., PMI or TFIDF weighting.
 
    Writes results to a file of the form:
 
-   ktf TAB skf TAB ftf TAB sff
+   ktf TAB ftf TAB sf
+   key TAB kf
+   key TAB kf
+   ...
    feature TAB kftf TAB ff
    feature TAB kftf TAB ff
    ...
-   key TAB kf
-   key TAB kf
 
    where:
    ktf : key type frequency: total number of observed keys by type
-   skf : sum-total key frequency, over all keys, by token
+   sf  : sum-total of value over all calls to update
    ftf : feature type frequency: number of unique features, by type
-   sff : sum-total feature frequency
    kftf : key-feature type freq: number of keys by type that have this feature
-   ff : feature frequency, by token
-   kf : key frequency, by token
+   ff : feature frequency, by token, over calls to update
+   kf : key frequency, by token, over calls to update
 
-   NOTE: currently assumes that no (feature,key) pair is observed more than
-   once, such as when working with certain preprocessed ngram tables. Future
-   work should add an optional ICounter to track the combinations, using either
-   an explicit Hashtable base, or a BloomFilter.
-*/
+   TFIDF(key,feature): freq(key,feature) * 1.0/kftf(key,feature)
+
+   PMI(key, feature): log(freq(key,feature)*sf / [kf(key)*ff(feature)])
+
+   Where in both cases it is freq(key,feature) that is the expensive thing to
+   track, which this structure does not do.
+ */
 public class KeyFeatureContainer implements IFeatureContainer {
   private static Logger logger = Logger.getLogger(KeyFeatureContainer.class.getName());
   private static final long serialVersionUID = 1L;
 
   // maps key or feature to an array of the form {type freq, token freq}
-  Hashtable<String,double[]> keyTable;
-  Hashtable<String,double[]> featureTable;
-  double skf, sff;
+  public Hashtable<String,Double> kTable;
+  public Hashtable<String,Double> fTable;
+  // number of occurrences of a given feature by type with a key by type
+  public Hashtable<String,Double> kfTable;
+  // records whether a given key and feature have occurred together, needed in
+  // order to maintain kfTable
+  ICounterContainer kftfFilter;
+
+  double sf;
+  boolean filterKeys;
 
   public KeyFeatureContainer() throws Exception {
-    skf = 0;
-    sff = 0;
-    keyTable = new Hashtable();
-    featureTable = new Hashtable();
-    readKeys();
+    sf = 0.0;
+    kfTable = new Hashtable();
+    fTable = new Hashtable();
+    kTable = new Hashtable();
+    String keyFilename = JerboaProperties.getString("KeyFeatureContainer.keyFile",null);
+    if (keyFilename != null) {
+      filterKeys = true;
+      readKeys(keyFilename);
+    } else {
+      filterKeys = false;
+    }
+    String filterName = 
+	    JerboaProperties.getString("KeyFeatureContainer.filter",
+                                 "edu.jhu.jerboa.counting.HashtableFilter");
+    logger.info("Creating instance of [" + filterName + "]");
+    Class c = Class.forName(filterName);
+    kftfFilter = (ICounterContainer) c.newInstance();
   }   
 
-  public void readKeys () throws IOException {
-    String keyFilename = JerboaProperties.getString("KeyFeatureContainer.keyFile",null);
+  public void readKeys (String keyFilename) throws IOException {
     BufferedReader reader = FileManager.getReader(keyFilename);
-    int length;
     String line;
     while ((line = reader.readLine()) != null)
-	    keyTable.put(line, new double[] {0,0});
+	    kTable.put(line, 0.0);
     reader.close();
   }
 
-  public void update (String key, String feature, double value) {
-    double[] counts;
+  public double idf (String feature) {
+    return 1.0/kfTable.get(feature);
+  }
 
-    if (keyTable.containsKey(key)) {
-	    if (! featureTable.containsKey(feature))
-        featureTable.put(feature, new double[] {0,0});
-	    counts = featureTable.get(feature);
-	    counts[0] += 1;
-	    counts[1] += value;
-	    skf += value;
-	    sff += value;
-	    counts = keyTable.get(key);
-	    counts[0] += 1;
-	    counts[1] += value;
+  /**
+     Probability of feature
+   */
+  public double pf (String feature) {
+    Double ff = fTable.get(feature);
+    if (ff == null)
+      return 0.0;
+    else
+      return ff / sf;
+  }
+
+  /**
+     Probability of key
+  */
+  public double pk (String key) {
+    Double kf = kTable.get(key);
+    if (kf == null)
+      return 0.0;
+    else
+      return kf / sf;
+  }
+
+  public void update (String key, String feature, double value) {
+    if (! kTable.containsKey(key)) {
+      if (! filterKeys)
+        kTable.put(key,0.0);
+      else
+        return;
+    }
+
+    kTable.put(key,kTable.get(key)+value);
+
+    if (! fTable.containsKey(feature))
+      fTable.put(feature, 0.0);
+
+    fTable.put(feature,fTable.get(feature)+value);
+
+    String kf = key + ":" + feature;
+
+    sf += value;
+
+    if (! kftfFilter.set(kf,0)) {
+      if (! kfTable.containsKey(feature))
+        kfTable.put(feature,0.0);
+      kfTable.put(feature,kfTable.get(feature)+1.0);
     }
   }
 
   public void write () throws IOException {
-    logger.severe("NOT YET IMPLEMENTED");
-    throw new IOException("NOT YET IMPLENTED");
+    BufferedWriter writer = FileManager.getWriter
+      (JerboaProperties.getString("KeyFeatureContainer.filename"));
+
+    if (filterKeys)
+      for (String key : kTable.keySet())
+        if (! (kTable.get(key) > 0.0))
+          kTable.remove(key);
+
+    writer.write(kTable.size() + "\t" + fTable.size() + "\t" + sf);
+    writer.newLine();
+    for (String key : kTable.keySet()) {
+      writer.write(key + "\t" + kTable.get(key));
+      writer.newLine();
+    }
+    for (String feature : fTable.keySet()) {
+      writer.write(feature + "\t" + kfTable.get(feature) + "\t" + fTable.get(feature));
+      writer.newLine();
+    }
+    writer.close();
   }
 
+  /**
+     filename : file to read stats from
+     keyThreshold : key must appear at least this many times by frequency
+     featureThreshold : feature must appear at least this many times by type across keys
+   */
   public void read () throws IOException, ClassNotFoundException {
-    logger.severe("NOT YET IMPLEMENTED");
-    throw new IOException("NOT YET IMPLENTED");
+    BufferedReader reader = FileManager.getReader
+      (JerboaProperties.getString("KeyFeatureContainer.filename"));
+    double kThreshold = JerboaProperties.getDouble("KeyFeatureContainer.keyThreshold",0.0);
+    double fThreshold = JerboaProperties.getDouble("KeyFeatureContainer.featureThreshold",0.0);
+
+    String line;
+    String[] tokens;
+    double x;
+    line = reader.readLine();
+    tokens = line.split("\\t");
+    
+    sf = Double.parseDouble(tokens[2]);
+
+    while ((line = reader.readLine()) != null) {
+      tokens = line.split("\\t");
+      if (tokens.length == 2) {
+        if ((! filterKeys) || kTable.containsKey(tokens[0])) {
+          x = Double.parseDouble(tokens[1]);
+          if (x >= kThreshold)
+            kTable.put(tokens[0],x);
+          else if (filterKeys)
+            kTable.remove(tokens[0]);
+        }
+      } else {
+        x = Double.parseDouble(tokens[1]);
+        if (x >= fThreshold) {
+          kfTable.put(tokens[0],x);
+          fTable.put(tokens[0],Double.parseDouble(tokens[2]));
+        }
+      }
+    }
   }
 }

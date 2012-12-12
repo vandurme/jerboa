@@ -35,8 +35,10 @@ public class HashtableCounter implements ICounterContainer {
     writeFreq = JerboaProperties.getBoolean("HashtableCounter.writeFreq",true);
   }
 
-  public void set (String key, int value) {
+  public boolean set (String key, int value) {
+    boolean in = table.containsKey(key);
     table.put(key,value);
+    return in;
   }
 
   public boolean increment (String key, int value) {

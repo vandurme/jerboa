@@ -137,10 +137,18 @@ public class Tokenizer {
     
     // cut-n-paste, then modified from getPTBPatterns
     String[] v = {
+      // double quotes
+      "([\"\u201c\u201d\u201e\u201f\u275d\u275e])", " $1 ",
+
       // Ellipsis
       "\\.\\.\\.", " ... ",
 
-      "([,;:@#$%&])", " $1 ",
+      "([,;:@#$%&\\*])", " $1 ",
+
+      // HTML escaped (stop gap)
+      "& ([gl])t ;", "&$1t;",
+      "& nbsp ;", " &nbsp; ",
+      "& hearts ;", " &hearts; ",
 
       // vandurme: carefully with final .
       "([^\\.])(\\.)(\\s|$)", "$1 $2$3",
@@ -387,7 +395,7 @@ public class Tokenizer {
   }
 
 
-  public static String[] tokenize (String text, Tokenization type) throws IOException {
+  public static String[] tokenize (String text, TokenizationKind type) throws IOException {
     switch (type) {
     case PTB:
       return rewrite(text,ptbPatterns).split("\\s+");
@@ -414,7 +422,7 @@ public class Tokenizer {
     boolean test = JerboaProperties.getBoolean("Tokenizer.test",false);
 
     while ((line = reader.readLine()) != null) {
-      tokens = tokenize(line, Tokenization.valueOf(args[0]));
+      tokens = tokenize(line, TokenizationKind.valueOf(args[0]));
       if (tokens.length > 0) {
         if (test)
           System.out.println(line);

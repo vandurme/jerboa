@@ -12,6 +12,7 @@ import java.util.Vector;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import edu.jhu.jerboa.util.JerboaProperties;
 
 /**
    @author Benjamin Van Durme
@@ -20,10 +21,20 @@ import java.io.IOException;
 */
 public class TokenDocumentParser implements IDocumentParser {
   private static String[] stringArr = new String[0];
+  private boolean fileKey;
+
+  public TokenDocumentParser() throws Exception {
+    fileKey = JerboaProperties.getBoolean("TokenDocumentParser.fileKey",true);
+  }
 
   /**
+     property:
+     TokenDocumentParser.fileKey : (boolean) if true, set "key" in result to name of file
+
      Result includes:
      "content" : String[] of tokens
+     "key" : String, if fileKey is true, then will be name of file
+
   */
   public Hashtable<String,Object> parseDocument (File file) throws IOException {
     Vector<String> context = new Vector<String>();
@@ -38,6 +49,8 @@ public class TokenDocumentParser implements IDocumentParser {
     }
     reader.close();
     h.put("content",(String[]) context.toArray(stringArr));
+    if (fileKey)
+      h.put("key",file.getCanonicalPath());
     return h;
   }
 }
