@@ -7,15 +7,14 @@
 package edu.jhu.jerboa.processing;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.io.File;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 import java.util.logging.Logger;
-import java.util.Enumeration;
 
-import edu.jhu.jerboa.util.*;
+import edu.jhu.jerboa.util.FileManager;
+import edu.jhu.jerboa.util.JerboaProperties;
 
 /**
    @author Benjamin Van Durme
@@ -48,9 +47,15 @@ public class BatchCommunicationStream implements IStream {
      lineParser : (String) class name of the ILineParser to use
   */
   public BatchCommunicationStream () throws Exception {
-    files = FileManager.getFiles(JerboaProperties.getStrings("BatchCommunicationStream.files"));
+	  String[] fileNames = JerboaProperties.getStrings("BatchCommunicationStream.files");
+    files = FileManager.getFiles(fileNames);
     if (files.length == 0) {
-	    throw new Exception("No files matched the pattern(s) for BatchCommunicationStream.files");
+    	String fileNamesString = "[";
+    	for (String fn : fileNames)
+    		fileNamesString += fn + ", ";
+    	fileNamesString += "]";
+    	String errorMsg = "No files matched the pattern(s) for BatchCommunicationStream.files. Check to make sure these files exist. Currently the values are: " + fileNamesString;
+	    throw new Exception(errorMsg);
     }
     curDocID = 0;
     reader = FileManager.getReader(files[curDocID]);
@@ -65,7 +70,7 @@ public class BatchCommunicationStream implements IStream {
 
   public int getLength () {
     // TODO: This is not correct
-    System.err.println("ERROR: THIS NEEDS TO BE FIXED in BatchCommunicationStream getLength");
+    logger.severe("ERROR: THIS NEEDS TO BE FIXED in BatchCommunicationStream getLength");
     System.exit(-1);
     return files.length;
   }

@@ -6,13 +6,14 @@
 
 package edu.jhu.jerboa.classification.feature;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.Hashtable;
+import java.util.logging.Logger;
+
+import edu.jhu.jerboa.util.FileManager;
 import edu.jhu.jerboa.util.JerboaProperties;
 import edu.jhu.jerboa.util.Trie;
-import edu.jhu.jerboa.util.FileManager;
-import java.util.logging.Logger;
-import java.io.IOException;
-import java.io.BufferedReader;
 
 /**
    @author Benjamin Van Durme
@@ -72,10 +73,11 @@ public class NGram extends Feature {
   */
   public static void loadClasses(String filename, boolean caseSensitive, Hashtable<String,String> classes)
     throws IOException {
-    //logger.config("Loadding classes [" + filename + "]");
+    //logger.config("Loading classes [" + filename + "]");
     String line;
     String[] columns;
     BufferedReader reader = FileManager.getReader(filename);
+    // BufferedReader reader = 
     while ((line = reader.readLine()) != null) {
 	    if (! caseSensitive)
         line = line.toLowerCase();

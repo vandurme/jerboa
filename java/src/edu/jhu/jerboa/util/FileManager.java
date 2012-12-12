@@ -8,19 +8,18 @@ package edu.jhu.jerboa.util;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileOutputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.File;
 import java.io.FileInputStream;
-import java.io.ObjectInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.OutputStreamWriter;
+import java.util.Vector;
+import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-import java.io.IOException;
-import java.util.logging.Logger;
-import java.util.Vector;
-import java.io.File;
-import java.util.regex.Pattern;
 
 /**
    @author Benjamin Van Durme
@@ -68,25 +67,38 @@ public class FileManager {
 
   /**
      Returns new File(filename)
-   */
+  */
   public static File getFile (String filename) {
     return new File(filename);
   }
 
   /**
      Returned BufferedReader is set to UTF-8 encoding
-   */
+  */
   public static BufferedReader getReader (String filename) throws IOException {
-    return getReader(new File(filename), "UTF-8");
+	  // logic goes here to fork btwn file or jar
+	  // possible stack overflow here if Jerboa.resourceType is not defined. 
+	  // String rt = JerboaProperties.getString("Jerboa.resourceType", "file");
+	  if (System.getProperty("Jerboa.resourceType") != null)
+		  return new BufferedReader(new InputStreamReader(FileManager.class.getClassLoader().getResourceAsStream(filename)));
+	  else
+		  return getReader(new File(filename), "UTF-8");
+//	  if (rt.equals("file")) 
+//		  return getReader(new File(filename), "UTF-8");
+//	  else if (rt.equals("jar"))
+//		  return new BufferedReader(new InputStreamReader(FileManager.class.getClassLoader().getResourceAsStream(filename)));
+//	  else
+//		  throw new IllegalArgumentException("The resource type: " + rt.toString() + " has not been implemented.");
+	  
   }
-
+  
   public static BufferedReader getReader (String filename, String encoding) throws IOException {
     return getReader(new File(filename), encoding);
   }
 
   /**
      Returned BufferedReader is set to UTF-8 encoding
-   */
+  */
   public static BufferedReader getReader (File file) throws IOException {
     return getReader(file, "UTF-8");
   }
@@ -129,14 +141,14 @@ public class FileManager {
   }
   /**
      Returned BufferedWriter is set to UTF-8 encoding.
-   */
+  */
   public static BufferedWriter getWriter(String filename) throws IOException {
     return getWriter(new File(filename), "UTF-8");
   }
 
   /**
      Returned BufferedWriter is set to UTF-8 encoding.
-   */
+  */
   public static BufferedWriter getWriter (File file) throws IOException {
     return getWriter(file, "UTF-8");
   }
@@ -145,7 +157,7 @@ public class FileManager {
      Returns a BufferedWriter aimed at the given file.
 
      If filename ends in .gz suffix, will wrap the writer appropriately.
-   */
+  */
   public static BufferedWriter getWriter (File file, String encoding) throws IOException {
     OutputStreamWriter osw;
     GZIPOutputStream gs;
