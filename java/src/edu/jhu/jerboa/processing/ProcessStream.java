@@ -39,11 +39,10 @@ import edu.jhu.jerboa.util.JerboaProperties;
    classifiers with multiple passes over data.
 */
 class ProcessStream {
-  private static Logger logger;
+  private static Logger logger = Logger.getLogger(ProcessStream.class.getName());
 
   public static void run () throws Exception {
     JerboaProperties.load();
-    logger = Logger.getLogger(ProcessStream.class.getName());
 				
     String streamProcessorName = 
 	    JerboaProperties.getString("ProcessStream.processor");
