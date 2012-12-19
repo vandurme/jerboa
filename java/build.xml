@@ -344,15 +344,6 @@
     </exec>
   </target>
   
-  <target name="test.pa-binary" depends="compile" description="Run the passive-aggressive binary classifier against test data">
-    <property name="runClass" value="edu.jhu.jerboa.processing.ProcessStream" />
-    <java classname="${runClass}" fork="true" classpathref="class.path">
-      <jvmarg value="-Xmx4G" />
-      <jvmarg value="-DBUILD=${aBuild}" />
-      <jvmarg value="-DJerboaProperties.filename=${aSource}/test.pa-binary.properties" />
-    </java>
-  </target>
-  
   <target name="test" depends="compile" description="Test classifier on test set">
     <property name="runClass" value="edu.jhu.jerboa.processing.ProcessStream" />
     <java classname="${runClass}" fork="true" classpathref="class.path">
@@ -366,7 +357,14 @@
     <antcall target="ngram" />
     <antcall target="featurize.binary" />
     <antcall target="train.pa-binary" />
-    <antcall target="test.pa-binary" />
+    <antcall target="test" />
+  </target>
+
+  <target name="run.log-linear.all">
+    <antcall target="ngram" />
+    <antcall target="featurize.binary" />
+    <antcall target="train.log-linear" />
+    <antcall target="test" />
   </target>
 
   <target name="run.interactiveAnalytic" depends="compile">
