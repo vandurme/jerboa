@@ -41,7 +41,7 @@ public class TokenDocumentParser implements IDocumentParser {
     String line;
     String[] tokens;
     BufferedReader reader = FileManager.getReader(file);
-    Hashtable<String,Object> h = new Hashtable();
+    Hashtable<String,Object> h = new Hashtable<String, Object>();
     while ((line = reader.readLine()) != null) {
 	    tokens = line.split("\\s");
 	    for (int i = 0; i < tokens.length; i++)

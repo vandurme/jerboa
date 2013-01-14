@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 /**
  * @author Benjamin Van Durme
  * 
- *         A utility wrapper around {@code java.util.Properties}, supporting type specific querying
+ *         A utility wrapper around {@link java.util.Properties}, supporting type specific querying
  *         on property values, and throwing Exception when properties are not found in cases with no
  *         default value.
  *         <p>
@@ -60,14 +60,27 @@ public class JerboaProperties {
     return sb.toString();
   }
 
+  /**
+   * Calls {@link #load(String) load()} with the property
+   * JerboaProperties.filename as the argument.
+   * 
+   * @throws IOException
+   */
   public static void load() throws IOException {
     String filename = System.getProperty("JerboaProperties.filename");
     logger.info("Loading properties file: " + filename);
-    if (filename != null) load(filename);
+    if (filename != null) 
+      load(filename);
 
     isLoaded = true;
   }
 
+  /**
+   * Loads a static {@link Properties} object via {@link FileManager#getReader(String)}.
+   * 
+   * @param filename - the name of the file to be loaded in the properties object
+   * @throws IOException
+   */
   public static void load(String filename) throws IOException {
     logger.config("Reading JerboaProperty file [" + filename + "]");
     if (properties == null) properties = new java.util.Properties();

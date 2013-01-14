@@ -171,7 +171,8 @@ public class Analytic {
   }
 
   public static void main (String[] args) throws Exception {
-    JerboaProperties.load(args[0]);
+    //JerboaProperties.load(args[0]);
+    JerboaProperties.load();
     Analytic analytic = new Analytic();
 
     String docParserName =
@@ -180,7 +181,7 @@ public class Analytic {
     c = Class.forName(docParserName);
     IDocumentParser docParser = (IDocumentParser) c.newInstance();
 
-    for (int i = 1; i < args.length; i++)
+    for (int i = 0; i < args.length; i++)
       analytic.process(args[i],docParser.parseDocument(FileManager.getFile(args[i])));
   }
 }
