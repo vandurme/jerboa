@@ -76,7 +76,7 @@ public class Tokenizer {
     // 2534 \u2600 sun-symbol BLACK SUN WITH RAYS 
     // 2346 \u2550 = BOX DRAWINGS DOUBLE HORIZONTAL
     // 2094 \u0305 - COMBINING OVERLINE
-    Vector<SimpleImmutableEntry<Pattern,String>> patterns = new Vector();
+    Vector<SimpleImmutableEntry<Pattern,String>> patterns = new Vector<SimpleImmutableEntry<Pattern, String>>();
     String[] p = {
       "\u201c", "\"",
       "\u201d", "\"", 
@@ -119,7 +119,7 @@ public class Tokenizer {
       "\u0305", "-" };
 
     for (int i = 0; i < p.length -1; i+= 2) {
-      patterns.add(new SimpleImmutableEntry(Pattern.compile(p[i],
+      patterns.add(new SimpleImmutableEntry<Pattern, String>(Pattern.compile(p[i],
                                                             Pattern.MULTILINE),
                                             p[i+1]));
     }
@@ -133,7 +133,7 @@ public class Tokenizer {
      portable across formal/informal Western (?) languages.
   */
   public static SimpleImmutableEntry<Pattern,String>[] getBasicPatterns() {
-    Vector<SimpleImmutableEntry<Pattern,String>> patterns = new Vector();
+    Vector<SimpleImmutableEntry<Pattern,String>> patterns = new Vector<SimpleImmutableEntry<Pattern, String>>();
     
     // cut-n-paste, then modified from getPTBPatterns
     String[] v = {
@@ -170,7 +170,7 @@ public class Tokenizer {
     };
 
     for (int i = 0; i < v.length -1; i+= 2) {
-      patterns.add(new SimpleImmutableEntry(Pattern.compile(v[i],
+      patterns.add(new SimpleImmutableEntry<Pattern, String>(Pattern.compile(v[i],
                                                             Pattern.MULTILINE),
                                             v[i+1]));
     }
@@ -186,7 +186,7 @@ public class Tokenizer {
      "Robert MacIntyre, University of Pennsylvania, late 1995".
   */
   public static SimpleImmutableEntry<Pattern,String>[] getPTBPatterns() {
-    Vector<SimpleImmutableEntry<Pattern,String>> patterns = new Vector();
+    Vector<SimpleImmutableEntry<Pattern,String>> patterns = new Vector<SimpleImmutableEntry<Pattern, String>>();
 
     // The following is a port of patterns and comments from tokenizer.sed
     String[] v = {
@@ -259,7 +259,7 @@ public class Tokenizer {
     };
 
     for (int i = 0; i < v.length -1; i+= 2) {
-      patterns.add(new SimpleImmutableEntry(Pattern.compile(v[i],
+      patterns.add(new SimpleImmutableEntry<Pattern, String>(Pattern.compile(v[i],
                                                             Pattern.MULTILINE),
                                             v[i+1]));
     }

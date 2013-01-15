@@ -20,7 +20,7 @@
   <property name="project.description" value="Jerboa Java code" />
   
   <!-- Main package name for the project. Used as the distribution jar name, -->
-  <!-- the release jar name, and expected main directory under "edu.jhu." -->
+  <!-- the release jar name, and expected main directory under "edu.jhuapl." -->
   <property name="project.package.name" value="jerboa" />
   
   <!-- Default executable class name for executing the run target -->
@@ -44,8 +44,12 @@
   <property name="dist.dir" value="${basedir}/dist" />
   <!-- Directory where configuration files are expected -->
   <property name="config.dir" value="${basedir}/config" />
-  <!-- analytics dir -->
-  <property name="analytic.dir" value="${root.dir}/analytic" />
+  <!-- Directory where other project files are held -->
+  <property name="proj.dir" value="${root.dir}/proj" />
+  <!-- Directory where analytics are placed by default -->
+  <property name="analytic.dir" value="${proj.dir}/analytic" />
+  <!-- Default model directory -->
+  <property name="models.dir" value="${analytic.dir}/models" />
 
   <!-- pipeline stuff -->
   <condition property="aType" value="log-linear">
@@ -195,11 +199,11 @@
       </fileset>
     </path>
     <property name="dep.cp" value="${toString:dep.runtime}" />
-    <manifestclasspath property="manifest.cp" jarfile="${dist.dir}/jerboa-${tStamp}.jar">
+    <manifestclasspath property="manifest.cp" jarfile="${dist.dir}/jerboa.jar">
       <classpath refid="dep.runtime" />
     </manifestclasspath>
     
-    <jar destfile="dist/jerboa-${tStamp}.jar">
+    <jar destfile="dist/jerboa.jar">
       <fileset dir="${build.dir}"/>
       <fileset dir="${config.dir}"/>
       <manifest>
@@ -226,8 +230,8 @@
   <target name="jar.models" description="Make a jar file of the models.">
     <fail unless="modelDir" message="Directory not set. Enter the absolute or relative path of a directory, e.g., -DmodelDir=/path/to/your/model"/>
     <fail unless="fileName" message="FileName not set. Enter the name of the file you'd like to output, e.g., -DfileName=myModel [you do not need to add .jar]"/>
-    <mkdir dir="${opt.dir}" />
-    <jar destfile="${opt.dir}/${fileName}.jar">
+    <mkdir dir="${models.dir}" />
+    <jar destfile="${models.dir}/${fileName}.jar">
       <fileset dir="${modelDir}"/>
       <manifest>
         <attribute name="Implementation-Title" value="${project.manifest.title}" />
@@ -248,7 +252,7 @@
   <!-- *            if that isn't set, uses the                         * -->
   <!-- *            executable.class property                           * -->
   <!-- * e.g:                                                           * -->
-  <!-- * ant run.class -Dclass=edu.jhu.MyNewClass -Dargs="arg1 arg2" * -->
+  <!-- * ant run.class -Dclass=edu.jhuapl.MyNewClass -Dargs="arg1 arg2" * -->
   <!-- ****************************************************************** -->
   <target name="run.class" depends="compile" description="Run the class specified by -Dclass=[fully.qualified.classname]">
     <condition property="runClass" value="${class}">
@@ -278,9 +282,9 @@
   <!-- ************************************** -->
   <target name="input-runargs" unless="args" description="Prompts for command line arguments if necessary">
     <input addProperty="aType" message="TYPE: [log-linear|pa-binary|pa-regression|pa-multi]:"/>
-    <input addProperty="aRoot" message="ROOT: e.g., /home/joe/Jerboa:"/>
-    <input addProperty="aBuild" message="BUILD: e.g., /home/joe/Jerboa/analytic/your_analytic:"/>
-    <input addProperty="aSource" message="SOURCE: e.g., /home/joe/Jerboa/analytic/your_analytic/src:"/>
+    <input addProperty="aRoot" message="ROOT: e.g., ${root.dir}:"/>
+    <input addProperty="aBuild" message="BUILD: e.g., ${analytic.dir}:"/>
+    <input addProperty="aSource" message="SOURCE: e.g., ${analytic.dir}/src:"/>
   </target>
   
   <!-- ****************************************************************** -->
@@ -310,7 +314,7 @@
     <java classname="${runClass}" fork="true" classpathref="class.path">
       <jvmarg value="-Xmx4G" />
       <jvmarg value="-DBUILD=${aBuild}" />
-      <jvmarg value="-DJerboa.resourceType=jar" />
+      <jvmarg value="-DJerboa.resourceType=file" />
       <jvmarg value="-DJerboaProperties.filename=${aSource}/wordList.properties" />
     </java>
   </target>
@@ -324,7 +328,7 @@
     </java>
   </target>
   
-  <target name="pa-binary.train" depends="compile" description="Train the passive-aggressive binary classifier">
+  <target name="train.pa-binary" depends="compile" description="Train the passive-aggressive binary classifier">
     <property name="runClass" value="edu.jhu.jerboa.processing.ProcessStream" />
     <java classname="${runClass}" fork="true" classpathref="class.path">
       <jvmarg value="-Xmx4G" />
@@ -334,20 +338,33 @@
     </java>
   </target>
   
-  <target name="pa-binary.test" depends="compile" description="Run the passive-aggressive binary classifier against test data">
+  <target name="train.log-linear" depends="compile" description="Train the log linear classifier">
+    <exec dir="${analytic.dir}" executable="/bin/bash">
+      <arg line="${analytic.dir}/train-liblinear.sh ${root.dir} ${aBuild}/train.instances ${aBuild}/model.logistic" />
+    </exec>
+  </target>
+  
+  <target name="test" depends="compile" description="Test classifier on test set">
     <property name="runClass" value="edu.jhu.jerboa.processing.ProcessStream" />
     <java classname="${runClass}" fork="true" classpathref="class.path">
       <jvmarg value="-Xmx4G" />
       <jvmarg value="-DBUILD=${aBuild}" />
-      <jvmarg value="-DJerboaProperties.filename=${aSource}/test.pa-binary.properties" />
+      <jvmarg value="-DJerboaProperties.filename=${aSource}/test.${aType}.properties" />
     </java>
   </target>
   
-  <target name="pa-binary.run.all">
+  <target name="run.pa-binary.all">
     <antcall target="ngram" />
     <antcall target="featurize.binary" />
-    <antcall target="pa-binary.train" />
-    <antcall target="pa-binary.test" />
+    <antcall target="train.pa-binary" />
+    <antcall target="test" />
+  </target>
+
+  <target name="run.log-linear.all">
+    <antcall target="ngram" />
+    <antcall target="featurize.binary" />
+    <antcall target="train.log-linear" />
+    <antcall target="test" />
   </target>
 
   <target name="run.interactiveAnalytic" depends="compile">
