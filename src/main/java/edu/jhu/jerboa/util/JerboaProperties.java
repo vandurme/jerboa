@@ -39,6 +39,10 @@ public class JerboaProperties {
   static Hashtable<String, String> variables;
 
   static Pattern variablePattern = Pattern.compile("\\{[^\\\\}]+\\}");
+  
+  //static {
+  //  load();
+  //}
 
   private static String parsePropertyValue(String value) throws IOException {
     String group, replacement;

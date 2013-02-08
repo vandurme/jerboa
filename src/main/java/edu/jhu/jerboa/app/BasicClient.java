@@ -43,6 +43,7 @@ public class BasicClient {
 	    reader.close();
 	    out.close();
 	    in.close();
+	    socket.close();
     } catch (UnknownHostException e) {
 	    System.out.println("Unknown host: " + args[0]);
 	    System.exit(1);

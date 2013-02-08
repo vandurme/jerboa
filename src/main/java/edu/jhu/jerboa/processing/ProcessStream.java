@@ -38,7 +38,7 @@ import edu.jhu.jerboa.util.JerboaProperties;
    reinitialize the stream and run over it? Meant originally for training online
    classifiers with multiple passes over data.
 */
-class ProcessStream {
+public class ProcessStream {
   private static Logger logger = Logger.getLogger(ProcessStream.class.getName());
 
   public static void run () throws Exception {
@@ -87,6 +87,7 @@ class ProcessStream {
   }
 
   public static void main (String args[]) {
+      logger.info("WordListGenerator.order = " + System.getProperty("WordListGenerator.order"));
     try {
     	run();
     } catch (Exception e) {
