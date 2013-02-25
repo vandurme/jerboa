@@ -7,6 +7,7 @@
 package edu.jhu.jerboa.util;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -221,12 +222,12 @@ public class JerboaProperties {
     String value = System.getProperty(key);
     if (value == null && properties != null) value = properties.getProperty(key);
     if (value == null) {
-      logger.config("Returning default value for " + key + " : " + defaultValue);
+      logger.config("Returning default value for " + key + " : " + Arrays.toString(defaultValue));
       return defaultValue;
     }
     if ((value = parsePropertyValue(value)) == null) {
       logger.config("Key not fully resolvable, returning default value for " + key + " : "
-          + defaultValue);
+          + Arrays.toString(defaultValue));
       return defaultValue;
     } else
       return value.split("\\s");

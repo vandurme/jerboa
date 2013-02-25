@@ -7,13 +7,17 @@
 
 package edu.jhu.jerboa.classification.feature;
 
-import edu.jhu.jerboa.util.*;
-import edu.jhu.jerboa.processing.*;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.Enumeration;
-import java.util.logging.Logger;
 import java.util.Hashtable;
+import java.util.logging.Logger;
+
+import edu.jhu.jerboa.processing.IStream;
+import edu.jhu.jerboa.processing.IStreamProcessor;
+import edu.jhu.jerboa.processing.IStreamingContainer;
+import edu.jhu.jerboa.util.FileManager;
+import edu.jhu.jerboa.util.JerboaProperties;
 
 
 /**
@@ -32,7 +36,7 @@ public class WordListGenerator implements IStreamProcessor {
   boolean useTermFreq;
 
   public WordListGenerator () throws Exception {
-    counts = new Hashtable();
+    counts = new Hashtable<String, Integer>();
     order = JerboaProperties.getInt("WordListGenerator.order");
     writeFreq = JerboaProperties.getBoolean("WordListGenerator.writeFreq", false);
     useTermFreq = JerboaProperties.getBoolean("WordListGenerator.useTermFreq", true);
@@ -55,7 +59,6 @@ public class WordListGenerator implements IStreamProcessor {
   */
   private void termFreq (IStream stream) throws Exception {
     Hashtable<String,Object> data;
-    String ngram;
     String[] content;
 
     while (stream.hasNext()) {
@@ -67,15 +70,15 @@ public class WordListGenerator implements IStreamProcessor {
 
         int j;
         for (int i = 0; i < content.length; i++) {
-          ngram = "";
+          StringBuilder ngram = new StringBuilder();
           for (j = i; j < i + order && j < content.length; j++) {
             if (j > i)
-              ngram += " ";
-            ngram += content[j];
-            if (!counts.containsKey(ngram))
-              counts.put(ngram,1);
+              ngram.append(" ");
+            ngram.append(content[j]);
+            if (!counts.containsKey(ngram.toString()))
+              counts.put(ngram.toString(),1);
             else
-              counts.put(ngram, counts.get(ngram) + 1);
+              counts.put(ngram.toString(), counts.get(ngram.toString()) + 1);
           }
         }
 	    }
@@ -89,10 +92,9 @@ public class WordListGenerator implements IStreamProcessor {
   */
   private void docFreq (IStream stream) throws Exception {
     Hashtable<String,Object> data;
-    String ngram;
     String[] content;
 
-    Hashtable<String,Boolean> observed = new Hashtable();
+    Hashtable<String,Boolean> observed = new Hashtable<String, Boolean>();
 
     while (stream.hasNext()) {
 	    if (((data = stream.next()) != null) &&
@@ -104,18 +106,18 @@ public class WordListGenerator implements IStreamProcessor {
 
         int j;
         for (int i = 0; i < content.length; i++) {
-          ngram = "";
+          StringBuilder ngram = new StringBuilder();
           for (j = i; j < i + order && j < content.length; j++) {
             if (j > i)
-              ngram += " ";
-            ngram += content[j];
-            observed.put(ngram,true);
+              ngram.append(" ");
+            ngram.append(content[j]);
+            observed.put(ngram.toString(),true);
           }
         }
 
-        Enumeration e = observed.keys();
+        Enumeration<?> e = observed.keys();
         while (e.hasMoreElements()) {
-          ngram = (String) e.nextElement();
+          String ngram = (String) e.nextElement();
           if (!counts.containsKey(ngram))
             counts.put(ngram,1);
           else 
@@ -132,7 +134,7 @@ public class WordListGenerator implements IStreamProcessor {
   private void writeList () throws IOException {
     String filename = JerboaProperties.getString("WordListGenerator.wordList");
     BufferedWriter out = FileManager.getWriter(filename);
-    Enumeration e = counts.keys();
+    Enumeration<?> e = counts.keys();
     String key;
     int threshold = JerboaProperties.getInt("WordListGenerator.threshold");
     while (e.hasMoreElements()) {

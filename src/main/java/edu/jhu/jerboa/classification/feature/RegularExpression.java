@@ -6,13 +6,14 @@
 
 package edu.jhu.jerboa.classification.feature;
 
+import java.io.BufferedReader;
 import java.util.Hashtable;
 import java.util.Vector;
-import java.io.BufferedReader;
+import java.util.logging.Logger;
+import java.util.regex.Pattern;
+
 import edu.jhu.jerboa.util.FileManager;
 import edu.jhu.jerboa.util.JerboaProperties;
-import java.util.regex.Pattern;
-import java.util.logging.Logger;
 
 /**
    @author Benjamin Van Durme
@@ -21,13 +22,13 @@ import java.util.logging.Logger;
 */
 public class RegularExpression extends Feature {
   private static Logger logger = Logger.getLogger(NGram.class.getName());
-  Hashtable<String,Boolean> words;
+  //Hashtable<String,Boolean> words;
   boolean caseSensitive;
   Pattern[] patterns;
   String[] patternStrings;
   String[] patternClasses;
   boolean classBased;
-  Hashtable<String,String> classes;
+  //Hashtable<String,String> classes;
 
   /**
      Default property prefix is "RegularExpression"

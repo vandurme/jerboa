@@ -8,6 +8,7 @@ package edu.jhu.jerboa.classification;
 
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Vector;
 import java.util.logging.Logger;
 
@@ -82,13 +83,13 @@ public class Analytic {
   }
 
   public String report (Hashtable<String,ClassifierState> states) throws Exception {
-    ClassifierState state;
     SimpleImmutableEntry<String,Double>[] decision;
     double[] classification;
     String results = "";
-    for (String classifierName : states.keySet()) {
-	    state = states.get(classifierName);
-	    classification = state.classify();
+    for (Map.Entry<String,ClassifierState> stringToStateEntry : states.entrySet()) {
+    	String classifierName = stringToStateEntry.getKey();
+    	ClassifierState state = stringToStateEntry.getValue();
+    	classification = state.classify();
 	    //System.out.println(classifierName + " " + classification[0]);
 	    if (state.confidenceExceedsThreshold(classification)) {
         //System.out.println(classifierName + " exceeds threshold");

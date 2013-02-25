@@ -6,13 +6,12 @@
 
 package edu.jhu.jerboa.processing;
 
-import java.util.Vector;
-import java.util.Hashtable;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Hashtable;
 
-import edu.jhu.jerboa.util.*;
 import edu.jhu.jerboa.classification.ClassifierForm;
+import edu.jhu.jerboa.util.JerboaProperties;
 
 /**
    @author Benjamin Van Durme
@@ -67,6 +66,8 @@ public class YarowskyLineParser implements ILineParser {
     // with a StringBuilder, but David's format isn't proper XML formatting
     // (recognizing special characters, etc.) anyway, and the following is
     // easier to read.
+	  
+	
     String message = "<message id=" + messageID + " communicant=" + communicant;
     message += " attribute=" + label + ">\n";
     for (String token : content)
@@ -130,7 +131,7 @@ public class YarowskyLineParser implements ILineParser {
 	    String content = "";
 	    while (((line = reader.readLine()) != null)
              && (!line.startsWith("</message"))) {
-        if (content == "")
+        if (content.equals(""))
           content = line;
         else
           content += "\n" + line;

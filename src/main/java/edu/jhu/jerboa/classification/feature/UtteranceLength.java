@@ -4,8 +4,8 @@
 
 package edu.jhu.jerboa.classification.feature;
 
-import java.util.logging.Logger;
 import java.util.Hashtable;
+import java.util.logging.Logger;
 
 public class UtteranceLength extends Feature {
 
@@ -22,8 +22,7 @@ public class UtteranceLength extends Feature {
     }
 
     public Hashtable<String,Object> run(Hashtable<String,Object> data) {
-	Hashtable<String,Double> instance = new Hashtable();
-	Hashtable<String,Object> stateMessage = new Hashtable();
+	Hashtable<String,Object> stateMessage = new Hashtable<String, Object>();
 
         if (! data.containsKey("content")) {
 	    logger.severe("Requires a key/value pair to be stored in provided data of the form \"content\" => String[]");

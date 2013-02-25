@@ -6,10 +6,10 @@
 
 package edu.jhu.jerboa.util;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Vector;
-import java.io.IOException;
-import java.io.BufferedReader;
 
 /**
    @author Benjamin Van Durme
@@ -25,7 +25,7 @@ public class Trie {
      [start,end)
      from whatever token sequence the Match is based on.
   */
-  public class Match {
+  public static class Match {
     public String key;
     public int start;
     public int end;
@@ -43,7 +43,7 @@ public class Trie {
     }
     void add (String nextKey, boolean terminal) {
 	    if (next == null)
-        next = new Hashtable();
+        next = new Hashtable<String, TrieNode>();
 
 	    if (! next.containsKey(nextKey))
         next.put(nextKey,new TrieNode(terminal));
@@ -109,7 +109,7 @@ public class Trie {
 
   public Trie.Match[] matches (String[] tokens) {
     TrieNode node;
-    Vector<Trie.Match> results = new Vector();
+    Vector<Trie.Match> results = new Vector<Match>();
     String phrase;
     String token;
     int j;

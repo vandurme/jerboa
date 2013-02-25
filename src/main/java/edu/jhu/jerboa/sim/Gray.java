@@ -8,7 +8,7 @@ package edu.jhu.jerboa.sim;
    @author Benjamin Van Durme
 */
 public class Gray {
-  public static int[] fourBytePermutation = new int[] {0, 1, 2, 3};
+  static final int[] fourBytePermutation = new int[] {0, 1, 2, 3};
 
   /**
      b : binaryCode

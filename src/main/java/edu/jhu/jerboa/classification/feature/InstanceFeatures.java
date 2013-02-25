@@ -6,12 +6,13 @@
 
 package edu.jhu.jerboa.classification.feature;
 
-import java.util.Hashtable;
-import edu.jhu.jerboa.util.*;
-
-import java.io.IOException;
 import java.io.BufferedReader;
+import java.io.IOException;
+import java.util.Hashtable;
 import java.util.logging.Logger;
+
+import edu.jhu.jerboa.util.FileManager;
+import edu.jhu.jerboa.util.JerboaProperties;
 
 
 
@@ -72,8 +73,10 @@ public class InstanceFeatures extends Feature {
 	    tokens = field.split(":");
 	    if (featureIDMap != null) {
 	    	String thingy = featureIDMap.get(Integer.parseInt(tokens[0]));
-	    	if (thingy == null)
-	    		logger.severe("Got a null value for key: " + tokens[0]);
+	    	if (thingy == null) {
+	    		//logger.severe();
+	    		throw new IllegalArgumentException("Got a null value for key: " + tokens[0]);
+	    	}
 		instance.put(thingy, 
 			     Double.parseDouble(tokens[1]));
 	    }

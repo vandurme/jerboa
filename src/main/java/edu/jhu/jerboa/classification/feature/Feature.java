@@ -6,17 +6,16 @@
 
 package edu.jhu.jerboa.classification.feature;
 
-import java.util.Hashtable;
 import java.util.Enumeration;
-import edu.jhu.jerboa.util.JerboaProperties;
-import edu.jhu.jerboa.counting.BloomFilter;
+import java.util.Hashtable;
+import java.util.logging.Logger;
+
+import edu.jhu.jerboa.classification.ClassifierState;
+import edu.jhu.jerboa.classification.IClassifier;
+import edu.jhu.jerboa.counting.ApproximateReservoir;
 import edu.jhu.jerboa.counting.Morris;
 import edu.jhu.jerboa.counting.ReservoirAverage;
-import edu.jhu.jerboa.counting.ApproximateReservoir;
-import edu.jhu.jerboa.counting.Reservoir;
-import edu.jhu.jerboa.classification.IClassifier;
-import edu.jhu.jerboa.classification.ClassifierState;
-import java.util.logging.Logger;
+import edu.jhu.jerboa.util.JerboaProperties;
 
 
 public abstract class Feature implements IFeature {
@@ -25,7 +24,7 @@ public abstract class Feature implements IFeature {
   boolean binary = false;
   boolean explicit = false;
   IClassifier classifier;
-  Logger logger = null;
+  Logger logger = Logger.getLogger(Feature.class.getName());
 
   // Approximate State variables
   boolean approxState;
@@ -75,7 +74,7 @@ public abstract class Feature implements IFeature {
      Add "." + name to the property prefix, e.g., "UnigramBinary" becomes "UnigramBinary.Age"
   */
   public void addName (String name) {
-    if (name != "")
+    if (!name.equals(""))
 	    propPrefix = name + "." + propPrefix;
   }
     
@@ -103,7 +102,7 @@ public abstract class Feature implements IFeature {
 	    } else {
         Hashtable<String,Double> localInstance =
           (Hashtable<String,Double>) state.blackboard.get(propPrefix + ".instance");
-        Enumeration e = localInstance.keys();
+        Enumeration<?> e = localInstance.keys();
         String key;
         double norm = 1.0;
         if (state.blackboard.containsKey(propPrefix + ".norm"))
@@ -194,7 +193,7 @@ public abstract class Feature implements IFeature {
         // then reported in the stateMessage
         if (newInstance != null) {
           // add the new features to the rolling explicit instance
-          Enumeration e = newInstance.keys();
+          Enumeration<?> e = newInstance.keys();
           String key;
           while (e.hasMoreElements()) {
             key = (String) e.nextElement();
@@ -262,7 +261,7 @@ public abstract class Feature implements IFeature {
     Hashtable<String,Double> instance =
 	    (Hashtable<String,Double>)
 	    stateMessage.get(getPropPrefix() + ".instance");
-    Enumeration e = instance.keys();
+    Enumeration<?> e = instance.keys();
     String featID;
 
     while (e.hasMoreElements()) {

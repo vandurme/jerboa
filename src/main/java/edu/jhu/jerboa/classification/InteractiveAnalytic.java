@@ -9,8 +9,6 @@ package edu.jhu.jerboa.classification;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Hashtable;
-import java.util.Map.Entry;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 import edu.jhu.jerboa.processing.TokenizationKind;

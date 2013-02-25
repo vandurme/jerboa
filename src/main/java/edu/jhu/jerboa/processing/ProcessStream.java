@@ -58,11 +58,6 @@ public class ProcessStream {
 	    c = Class.forName(containerName);
 	    container = (IStreamingContainer) c.newInstance();
 	    
-	    if (container == null) {
-        logger.severe("Container is null");
-        throw new Exception("Container is null");
-	    }
-
 	    if (JerboaProperties.getBoolean("ProcessStream.deserializeContainer", false))
         container.read();
 

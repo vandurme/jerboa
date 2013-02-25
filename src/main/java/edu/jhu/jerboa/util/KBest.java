@@ -6,12 +6,12 @@
 
 package edu.jhu.jerboa.util;
 
-import java.util.PriorityQueue;
-import java.util.Comparator;
-import java.util.Arrays;
-import java.util.Random;
 import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Hashtable;
+import java.util.PriorityQueue;
+import java.util.Random;
 
 /**
    @author Benjamin Van Durme
@@ -25,7 +25,7 @@ public class KBest<T> {
   int k;
   boolean max;
   // If false, we need to check for duplicates before an Insert
-  public boolean allowDuplicates = true;
+  boolean allowDuplicates = true;
   Hashtable<T,Boolean> contents;
 
   public KBest (int k, boolean max, boolean allowDuplicates) {
@@ -125,7 +125,7 @@ public class KBest<T> {
   }
 
   public static void main (String[] args) {
-    KBest<String> kbest = new KBest(5,false);
+    KBest<String> kbest = new KBest<String>(5,false);
     Random r = new Random();
     int v;
 

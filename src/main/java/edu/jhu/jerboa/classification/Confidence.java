@@ -4,10 +4,10 @@
 
 package edu.jhu.jerboa.classification;
 
-import edu.jhu.jerboa.util.JerboaProperties;
-import java.util.logging.Logger;
 import java.io.IOException;
-import java.util.Hashtable;
+import java.util.logging.Logger;
+
+import edu.jhu.jerboa.util.JerboaProperties;
 
 /**
    @author Benjamin Van Durme

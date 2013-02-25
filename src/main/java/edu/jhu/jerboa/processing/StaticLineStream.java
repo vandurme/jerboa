@@ -7,13 +7,12 @@
 package edu.jhu.jerboa.processing;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.io.File;
 import java.util.Hashtable;
 import java.util.logging.Logger;
 
-import edu.jhu.jerboa.util.*;
+import edu.jhu.jerboa.util.FileManager;
+import edu.jhu.jerboa.util.JerboaProperties;
 
 /**
    @author Benjamin Van Durme
@@ -52,11 +51,12 @@ public class StaticLineStream implements IStream {
 	    files = FileManager.getFiles(filenames);
 	    if (files.length == 0) {
         //throw new Exception("No files matched the pattern(s) for StaticLineStream.files");
-	    	String fileNamesString = "[";
+	    	StringBuilder sb = new StringBuilder();
+	    	sb.append("[");
 	    	for (String fn : filenames)
-	    		fileNamesString += fn + ", ";
-	    	fileNamesString += "]";
-	    	String errorMsg = "No files matched the pattern(s) for BatchCommunicationStream.files. Check to make sure these files exist. Currently the values are: " + fileNamesString;
+	    		sb.append(fn + ", ");
+	    	sb.append("]");
+	    	String errorMsg = "No files matched the pattern(s) for BatchCommunicationStream.files. Check to make sure these files exist. Currently the values are: " + sb.toString();
 		    throw new Exception(errorMsg);
 	    }
     } else {
@@ -86,7 +86,7 @@ public class StaticLineStream implements IStream {
     reader = FileManager.getReader(files[curFileID]);
     String docParserName =
 	    JerboaProperties.getString("StaticLineStream.lineParser");
-    Class c = Class.forName(docParserName);
+    Class<?> c = Class.forName(docParserName);
     lineParser = (ILineParser) c.newInstance();
   }
 

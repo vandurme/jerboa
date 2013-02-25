@@ -4,13 +4,23 @@
 
 package edu.jhu.jerboa.processing;
 
-import edu.jhu.jerboa.util.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import org.w3c.dom.*;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
+import edu.jhu.jerboa.util.FileManager;
+import edu.jhu.jerboa.util.JerboaProperties;
 
 /**
    @author Benjamin Van Durme
@@ -56,7 +66,7 @@ public class BuckwalterAnalyzer {
     Document document = builder.parse(p.getInputStream());
     Element root = document.getDocumentElement();
     Node child = root.getFirstChild();
-    ArrayList<BuckwalterToken> tokenList = new ArrayList();
+    ArrayList<BuckwalterToken> tokenList = new ArrayList<BuckwalterToken>();
     while (child != null) {
 	    // should always be token_Arabic or token_notArabic
 	    if (tokenPattern.matcher(child.getNodeName()).matches())
@@ -138,7 +148,7 @@ public class BuckwalterAnalyzer {
     String line;
     String text = "";
     while ((line = reader.readLine()) != null) {
-	    if (text == "")
+	    if (text.equals(""))
         text = line;
 	    else
         text += "\n" + line;

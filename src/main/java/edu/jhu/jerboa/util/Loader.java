@@ -6,10 +6,10 @@
 
 package edu.jhu.jerboa.util;
 
-import java.util.Hashtable;
-import java.util.Vector;
 import java.io.BufferedReader;
 import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
    @author Benjamin Van Durme
@@ -24,7 +24,7 @@ public class Loader {
   public static Vector<String> readLines(String filename) throws Exception {
     BufferedReader reader = FileManager.getReader(filename);
     String line;
-    Vector<String> vector = new Vector();
+    Vector<String> vector = new Vector<String>();
     while ((line = reader.readLine()) != null)
       vector.add(line);
     return vector;

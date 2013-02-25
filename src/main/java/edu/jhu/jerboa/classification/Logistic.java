@@ -6,23 +6,14 @@
 
 package edu.jhu.jerboa.classification;
 
-import edu.jhu.jerboa.util.JerboaProperties;
-import edu.jhu.jerboa.util.FileManager;
-import java.util.AbstractMap.SimpleImmutableEntry;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Comparator;
-import java.util.Collections;
-import java.util.Hashtable;
-import java.util.Enumeration;
-import java.util.logging.Logger;
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
-import java.io.BufferedWriter;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.logging.Logger;
+
+import edu.jhu.jerboa.util.FileManager;
+import edu.jhu.jerboa.util.JerboaProperties;
 
 /**
    @author Benjamin Van Durme
@@ -60,14 +51,14 @@ public class Logistic implements IClassifier {
   }
 
   public void addName (String name) {
-    if (name != "")
+    if (name.equals(""))
 	    propPrefix = name + "." + propPrefix;
   }
 
   public int getCardinality () {return 1;}
 
   public double getMaxWeight () {
-    Enumeration e = weights.keys();
+    Enumeration<?> e = weights.keys();
     double tmp;
     double max = 0;
     while (e.hasMoreElements()) {
@@ -105,7 +96,7 @@ public class Logistic implements IClassifier {
     String feature;
     double[] results = {0.0};
 
-    Enumeration e = instance.keys();
+    Enumeration<?> e = instance.keys();
     while (e.hasMoreElements()) {
 	    feature = (String) e.nextElement();
 	    if (weights.containsKey(feature))
@@ -123,7 +114,7 @@ public class Logistic implements IClassifier {
     String feature;
     double results[] = {0.0};
 
-    Enumeration e = instance.keys();
+    Enumeration<?> e = instance.keys();
     while (e.hasMoreElements()) {
 	    feature = (String) e.nextElement();
 	    if (weights.containsKey(feature))
@@ -196,6 +187,7 @@ public class Logistic implements IClassifier {
 	    // skip the first 6 lines of the model file (note this is brittle)
 	    for (int i = 0; i < 6; i++) {
         line = in.readLine();
+        if (line != null) {
         if (line.matches("^label -1 1"))
           reverseSign = true;
         // vandurme> if bias < 0, then that is liblinear saying there is
@@ -207,7 +199,7 @@ public class Logistic implements IClassifier {
         //  bias = Double.parseDouble(biasTokens[biasTokens.length-1]);
         //}
 	    }
-
+	    }
 
 	    lineNumber = 0;
 	    // the rest are weights
@@ -224,6 +216,7 @@ public class Logistic implements IClassifier {
     } else {
 	    throw new IOException("Unsupported modelSource [" + modelSource + "]");
     }
+    
     in.close();
   }
 

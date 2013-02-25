@@ -6,18 +6,23 @@
 
 package edu.jhu.jerboa.sim;
 
-import edu.jhu.jerboa.util.*;
-import java.util.Arrays;
-import java.util.Vector;
-import java.util.logging.Logger;
+import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.lang.reflect.Array;
+import java.text.DecimalFormat;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Comparator;
-import java.io.Serializable;
-import java.util.AbstractMap.SimpleImmutableEntry;
-import java.io.*;
-import java.text.DecimalFormat;
+import java.util.logging.Logger;
+
+import edu.jhu.jerboa.util.JerboaProperties;
+import edu.jhu.jerboa.util.KBest;
 
 
 // example usage:
@@ -42,7 +47,7 @@ import java.text.DecimalFormat;
 */
 public class PLEBIndex<T> implements Serializable {
   private static final long serialVersionUID = 1L;
-  public static Logger logger = Logger.getLogger(PLEBIndex.class.getName());
+  private static final Logger logger = Logger.getLogger(PLEBIndex.class.getName());
   // each array is a sorted list over signatures, where the values stored in
   // each array are pointers back to an index in an array of signatures
   public Integer[][] sorts;
@@ -53,7 +58,7 @@ public class PLEBIndex<T> implements Serializable {
   // static, which it needs to be if we are going to use Java serialization,
   // which barfs on inner classes that are not static
   // (see http://download.oracle.com/javase/6/docs/platform/serialization/spec/serial-arch.html)
-  public static Signature[] signatures;
+  static Signature[] signatures;
   static int column; // which column are we current using?
   static int[][] permute; // a permutation of the bytes, one per column
   Comparator comparator;

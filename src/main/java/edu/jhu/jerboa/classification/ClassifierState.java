@@ -6,18 +6,22 @@
 
 package edu.jhu.jerboa.classification;
 
-import java.util.Hashtable;
-import java.util.Enumeration;
-import java.util.Vector;
-import java.util.zip.GZIPOutputStream;
-import java.util.zip.GZIPInputStream;
-import java.io.*;
-import java.util.logging.Logger;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.Hashtable;
+import java.util.Vector;
+import java.util.logging.Logger;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
-import edu.jhu.jerboa.util.*;
+import edu.jhu.jerboa.classification.feature.IFeature;
 import edu.jhu.jerboa.counting.ICounterContainer;
-import edu.jhu.jerboa.classification.feature.*;
+import edu.jhu.jerboa.util.ASCIIEncoder;
+import edu.jhu.jerboa.util.JerboaProperties;
 
 /**
    @author Benjamin Van Durme
@@ -68,7 +72,7 @@ public class ClassifierState {
 
   public void addName (String name) {
     this.name = name;
-    if (name != "") {
+    if (!name.equals("")) {
 	    propPrefix = name + "." + propPrefix;
     }
   }
@@ -88,7 +92,7 @@ public class ClassifierState {
      categories : (String[]) labels that are being predicted
   */
   public void initializeClassifier () throws Exception {
-    Class c;
+    Class<?> c;
     String classifierType = JerboaProperties.getString(propPrefix + ".type",null);
     if (classifierType == null)
 	    classifier = null;
@@ -130,7 +134,7 @@ public class ClassifierState {
     features = new Vector();
     String[] featureNames = JerboaProperties.getStrings(propPrefix + ".features");
     IFeature feature;
-    Class c;
+    Class<?> c;
     for (String featureName : featureNames) {
 	    c = Class.forName(featureName);
 	    feature = (IFeature) c.newInstance();

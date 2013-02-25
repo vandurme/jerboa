@@ -6,22 +6,18 @@
 
 package edu.jhu.jerboa.classification;
 
-import edu.jhu.jerboa.util.*;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Comparator;
-import java.util.Collections;
-import java.util.Hashtable;
-import java.util.Enumeration;
-import java.util.logging.Logger;
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
-import java.io.BufferedWriter;
 import java.io.BufferedReader;
-import java.io.File;
+import java.io.BufferedWriter;
 import java.io.IOException;
-import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.logging.Logger;
+
+import edu.jhu.jerboa.util.FileManager;
+import edu.jhu.jerboa.util.JerboaProperties;
 
 /**
    @author Benjamin Van Durme
@@ -74,7 +70,7 @@ public class MulticlassPA implements IMulticlassClassifier {
     double tmp;
     double max = 0;
     for (Hashtable<String,Double> w : weights) {
-      Enumeration e = w.keys();
+      Enumeration<?> e = w.keys();
       while (e.hasMoreElements()) {
         tmp = Math.abs(w.get(e.nextElement()));
         if (tmp > max)
@@ -109,7 +105,7 @@ public class MulticlassPA implements IMulticlassClassifier {
     version = JerboaProperties.getInt(propPrefix + ".version", 0);
     // Create the mapping from class labels to integer IDs
     categories = JerboaProperties.getStrings(propPrefix + ".categories");
-    categoryIDs = new Hashtable();
+    categoryIDs = new Hashtable<String, Integer>();
     int ID = 0;
     for (String label : categories) {
 	    categoryIDs.put(label, ID);
@@ -133,7 +129,7 @@ public class MulticlassPA implements IMulticlassClassifier {
   }
 
   public void addName (String name) {
-    if (name != "")
+    if (!name.equals(""))
 	    propPrefix = name + "." + propPrefix;
   }
 
@@ -177,7 +173,7 @@ public class MulticlassPA implements IMulticlassClassifier {
     // which labels are true for this instance?
     boolean[] classMask;
 
-    Enumeration e;
+    Enumeration<String> e;
 
     results = new double[categories.length];
 
@@ -314,7 +310,7 @@ public class MulticlassPA implements IMulticlassClassifier {
   }
 
   public void averageWeights () {
-    Enumeration e;
+    Enumeration<?> e;
     String feature;
 
     // Go through the summed values and the current perceptron,
@@ -366,7 +362,7 @@ public class MulticlassPA implements IMulticlassClassifier {
   public double[] dotProduct(Hashtable<String,Double> instance) {
     double[] results = new double[categories.length];
     String feature;
-    Enumeration e = instance.keys();
+    Enumeration<String> e = instance.keys();
     while (e.hasMoreElements()) {
 	    feature = (String) e.nextElement();
 	    for (int i = 0; i < results.length; i++) {

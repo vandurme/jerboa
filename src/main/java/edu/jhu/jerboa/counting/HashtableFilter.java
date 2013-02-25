@@ -6,17 +6,13 @@
 
 package edu.jhu.jerboa.counting;
 
-import java.util.Random;
-import java.util.Vector;
-import java.io.ObjectOutputStream;
-import java.io.ObjectInputStream;
-import java.io.IOException;
+import java.io.BufferedWriter;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.logging.Logger;
-import java.util.logging.Logger;
-import java.io.BufferedWriter;
-import edu.jhu.jerboa.util.*;
-import java.util.Enumeration;
+
+import edu.jhu.jerboa.util.FileManager;
+import edu.jhu.jerboa.util.JerboaProperties;
 
 /**
    @author Benjamin Van Durme
@@ -50,7 +46,7 @@ public class HashtableFilter implements ICounterContainer {
      then propPrefix becomes: Foo.HashtableFilter
   */
   public void addName (String name) {
-    if (name != "")
+    if (!name.equals(""))
 	    propPrefix = name + "." + propPrefix;
   }
 
@@ -72,7 +68,7 @@ public class HashtableFilter implements ICounterContainer {
   public void write () throws Exception {
     String filename = JerboaProperties.getString(propPrefix + ".filename");
     BufferedWriter writer = FileManager.getWriter(filename);
-    Enumeration e = table.keys();
+    Enumeration<?> e = table.keys();
     String key;
     while (e.hasMoreElements()) {
 	    key = (String) e.nextElement();

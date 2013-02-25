@@ -6,25 +6,20 @@
 
 package edu.jhu.jerboa.classification;
 
-import edu.jhu.jerboa.util.JerboaProperties;
-import edu.jhu.jerboa.util.FileManager;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.logging.Logger;
+
 import edu.jhu.jerboa.classification.feature.InstanceFeatures;
 import edu.jhu.jerboa.processing.InstanceParser;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Comparator;
-import java.util.Collections;
-import java.util.Hashtable;
-import java.util.Enumeration;
-import java.util.logging.Logger;
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
-import java.io.BufferedWriter;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
+import edu.jhu.jerboa.util.FileManager;
+import edu.jhu.jerboa.util.JerboaProperties;
 
 /**
    @author Benjamin Van Durme
@@ -109,7 +104,7 @@ public class PA implements IClassifier {
   public ClassifierForm getForm() { return form; }
 
   public double getMaxWeight () {
-    Enumeration e = weights.keys();
+    Enumeration<?> e = weights.keys();
     double tmp;
     double max = 0;
     while (e.hasMoreElements()) {
@@ -129,7 +124,7 @@ public class PA implements IClassifier {
   }
 
   public void addName (String name) {
-    if (name != "")
+    if (!name.equals(""))
 	    propPrefix = name + "." + propPrefix;
   }
 
@@ -190,7 +185,7 @@ public class PA implements IClassifier {
     double wx, loss, tau, norm;
     double epsilon = 1.0;
 
-    Enumeration e;
+    Enumeration<?> e;
     numInstances++;
 
     // wx is the dot product of the current weight vector and the given instance
@@ -287,7 +282,7 @@ public class PA implements IClassifier {
     String feature;
     double wx, loss, tau, norm;
 
-    Enumeration e;
+    Enumeration<?> e;
     numInstances++;
 
     wx = 0.0;
@@ -354,7 +349,7 @@ public class PA implements IClassifier {
 	
     // Go through the summed values and the current perceptron,
     // averaging across all instances
-    Enumeration e = sumWeights.keys();
+    Enumeration<?> e = sumWeights.keys();
     String feature;
     while (e.hasMoreElements()) {
 	    feature = (String) e.nextElement();
@@ -380,7 +375,7 @@ public class PA implements IClassifier {
     String feature;
     double[] results = {0.0};
 
-    Enumeration e = instance.keys();
+    Enumeration<?> e = instance.keys();
     while (e.hasMoreElements()) {
 	    feature = (String) e.nextElement();
 	    if (weights.containsKey(feature)) {
@@ -540,13 +535,14 @@ public class PA implements IClassifier {
 
   private void usage () {
     System.err.println("Usage: PA [...] -DPA.mode=(train|test) -DPA.data=SVM-LIGHT-FILE");
+    System.exit(-1);
   }
 
   private void operate () throws Exception {
     String mode = JerboaProperties.getString("PA.mode", null);
-    if (mode == null) { usage(); System.exit(-1);}
+    if (mode == null) { usage(); }
     String filename = JerboaProperties.getString("PA.data");
-    if (filename == null) { usage(); System.exit(-1);}
+    if (filename == null) { usage(); }
     BufferedReader reader = FileManager.getReader(filename);
     InstanceParser parser = new InstanceParser();
     InstanceFeatures feature = new InstanceFeatures();

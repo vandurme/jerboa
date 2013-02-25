@@ -20,8 +20,7 @@ public class UtteranceCount extends Feature {
   }
 
   public Hashtable<String,Object> run(Hashtable<String,Object> data) {
-    Hashtable<String,Double> instance = new Hashtable();
-    Hashtable<String,Object> stateMessage = new Hashtable();
+    Hashtable<String,Object> stateMessage = new Hashtable<String, Object>();
 
     if (! data.containsKey("content")) {
 	    logger.severe("Requires a key/value pair to be stored in provided data of the form \"content\" => String[]");

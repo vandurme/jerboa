@@ -4,14 +4,15 @@
 
 package edu.jhu.jerboa.processing;
 
-import java.util.regex.*;
-import java.util.AbstractMap.SimpleImmutableEntry;
-import java.util.Vector;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import edu.jhu.jerboa.util.JerboaProperties;
 import edu.jhu.jerboa.util.FileManager;
+import edu.jhu.jerboa.util.JerboaProperties;
 
 /**
    @author Benjamin Van Durme
@@ -386,7 +387,7 @@ public class Tokenizer {
         }
       }
 	    
-      if (update || ((i == (length-1)) && (token != ""))) {
+      if (update || ((i == (length-1)) && (!token.equals("")))) {
         content.add(token);
         update = false;
       }

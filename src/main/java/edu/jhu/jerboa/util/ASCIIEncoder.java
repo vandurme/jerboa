@@ -45,7 +45,7 @@ public class ASCIIEncoder {
     int zero = 0;
 
     for (int i = 0; i < 256; i++) {
-	    encoder[i] = (((first | zero) << 8) + second);
+	    encoder[i] = (((first | zero) << 8) + (second & 0xff));
 	    second = nextValidByte(second,reserved);
 	    if (second == MAX + 1) {
         second = nextValidByte((byte)(MIN-1),reserved);

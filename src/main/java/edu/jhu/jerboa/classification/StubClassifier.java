@@ -4,10 +4,11 @@
 
 package edu.jhu.jerboa.classification;
 
-import java.util.Hashtable;
 import java.io.IOException;
-import edu.jhu.jerboa.util.*;
+import java.util.Hashtable;
 import java.util.logging.Logger;
+
+import edu.jhu.jerboa.util.JerboaProperties;
 
 /**
    @author Benjamin Van Durme
@@ -107,7 +108,7 @@ public class StubClassifier implements IClassifier {
   }
 
   public void addName(String name) {
-    if (name != "")
+    if (!name.equals(""))
 	    propPrefix = name + "." + propPrefix;
   }
 

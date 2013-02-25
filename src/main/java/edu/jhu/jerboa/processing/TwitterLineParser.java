@@ -6,10 +6,10 @@
 
 package edu.jhu.jerboa.processing;
 
-import java.util.Vector;
-import java.util.Hashtable;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
    @author Benjamin Van Durme
@@ -146,7 +146,7 @@ public class TwitterLineParser implements ILineParser {
               }
             }
 
-            if (update || ((i == (length-1)) && (token != ""))) {
+            if (update || ((i == (length-1)) && (!token.equals("")))) {
               content.add(token);
               update = false;
             }

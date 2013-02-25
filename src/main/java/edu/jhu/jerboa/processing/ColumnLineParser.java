@@ -6,12 +6,12 @@
 
 package edu.jhu.jerboa.processing;
 
-import java.util.Vector;
-import java.util.Hashtable;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Hashtable;
+import java.util.Vector;
 
-import edu.jhu.jerboa.util.*;
+import edu.jhu.jerboa.util.JerboaProperties;
 
 /**
    For reading tabular data line by line.
@@ -104,15 +104,16 @@ public class ColumnLineParser implements ILineParser {
 	    }
 						
 	    if (conjoinFields != null) {
-        String conjoined = content.elementAt(0);
+        StringBuilder sb = new StringBuilder();
+	    sb.append(content.elementAt(0));
         for (int i = 1; i < content.size(); i++)
-          conjoined += conjoinFields + content.elementAt(i);
+          sb.append(conjoinFields + content.elementAt(i));
         content.clear();
-        content.addElement(conjoined);
+        content.addElement(sb.toString());
 	    }
     }
 		
-    Hashtable<String,Object> h = new Hashtable();
+    Hashtable<String,Object> h = new Hashtable<String, Object>();
     h.put("content", (String[]) content.toArray(stringArr));
     return h;
   }

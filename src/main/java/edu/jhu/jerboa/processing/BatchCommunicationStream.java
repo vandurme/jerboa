@@ -36,7 +36,7 @@ public class BatchCommunicationStream implements IStream {
   private ILineParser lineParser;
   private BufferedReader reader;
   private Hashtable<String,Hashtable<String,Object>> log;
-  private Enumeration logEnumerator;
+  private Enumeration<?> logEnumerator;
 
   /**
      property prefix: BatchCommunicationStream
@@ -50,18 +50,19 @@ public class BatchCommunicationStream implements IStream {
 	  String[] fileNames = JerboaProperties.getStrings("BatchCommunicationStream.files");
     files = FileManager.getFiles(fileNames);
     if (files.length == 0) {
-    	String fileNamesString = "[";
+    	StringBuilder sb = new StringBuilder();
+    	sb.append("[");
     	for (String fn : fileNames)
-    		fileNamesString += fn + ", ";
-    	fileNamesString += "]";
-    	String errorMsg = "No files matched the pattern(s) for BatchCommunicationStream.files. Check to make sure these files exist. Currently the values are: " + fileNamesString;
+    		sb.append(fn + ", ");
+    	sb.append("]");
+    	String errorMsg = "No files matched the pattern(s) for BatchCommunicationStream.files. Check to make sure these files exist. Currently the values are: " + sb.toString();
 	    throw new Exception(errorMsg);
     }
     curDocID = 0;
     reader = FileManager.getReader(files[curDocID]);
     String docParserName =
 	    JerboaProperties.getString("BatchCommunicationStream.lineParser");
-    Class c = Class.forName(docParserName);
+    Class<?> c = Class.forName(docParserName);
     lineParser = (ILineParser) c.newInstance();
     log = new Hashtable();
     buildLog();
