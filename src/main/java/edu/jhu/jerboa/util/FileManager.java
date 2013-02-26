@@ -64,33 +64,24 @@ public class FileManager {
 
     return (File[]) fileVector.toArray(fileArr);
   }
-
+  
   /**
-     Returns new File(filename)
-  */
-  public static File getFile (String filename) {
-    return new File(filename);
-  }
-
-  /**
-     Returned BufferedReader is set to UTF-8 encoding
-  */
+   * Check to see if system property Jerboa.resourceType is defined.
+   * If so, and if equal to "jar", load properties file from inside jar 
+   * via classloader. If not, load properties file as normal file system file.
+   * 
+   * @param filename the name of the file to load
+   * @return a {@link BufferedReader} object in UTF-8 encoding
+   * @throws IOException if unable to read file
+   */
   public static BufferedReader getReader (String filename) throws IOException {
-	  // logic goes here to fork btwn file or jar
-	  // possible stack overflow here if Jerboa.resourceType is not defined. 
-	  // String rt = JerboaProperties.getString("Jerboa.resourceType", "file");
-    String resType = System.getProperty("Jerboa.resourceType");
-	  if (resType != null && resType.equals("jar"))
-		  return new BufferedReader(new InputStreamReader(FileManager.class.getClassLoader().getResourceAsStream(filename)));
-	  else
-		  return getReader(new File(filename), "UTF-8");
-//	  if (rt.equals("file")) 
-//		  return getReader(new File(filename), "UTF-8");
-//	  else if (rt.equals("jar"))
-//		  return new BufferedReader(new InputStreamReader(FileManager.class.getClassLoader().getResourceAsStream(filename)));
-//	  else
-//		  throw new IllegalArgumentException("The resource type: " + rt.toString() + " has not been implemented.");
-	  
+    String resType = System.getProperty("Jerboa.resourceType");    
+    // first, test to see if Jerboa.resourceType is defined, and equals "jar".
+    // if set, and equal to jar, load properties file inside jar.
+    if (resType != null && resType.equals("jar"))
+      return new BufferedReader(new InputStreamReader(FileManager.class.getClassLoader().getResourceAsStream(filename)));
+    else
+      return getReader(new File(filename), "UTF-8");
   }
   
   public static BufferedReader getReader (String filename, String encoding) throws IOException {

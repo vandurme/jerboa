@@ -15,8 +15,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * @author Benjamin Van Durme
- * 
  *         A utility wrapper around {@link java.util.Properties}, supporting type specific querying
  *         on property values, and throwing Exception when properties are not found in cases with no
  *         default value.
@@ -30,20 +28,36 @@ import java.util.regex.Pattern;
  *         is: (via example)
  *         <p>
  *         ROOT = /home/joe/project Data = {ROOT}/data
+ * 
+ * @author Benjamin Van Durme
+ * 
  */
 public class JerboaProperties {
 
   private static final Logger logger = Logger.getLogger(JerboaProperties.class.getName());
 
-  static Properties properties;
+  private static Properties properties = new Properties();
   static boolean isLoaded = false;
   static Hashtable<String, String> variables;
 
   static Pattern variablePattern = Pattern.compile("\\{[^\\\\}]+\\}");
   
-  //static {
-  //  load();
-  //}
+  static {
+    String fileName = System.getProperty("JerboaProperties.filename");
+    if (fileName == null) {
+      logger.severe("Could not find the system property JerboaProperties.filename");
+      logger.severe("You must specify JerboaProperties.filename in your system variables.");
+      logger.severe("e.g., -DJerboaProperties.filename=analytics.properties");
+      throw new RuntimeException("System property JerboaProperties.filename was not defined.");
+    }
+    
+    logger.info("Reading JerboaProperty file [" + fileName + "]");
+    try {
+      properties.load(FileManager.getReader(fileName));
+    } catch (IOException ioe) {
+      throw new RuntimeException(ioe);
+    }
+  }
 
   private static String parsePropertyValue(String value) throws IOException {
     String group, replacement;
@@ -69,34 +83,15 @@ public class JerboaProperties {
    * Calls {@link #load(String) load()} with the property
    * JerboaProperties.filename as the argument.
    * 
-   * @throws IOException
    */
-  public static void load() throws IOException {
-    String filename = System.getProperty("JerboaProperties.filename");
-    logger.info("Loading properties file: " + filename);
-    if (filename != null) 
-      load(filename);
+  public static void load() {
+    //logger.info("Loading properties file: " + filename);
+    
 
-    isLoaded = true;
-  }
-
-  /**
-   * Loads a static {@link Properties} object via {@link FileManager#getReader(String)}.
-   * 
-   * @param filename - the name of the file to be loaded in the properties object
-   * @throws IOException
-   */
-  public static void load(String filename) throws IOException {
-    logger.config("Reading JerboaProperty file [" + filename + "]");
-    if (properties == null) properties = new java.util.Properties();
-    // properties.load(new BufferedReader(new FileReader(filename)));
-    properties.load(FileManager.getReader(filename));
-    isLoaded = true;
+    //isLoaded = true;
   }
 
   public static double getDouble(String key) throws IOException {
-    if (!isLoaded) load();
-
     String value = System.getProperty(key);
     if (value == null && properties != null) value = properties.getProperty(key);
     if (value == null)
