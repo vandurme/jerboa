@@ -56,16 +56,18 @@ public class Analytic {
    * decision, then:
    * 
    * String configurationFile = ...; // e.g., en.gender.properties
-   * JerboaProperties.load(configurationFile); Analytic analytic = new
-   * Analytic(); String[] serializedStateMessages = ...; // all the
-   * "feature vectors" for a given analytic String name = ...; // the analytic
-   * name, e.g., "en.gender.twitter" SimpleImmutableEntry<String,Double>[]
-   * result = analytic.aggregate(name, serializedStateMessages); if (result !=
-   * null) { String label = result.getKey(); // e.g., "MALE" double probability
-   * = result.getValue(); // e.g., 0.8 }
+   * JerboaProperties.load(configurationFile); 
+   * Analytic analytic = new Analytic(); 
+   * String[] serializedStateMessages = ...; // all the "feature vectors" for a given analytic 
+   * String name = ...; // the analytic name, e.g., "en.gender.twitter" 
+   * SimpleImmutableEntry<String,Double>[] result = analytic.aggregate(name, serializedStateMessages); 
+   * 
+   * if (result !=null) { 
+   *   String label = result.getKey(); // e.g., "MALE" 
+   *   double probability = result.getValue(); // e.g., 0.8 
+   * }
    */
-  public SimpleImmutableEntry<String, Double>[] aggregate(String name,
-      String[] serializedStateMessages) throws Exception {
+  public SimpleImmutableEntry<String, Double>[] aggregate(String name, String[] serializedStateMessages) throws Exception {
     if (starterStates.containsKey(name)) {
       ClassifierState state = starterStates.get(name).newState();
       state.update(serializedStateMessages);
@@ -79,13 +81,11 @@ public class Analytic {
     }
   }
 
-  public String report(Hashtable<String, ClassifierState> states)
-      throws Exception {
+  public String report(Hashtable<String, ClassifierState> states) throws Exception {
     SimpleImmutableEntry<String, Double>[] decision;
     double[] classification;
     String results = "";
-    for (Map.Entry<String, ClassifierState> stringToStateEntry : states
-        .entrySet()) {
+    for (Map.Entry<String, ClassifierState> stringToStateEntry : states.entrySet()) {
       String classifierName = stringToStateEntry.getKey();
       ClassifierState state = stringToStateEntry.getValue();
       classification = state.classify();
@@ -93,8 +93,7 @@ public class Analytic {
       if (state.confidenceExceedsThreshold(classification)) {
         // System.out.println(classifierName + " exceeds threshold");
         decision = state.getDecision(classification);
-        results += classifierName + "\t" + decision[0].getKey() + "\t"
-            + decision[0].getValue() + "\n";
+        results += classifierName + "\t" + decision[0].getKey() + "\t" + decision[0].getValue() + "\n";
         logger.fine(classifierName + " " + classification[0]);
       }
     }

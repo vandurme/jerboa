@@ -263,6 +263,10 @@ public class ClassifierState {
     ByteArrayOutputStream bytes = new ByteArrayOutputStream(stateMessage.size() * 8);
     ObjectOutputStream out = new ObjectOutputStream(new GZIPOutputStream(bytes));
 
+    // state message can be any one of the following:
+    // Hashtable<String, Hashtable<String, Double>>
+    // Hashtable<String, double[]>
+    // Hashtable<String, Double>
     out.writeObject(stateMessage);
     out.close();
     return new String(ASCIIEncoder.encode(bytes.toByteArray()));

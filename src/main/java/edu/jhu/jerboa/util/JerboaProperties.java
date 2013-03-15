@@ -43,16 +43,19 @@ public class JerboaProperties {
   static {
     String fileName = System.getProperty("JerboaProperties.filename");
     if (fileName == null) {
-      logger.severe("Could not find the system property JerboaProperties.filename");
-      logger.severe("You must specify JerboaProperties.filename in your system variables.");
-      logger.severe("e.g., -DJerboaProperties.filename=analytics.properties");
-      throw new RuntimeException("System property JerboaProperties.filename was not defined.");
+      // try a default of analytics.properties
+      fileName = "analytics.properties";
+      logger.info("Did not find JerboaProperties.filename specified - defaulting to " + fileName);
     }
 
     logger.info("Reading JerboaProperty file [" + fileName + "]");
     try {
       properties.load(FileManager.getReader(fileName));
     } catch (IOException ioe) {
+      logger.severe("Could not find the system properties file: " + fileName);
+      logger.severe("Ensure " + fileName + " is in your classpath.");
+      logger.severe("You can override this name by passing in a system parameter, e.g., -DJerboaProperties.filename=my.analytics.properties");
+
       throw new RuntimeException(ioe);
     }
   }
