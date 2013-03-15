@@ -39,7 +39,7 @@ public class InstanceFeatures extends Feature {
      */
     public void initialize() throws Exception {
 	super.initialize();
-	String filename = JerboaProperties.getString(propPrefix + ".featureMap", null);
+	String filename = JerboaProperties.getProperty(propPrefix + ".featureMap", null);
 	if (filename != null) {
 	    BufferedReader featureMapReader = FileManager.getReader(filename);
 	    int lineNumber = 0;

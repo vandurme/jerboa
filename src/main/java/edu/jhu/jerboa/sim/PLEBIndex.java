@@ -71,7 +71,7 @@ public class PLEBIndex<T> implements Serializable {
     */
     public void initialize (Hashtable<T,Signature> table, int P, boolean removeKeys) throws Exception {
     // Set comparator
-    String comparatorName = JerboaProperties.getString("PLEBIndex.comparator", "LexGreater").toLowerCase();
+    String comparatorName = JerboaProperties.getProperty("PLEBIndex.comparator", "LexGreater").toLowerCase();
     if (comparatorName.equals("lexgreater")) {
 	    comparator = this.LexGreater;
     } else if (comparatorName.equals("graygreater")) {
@@ -454,7 +454,7 @@ public class PLEBIndex<T> implements Serializable {
     // for (SimpleImmutableEntry<String,Double> pair : best)
 	  //   System.out.println(pair.getKey() + "\t" + formatter.format(pair.getValue()));
 
-    String outputFilename = JerboaProperties.getString("PLEBIndex.indexFile");
+    String outputFilename = JerboaProperties.getProperty("PLEBIndex.indexFile");
     pleb.logger.info("Writing output [" + outputFilename + "]");
     ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(outputFilename));
     out.writeObject(pleb);

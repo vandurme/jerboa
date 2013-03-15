@@ -55,11 +55,11 @@ public class NGram extends Feature {
     featureID = binary ? "bN:" : "N:";
     trie = new Trie();
     trie.setCaseSensitive(caseSensitive);
-    trie.loadPhrases(JerboaProperties.getString(propPrefix + ".ngrams"));
+    trie.loadPhrases(JerboaProperties.getProperty(propPrefix + ".ngrams"));
     if (classBased) {
 	    featureID = binary ? "bNc:" : "Nc:";
 	    classes = new Hashtable();
-	    loadClasses(JerboaProperties.getString(propPrefix + ".ngrams"), caseSensitive, classes);
+	    loadClasses(JerboaProperties.getProperty(propPrefix + ".ngrams"), caseSensitive, classes);
     }
   }
 

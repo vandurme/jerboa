@@ -35,7 +35,7 @@ public class StaticDocumentStream implements IStream {
 
     curDocID = -1;
     String docParserName =
-	    JerboaProperties.getString("StaticDocumentStream.docParser");
+	    JerboaProperties.getProperty("StaticDocumentStream.docParser");
     Class c = Class.forName(docParserName);
     docParser = (IDocumentParser) c.newInstance();
   }

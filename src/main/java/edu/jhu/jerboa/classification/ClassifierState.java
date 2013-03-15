@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import edu.jhu.jerboa.NoJerboaPropertyException;
 import edu.jhu.jerboa.classification.feature.IFeature;
 import edu.jhu.jerboa.counting.ICounterContainer;
 import edu.jhu.jerboa.util.ASCIIEncoder;
@@ -56,17 +57,26 @@ public class ClassifierState {
   // specific to whatever features you will be using.
   public Hashtable<String,Object> blackboard;
     
-  public ClassifierState (String name) throws Exception {
+  public ClassifierState (String name) throws NoJerboaPropertyException {
     addName(name);
     //confidence = null;
     numObservations = 0;
-    blackboard = new Hashtable();
+    blackboard = new Hashtable<String, Object>();
     label = 0;
     categories = null;
     confidenceThreshold = JerboaProperties.getDouble(propPrefix + ".confidenceThreshold",0.0);
 
-    String binaryCounterType = JerboaProperties.getString(propPrefix + ".binaryCounterType","edu.jhu.jerboa.counting.HashtableCounter");
-    binaryFeaturesSeen = (ICounterContainer) (Class.forName(binaryCounterType)).newInstance();
+    String binaryCounterType = JerboaProperties.getProperty(propPrefix + ".binaryCounterType","edu.jhu.jerboa.counting.HashtableCounter");
+    try {
+    	binaryFeaturesSeen = (ICounterContainer) (Class.forName(binaryCounterType)).newInstance();
+    } catch (InstantiationException ie) {
+    	throw new RuntimeException(ie);
+    } catch (IllegalAccessException e) {
+    	throw new RuntimeException(e);
+    } catch (ClassNotFoundException e) {
+		throw new RuntimeException(e);
+	}
+    
     //keepLastInstance = JerboaProperties.getBoolean(propPrefix + ".keepLastInstance",false);
   }
 
@@ -93,7 +103,7 @@ public class ClassifierState {
   */
   public void initializeClassifier () throws Exception {
     Class<?> c;
-    String classifierType = JerboaProperties.getString(propPrefix + ".type",null);
+    String classifierType = JerboaProperties.getProperty(propPrefix + ".type");
     if (classifierType == null)
 	    classifier = null;
     else {
@@ -105,7 +115,7 @@ public class ClassifierState {
         classifier.readState();
 	    partialBinaryResults = new double[classifier.getCardinality()];
 	    form = classifier.getForm();
-	    //String confidenceType = JerboaProperties.getString(propPrefix + ".confidence",
+	    //String confidenceType = JerboaProperties.getProperty(propPrefix + ".confidence",
 	    //"edu.jhu.jerboa.classification.Confidence");
 	    //c = Class.forName(confidenceType);
 	    //confidence = (IConfidence) c.newInstance();

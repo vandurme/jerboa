@@ -42,17 +42,15 @@ public class ProcessStream {
   private static Logger logger = Logger.getLogger(ProcessStream.class.getName());
 
   public static void run () throws Exception {
-    JerboaProperties.load();
-				
     String streamProcessorName = 
-	    JerboaProperties.getString("ProcessStream.processor");
+	    JerboaProperties.getProperty("ProcessStream.processor");
     logger.info("Creating instance of [" + streamProcessorName + "]");
     Class<?> c = Class.forName(streamProcessorName);
     IStreamProcessor processor = (IStreamProcessor) c.newInstance();
 
     IStreamingContainer container = null;
     String containerName = 
-	    JerboaProperties.getString("ProcessStream.container",null);
+	    JerboaProperties.getProperty("ProcessStream.container",null);
     if (containerName != null) {
 	    logger.info("Creating instance of [" + containerName + "]");
 	    c = Class.forName(containerName);
@@ -66,7 +64,7 @@ public class ProcessStream {
 
     int iterations = JerboaProperties.getInt("ProcessStream.iterations",1);
     String streamTypeName = 
-	    JerboaProperties.getString("ProcessStream.streamType");
+	    JerboaProperties.getProperty("ProcessStream.streamType");
     c = Class.forName(streamTypeName);
 	
     for (int i = 0; i < iterations; i++) {

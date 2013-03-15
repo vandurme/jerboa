@@ -14,6 +14,8 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.jhu.jerboa.NoJerboaPropertyException;
+
 /**
  *         A utility wrapper around {@link java.util.Properties}, supporting type specific querying
  *         on property values, and throwing Exception when properties are not found in cases with no
@@ -36,8 +38,7 @@ public class JerboaProperties {
 
   private static final Logger logger = Logger.getLogger(JerboaProperties.class.getName());
 
-  private static Properties properties = new Properties();
-  static boolean isLoaded = false;
+  private static JProperties properties = new JProperties();
   static Hashtable<String, String> variables;
 
   static Pattern variablePattern = Pattern.compile("\\{[^\\\\}]+\\}");
@@ -58,215 +59,130 @@ public class JerboaProperties {
       throw new RuntimeException(ioe);
     }
   }
-
-  private static String parsePropertyValue(String value) throws IOException {
-    String group, replacement;
-    Matcher m = variablePattern.matcher(value);
-    StringBuffer sb = new StringBuffer();
-    while (m.find()) {
-      group = m.group();
-      group = group.substring(1, group.length() - 1);
-      replacement = JerboaProperties.getString(group, null);
-      if (replacement != null)
-        m.appendReplacement(sb, replacement);
-      else {
-        logger
-            .warning("Cannot parse property [" + value + "], as [" + group + "] does not resolve");
-        return null;
-      }
-    }
-    m.appendTail(sb);
-    return sb.toString();
-  }
-
-  /**
-   * Calls {@link #load(String) load()} with the property
-   * JerboaProperties.filename as the argument.
-   * 
-   */
-  public static void load() {
-    //logger.info("Loading properties file: " + filename);
-    
-
-    //isLoaded = true;
-  }
-
-  public static double getDouble(String key) throws IOException {
-    String value = System.getProperty(key);
-    if (value == null && properties != null) value = properties.getProperty(key);
+  
+  public static double getDouble(String key) throws NoJerboaPropertyException {
+    String value = getProperty(key);
     if (value == null)
-      throw new IOException("Key not found in property specification: [" + key + "]");
-    if ((value = parsePropertyValue(value)) == null)
-      throw new IOException("Key not resolvable in property specification: [" + key + "]");
-
+      throw new NoJerboaPropertyException(key);
     else
       return Double.parseDouble(value);
   }
 
-  public static double getDouble(String key, double defaultValue) throws IOException {
-    if (!isLoaded) load();
-
-    String value = System.getProperty(key);
-    if (value == null && properties != null) value = properties.getProperty(key);
-    if (value == null) {
-      logger.config("Returning default value for " + key + " : " + defaultValue);
-      return defaultValue;
-    }
-    if ((value = parsePropertyValue(value)) == null) {
-      logger.config("Key not fully resolvable, returning default value for " + key + " : "
-          + defaultValue);
-      return defaultValue;
-    } else
-      return Double.parseDouble(value);
+  public static double getDouble(String key, double defaultValue) {
+	  String value = getProperty(key);
+	  if (value == null)
+		  return defaultValue;
+	  else
+		  return Double.parseDouble(value);
   }
+  
+  public static double getDoubleOrNull (String key) {
+	  String value = getProperty(key);
+	  return value == null ? null : Double.parseDouble(value);
+  }
+  
+  public static long getLong(String key) throws NoJerboaPropertyException {
+	    String value = getProperty(key);
+	    if (value == null)
+	      throw new NoJerboaPropertyException(key);
+	    else
+	      return Long.parseLong(value);
+	  }
 
-  public static long getLong(String key) throws IOException {
-    if (!isLoaded) load();
+  public static long getLong(String key, long defaultValue) {
+	  String value = getProperty(key);
+	  if (value == null)
+		  return defaultValue;
+	  else
+		  return Long.parseLong(value);
+  }
+  
+  public static long getLongOrNull (String key) {
+	  String value = getProperty(key);
+	  return value == null ? null : Long.parseLong(value);
+  }
+  
+  public static int getInt(String key) throws NoJerboaPropertyException {
+	    String value = getProperty(key);
+	    if (value == null)
+	      throw new NoJerboaPropertyException(key);
+	    else
+	      return Integer.parseInt(value);
+	  }
 
-    String value = System.getProperty(key);
-    if (value == null && properties != null) value = properties.getProperty(key);
+public static int getInt(String key, int defaultValue) {
+	  String value = getProperty(key);
+	  if (value == null)
+		  return defaultValue;
+	  else
+		  return Integer.parseInt(value);
+}
+
+public static int getIntOrNull (String key) {
+	  String value = getProperty(key);
+	  return value == null ? null : Integer.parseInt(value);
+}
+
+public static boolean getBoolean(String key) throws NoJerboaPropertyException {
+    String value = getProperty(key);
     if (value == null)
-      throw new IOException("Key not found in property specification: [" + key + "]");
-    if ((value = parsePropertyValue(value)) == null)
-      throw new IOException("Key not resolvable in property specification: [" + key + "]");
-
-    return Long.parseLong(value);
+      throw new NoJerboaPropertyException(key);
+    else
+      return Boolean.parseBoolean(value);
   }
 
-  public static long getLong(String key, long defaultValue) throws IOException {
-    if (!isLoaded) load();
+public static boolean getBoolean(String key, boolean defaultValue) {
+  String value = getProperty(key);
+  if (value == null)
+	  return defaultValue;
+  else
+	  return Boolean.parseBoolean(value);
+}
 
-    String value = System.getProperty(key);
-    if (value == null && properties != null) value = properties.getProperty(key);
-    if (value == null) {
-      logger.config("Returning default value for " + key + " : " + defaultValue);
-      return defaultValue;
-    }
-    if ((value = parsePropertyValue(value)) == null) {
-      logger.config("Key not fully resolvable, returning default value for " + key + " : "
-          + defaultValue);
-      return defaultValue;
-    } else
-      return Long.parseLong(value);
-  }
+public static boolean getBooleanOrNull (String key) {
+  String value = getProperty(key);
+  return value == null ? null : Boolean.parseBoolean(value);
+}
 
-  public static int getInt(String key) throws IOException {
-    if (!isLoaded) load();
-
-    String value = System.getProperty(key);
-    if (value == null && properties != null) value = properties.getProperty(key);
+public static String[] getStrings(String key) throws NoJerboaPropertyException {
+    String value = getProperty(key);
     if (value == null)
-      throw new IOException("Key not found in property specification: [" + key + "]");
-    if ((value = parsePropertyValue(value)) == null)
-      throw new IOException("Key not resolvable in property specification: [" + key + "]");
-
-    logger.config("Returning value for " + key + " : " + value);
-    return Integer.parseInt(value);
-  }
-
-  public static int getInt(String key, int defaultValue) throws IOException {
-    if (!isLoaded) load();
-
-    String value = System.getProperty(key);
-    if (value == null && properties != null) value = properties.getProperty(key);
-    if (value == null) {
-      logger.config("Returning default value for " + key + " : " + defaultValue);
-      return defaultValue;
-    }
-    if ((value = parsePropertyValue(value)) == null) {
-      logger.config("Key not fully resolvable, returning default value for " + key + " : "
-          + defaultValue);
-      return defaultValue;
-    } else
-      return Integer.parseInt(value);
-  }
-
-  public static String getString(String key, String defaultValue) throws IOException {
-    if (!isLoaded) load();
-
-    String value = System.getProperty(key);
-    if (value == null && properties != null) value = properties.getProperty(key);
-    if (value == null) {
-      logger.config("Returning default value for " + key + " : " + defaultValue);
-      return defaultValue;
-    }
-    if ((value = parsePropertyValue(value)) == null) {
-      logger.config("Key not fully resolvable, returning default value for " + key + " : "
-          + defaultValue);
-      return defaultValue;
-    } else
-      return value;
-  }
-
-  public static String getString(String key) throws IOException {
-    if (!isLoaded) load();
-
-    String value = System.getProperty(key);
-    if (value == null && properties != null) value = properties.getProperty(key);
-    if (value == null)
-      throw new IOException("Key not found in property specification: [" + key + "]");
-    if ((value = parsePropertyValue(value)) == null)
-      throw new IOException("Key not resolvable in property specification: [" + key + "]");
-
-    return value;
-  }
-
-  public static String[] getStrings(String key, String[] defaultValue) throws IOException {
-    if (!isLoaded) load();
-
-    String value = System.getProperty(key);
-    if (value == null && properties != null) value = properties.getProperty(key);
-    if (value == null) {
-      logger.config("Returning default value for " + key + " : " + Arrays.toString(defaultValue));
-      return defaultValue;
-    }
-    if ((value = parsePropertyValue(value)) == null) {
-      logger.config("Key not fully resolvable, returning default value for " + key + " : "
-          + Arrays.toString(defaultValue));
-      return defaultValue;
-    } else
+      throw new NoJerboaPropertyException(key);
+    else
       return value.split("\\s");
   }
 
-  public static String[] getStrings(String key) throws IOException {
-    if (!isLoaded) load();
+public static String[] getStrings(String key, String[] defaultValue) {
+  String value = getProperty(key);
+  if (value == null)
+	  return defaultValue;
+  else
+	  return value.split("\\s");
+}
 
-    String value = System.getProperty(key);
-    if (value == null && properties != null) value = properties.getProperty(key);
-    if (value == null)
-      throw new IOException("Key not found in property specification: [" + key + "]");
-    if ((value = parsePropertyValue(value)) == null)
-      throw new IOException("Key not resolvable in property specification: [" + key + "]");
-
-    return value.split("\\s");
+public static String[] getStringsOrNull (String key) {
+  String value = getProperty(key);
+  return value == null ? null : value.split("\\s");
+}
+  
+  public static String getProperty(String key) {
+	  // check system properties first
+	  String value = System.getProperty(key);
+	  if (value == null) {
+		  // wasn't in system properties - check loaded properties object
+		  value = properties.getProperty(key);
+	  }
+	  
+	  // we will return null, and let caller deal w/ it
+	  return value;
   }
-
-  public static boolean getBoolean(String key, boolean defaultValue) throws IOException {
-    if (!isLoaded) load();
-
-    String value = System.getProperty(key);
-    if (value == null && properties != null) value = properties.getProperty(key);
-    if (value == null) {
-      logger.config("Returning default value for " + key + " : " + defaultValue);
-      return defaultValue;
-    }
-    if ((value = parsePropertyValue(value)) == null) {
-      logger.config("Key not fully resolvable, returning default value for " + key + " : "
-          + defaultValue);
-      return defaultValue;
-    } else
-      return Boolean.valueOf(value);
-  }
-
-  public static boolean getBoolean(String key) throws IOException {
-    if (!isLoaded) load();
-
-    String value = System.getProperty(key);
-    if (value == null && properties != null) value = properties.getProperty(key);
-    if (value == null)
-      throw new IOException("Key not found in property specification: [" + key + "]");
-    if ((value = parsePropertyValue(value)) == null)
-      throw new IOException("Key not resolvable in property specification: [" + key + "]");
-    return Boolean.valueOf(value);
+  
+  public static String getProperty(String key, String defaultValue) {
+	  String value = JerboaProperties.getProperty(key);
+	  if (value == null)
+		  // we'll return the default if we didn't get anything from system or loaded properties
+		  return defaultValue;
+	  else
+		  return value;
   }
 }

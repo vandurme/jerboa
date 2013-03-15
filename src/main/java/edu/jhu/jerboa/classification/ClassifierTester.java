@@ -38,8 +38,8 @@ public class ClassifierTester implements IStreamProcessor {
   */
   public ClassifierTester () throws Exception {
     propPrefix = "ClassifierTester";
-    String name = JerboaProperties.getString("Classifier.name", "");
-    resultsFilename = JerboaProperties.getString("ClassifierTester.resultsFilename", null);
+    String name = JerboaProperties.getProperty("Classifier.name", "");
+    resultsFilename = JerboaProperties.getProperty("ClassifierTester.resultsFilename", null);
     starterState = new ClassifierState(name);
     starterState.initialize();
     form = starterState.classifier.getForm();
