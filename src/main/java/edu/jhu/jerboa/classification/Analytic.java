@@ -6,6 +6,7 @@
 
 package edu.jhu.jerboa.classification;
 
+import java.io.File;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Hashtable;
 import java.util.Map;
@@ -13,7 +14,6 @@ import java.util.Vector;
 import java.util.logging.Logger;
 
 import edu.jhu.jerboa.processing.IDocumentParser;
-import edu.jhu.jerboa.util.FileManager;
 import edu.jhu.jerboa.util.JerboaProperties;
 
 /**
@@ -183,6 +183,6 @@ public class Analytic {
     IDocumentParser docParser = (IDocumentParser) c.newInstance();
 
     for (int i = 0; i < args.length; i++)
-      analytic.process(args[i],docParser.parseDocument(FileManager.getFile(args[i])));
+      analytic.process(args[i],docParser.parseDocument(new File(args[i])));
   }
 }
