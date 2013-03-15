@@ -1,4 +1,4 @@
 #!/bin/sh
-cd ../java
-ant jar
-java -DJerboa.resourceType=jar -DJerboaProperties.filename=config/analytics.properties -cp .:dist/*:opt/*:config/ edu.jhu.jerboa.classification.InteractiveAnalytic
+cd ..
+mvn clean package
+java -DJerboa.resourceType=jar -DJerboaProperties.filename=analytics.properties -cp .:target/*:proj/analytic/models/* edu.jhu.jerboa.classification.InteractiveAnalytic
