@@ -43,7 +43,7 @@ public class StubClassifier implements IClassifier {
 
 
   public void initialize() throws Exception {
-    form = ClassifierForm.valueOf(JerboaProperties.getString(propPrefix + ".form"));
+    form = ClassifierForm.valueOf(JerboaProperties.getProperty(propPrefix + ".form"));
     cardinality = JerboaProperties.getInt(propPrefix + ".cardinality", 1);
   }
 

@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 
 import edu.jhu.jerboa.processing.TokenizationKind;
 import edu.jhu.jerboa.processing.Tokenizer;
-import edu.jhu.jerboa.util.JerboaProperties;
 
 /**
    @author Benjamin Van Durme
@@ -28,7 +27,6 @@ public class InteractiveAnalytic {
 
 
     public static void main (String[] args) throws Exception {
-    JerboaProperties.load();
 	Analytic analytic = new Analytic();
 
 	BufferedReader in = new BufferedReader(new InputStreamReader(System.in));

@@ -32,7 +32,7 @@ public class ClassifierTrainer implements IStreamProcessor {
   */
   public ClassifierTrainer () throws Exception {
     propPrefix = "ClassifierTrainer";
-    String name = JerboaProperties.getString("Classifier.name", "");
+    String name = JerboaProperties.getProperty("Classifier.name", "");
     starterState = new ClassifierState(name);
     starterState.initialize();
   }

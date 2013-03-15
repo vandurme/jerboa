@@ -143,7 +143,7 @@ public class Logistic implements IClassifier {
      Calls {@code readState(String filename)} with the value of {propPrefix}.filename
   */
   public void readState () throws IOException {
-    readState(JerboaProperties.getString(propPrefix + ".filename"));
+    readState(JerboaProperties.getProperty(propPrefix + ".filename"));
   }
 
   /**
@@ -162,10 +162,10 @@ public class Logistic implements IClassifier {
     weights = new Hashtable<String,Double>();
     String line;
     String[] tokens;
-    String modelSource = JerboaProperties.getString(propPrefix + ".modelSource");
+    String modelSource = JerboaProperties.getProperty(propPrefix + ".modelSource");
 
     if (modelSource.equals("LIBLINEAR")) {
-	    String featureMapFilename = JerboaProperties.getString(propPrefix + ".featureMap");
+	    String featureMapFilename = JerboaProperties.getProperty(propPrefix + ".featureMap");
 	    BufferedReader featureMapReader = FileManager.getReader(featureMapFilename);
 
 	    Hashtable<Integer,String> featureIDMap = new Hashtable();

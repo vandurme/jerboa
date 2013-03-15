@@ -24,7 +24,7 @@ public class RunNGram {
     //logger.info("WordListGenerator.order = " + System.getProperty("WordListGenerator.order"));
     
   try {
-    //JerboaProperties.getString("Jerboa.resourceType", "file");
+    //JerboaProperties.getProperty("Jerboa.resourceType", "file");
       ProcessStream.run();
   } catch (Exception e) {
       StringWriter sw = new StringWriter();

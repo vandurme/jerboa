@@ -33,12 +33,12 @@ public class SimGraph {
 
   public static void kbestGraph (SLSH slsh, PLEBIndex pleb, int k, int B, int P) throws Exception {
     KBest<String> kbest = pleb.kbestGraph(k,B,P);
-    BufferedWriter writer = FileManager.getWriter(JerboaProperties.getString("SimGraph.outputPrefix") + ".kbest");
+    BufferedWriter writer = FileManager.getWriter(JerboaProperties.getProperty("SimGraph.outputPrefix") + ".kbest");
     writeResults(writer,pleb,kbest);
     writer.close();
   }
   public static void thresholdGraph (SLSH slsh, PLEBIndex pleb, int k, int B, int P) throws Exception {
-    BufferedWriter writer = FileManager.getWriter(JerboaProperties.getString("SimGraph.outputPrefix") + ".threshold");
+    BufferedWriter writer = FileManager.getWriter(JerboaProperties.getProperty("SimGraph.outputPrefix") + ".threshold");
     double threshold = JerboaProperties.getDouble("SimGraph.threshold");
     pleb.thresholdGraph(k,B,P,threshold,writer);
     writer.close();
@@ -51,9 +51,9 @@ public class SimGraph {
     
     SLSH slsh;
     slsh = SLSH.load();
-    PLEBIndex pleb = PLEBIndex.load(JerboaProperties.getString("PLEBIndex.indexFile"),slsh);
+    PLEBIndex pleb = PLEBIndex.load(JerboaProperties.getProperty("PLEBIndex.indexFile"),slsh);
     //KBest<Integer[]> kbest = pleb.kbestGraph(k,B,P);
-    String method = JerboaProperties.getString("SimGraph.method", "kbestGraph");
+    String method = JerboaProperties.getProperty("SimGraph.method", "kbestGraph");
     if (method.equals("kbestGraph"))
       kbestGraph(slsh,pleb,k,B,P);
     else if (method.equals("thresholdGraph"))

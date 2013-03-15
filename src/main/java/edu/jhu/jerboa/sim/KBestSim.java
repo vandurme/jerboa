@@ -35,9 +35,9 @@ public class KBestSim {
 
   public static void main (String[] args) throws Exception {
     SLSH slsh = SLSH.load();
-    BufferedWriter writer = FileManager.getWriter(JerboaProperties.getString("KBestSim.output"));
-    Vector<String> queries = Loader.readLines(JerboaProperties.getString("KBestSim.queries"));
-    Vector<String> candidates = Loader.readLines(JerboaProperties.getString("KBestSim.candidates"));
+    BufferedWriter writer = FileManager.getWriter(JerboaProperties.getProperty("KBestSim.output"));
+    Vector<String> queries = Loader.readLines(JerboaProperties.getProperty("KBestSim.queries"));
+    Vector<String> candidates = Loader.readLines(JerboaProperties.getProperty("KBestSim.candidates"));
 
     KBest<String> kbest;
     int k = JerboaProperties.getInt("KBestSim.k");

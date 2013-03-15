@@ -154,7 +154,7 @@ public class SimServer {
     serverSocket = new ServerSocket(port);
 
     SLSH slsh = SLSH.load();
-    String plebIndexFilename = JerboaProperties.getString("SimServer.indexFile",null);
+    String plebIndexFilename = JerboaProperties.getProperty("SimServer.indexFile",null);
     PLEBIndex pleb = null;
     if (plebIndexFilename != null) {
 	    logger.info("Reading PLEBIndex object [" + plebIndexFilename + "]");

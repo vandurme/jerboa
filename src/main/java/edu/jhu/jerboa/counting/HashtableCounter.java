@@ -72,7 +72,7 @@ public class HashtableCounter implements ICounterContainer {
      An optional minimum threshold can be specified by: propPrefix + ".threshold"
   */
   public void write () throws Exception {
-    String filename = JerboaProperties.getString(propPrefix + ".filename");
+    String filename = JerboaProperties.getProperty(propPrefix + ".filename");
     BufferedWriter out = FileManager.getWriter(filename);
     Enumeration e = table.keys();
     String key;

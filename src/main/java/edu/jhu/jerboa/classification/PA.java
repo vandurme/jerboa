@@ -89,7 +89,7 @@ public class PA implements IClassifier {
     C = JerboaProperties.getDouble(propPrefix + ".C", 1.0);
     version = JerboaProperties.getInt(propPrefix + ".version", 0);
     numThreads = JerboaProperties.getInt(propPrefix + ".numThreads", 1);
-    form = ClassifierForm.valueOf(JerboaProperties.getString(propPrefix +
+    form = ClassifierForm.valueOf(JerboaProperties.getProperty(propPrefix +
                                                              ".form","BINARY"));
     includeBias = JerboaProperties.getBoolean(propPrefix +
                                               ".includeBiasTerm", true);
@@ -428,7 +428,7 @@ public class PA implements IClassifier {
      Calls {@code readState(String filename)} with the value of {@code PA.filename}.
   */
   public void readState () throws IOException {
-    readState(JerboaProperties.getString(propPrefix + ".filename"));
+    readState(JerboaProperties.getProperty(propPrefix + ".filename"));
   }
 
   /**
@@ -482,7 +482,7 @@ public class PA implements IClassifier {
      Calls {@code writeState(String filename)} with the value of the property: filename}.
   */
   public void writeState () throws IOException {
-    writeState(JerboaProperties.getString(propPrefix + ".filename"));
+    writeState(JerboaProperties.getProperty(propPrefix + ".filename"));
   }
 
   /**
@@ -539,9 +539,9 @@ public class PA implements IClassifier {
   }
 
   private void operate () throws Exception {
-    String mode = JerboaProperties.getString("PA.mode", null);
+    String mode = JerboaProperties.getProperty("PA.mode", null);
     if (mode == null) { usage(); }
-    String filename = JerboaProperties.getString("PA.data");
+    String filename = JerboaProperties.getProperty("PA.data");
     if (filename == null) { usage(); }
     BufferedReader reader = FileManager.getReader(filename);
     InstanceParser parser = new InstanceParser();
