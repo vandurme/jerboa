@@ -21,13 +21,13 @@ then feel free to issue a pull request via GitHub.
 To reference this package in academic writing:
 
 <pre>
-   @TechReport{Jerboa:TR:2012,
+@TechReport{Jerboa:TR:2012,
 	author =       {Benjamin {Van Durme}},
 	title =        {Jerboa: A Toolkit for Randomized and Streaming Algorithms},
 	institution =  {Human Language Technology Center of Excellence, Johns Hopkins University},
 	year =         {2012},
 	number =       {7}
-	}
+}
 </pre>
 
 which can be found at: http://cs.jhu.edu/~vandurme/papers/JerboaTR2012.pdf .
@@ -43,6 +43,7 @@ Installation
 ------------
 
 mvn package - build a jar
+
 mvn install - will install the plugin to your local repository.
 
 Adding to your project
