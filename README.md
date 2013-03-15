@@ -35,7 +35,7 @@ which can be found at: http://cs.jhu.edu/~vandurme/papers/JerboaTR2012.pdf .
 Requirements
 ------------
 
-Concrete requires the following:
+Jerboa requires the following:
 * Java, 1.6 or greater
 * Maven, 3.0.4 or greater
 
