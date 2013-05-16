@@ -81,7 +81,7 @@ public class ColumnLineParser implements ILineParser {
         fieldTokens[0] = line;
 	    }
 
-	    if (fields != null)
+	    if (fields != null) {
         for (int i = 0; i < fields.length; i++) {
           if (tokenization != null) {
             tokens = Tokenizer.tokenize(fieldTokens[fields[i]],
@@ -91,7 +91,7 @@ public class ColumnLineParser implements ILineParser {
           } else
             content.addElement(fieldTokens[fields[i]]);
         }
-	    else {
+	    } else {
         for (int i = 0; i < fieldTokens.length; i++)
           if (tokenization != null) {
             tokens = Tokenizer.tokenize(fieldTokens[fields[i]],

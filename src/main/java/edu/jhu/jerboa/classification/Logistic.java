@@ -51,7 +51,7 @@ public class Logistic implements IClassifier {
   }
 
   public void addName (String name) {
-    if (name.equals(""))
+    if (!name.equals(""))
 	    propPrefix = name + "." + propPrefix;
   }
 
