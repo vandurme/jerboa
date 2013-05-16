@@ -45,7 +45,7 @@ public class BuckwalterAnalyzer {
      BuckwalterAnalyzer.path : (String) pathname to directory that holds the analyzer
   */
   public static BuckwalterToken[] analyze (String text) throws Exception {
-    String path = JerboaProperties.getString("BuckwalterAnalyzer.path",
+    String path = JerboaProperties.getProperty("BuckwalterAnalyzer.path",
                                              "/export/projects/tto8/tools/buckwalter-2.0/data");
 
     // WARNING: this is running a command based on an external configuration

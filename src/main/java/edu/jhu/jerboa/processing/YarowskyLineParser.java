@@ -43,18 +43,18 @@ public class YarowskyLineParser implements ILineParser {
   public YarowskyLineParser () throws Exception {
     caseSensitive = JerboaProperties.getBoolean("YarowskyLineParser.caseSensitive", true);
     ignoreAttribute = JerboaProperties.getBoolean("YarowskyLineParser.ignoreAttribute", false);
-    attributeField = JerboaProperties.getString("YarowskyLineParser.attributeField","attribute");
-    communicantField = JerboaProperties.getString("YarowskyLineParser.communicantField","communicant");
-    form = ClassifierForm.valueOf(JerboaProperties.getString("YarowskyLineParser.classifierForm","BINARY"));
+    attributeField = JerboaProperties.getProperty("YarowskyLineParser.attributeField","attribute");
+    communicantField = JerboaProperties.getProperty("YarowskyLineParser.communicantField","communicant");
+    form = ClassifierForm.valueOf(JerboaProperties.getProperty("YarowskyLineParser.classifierForm","BINARY"));
     if (form == ClassifierForm.BINARY) {
 	    String[] classLabels = JerboaProperties.getStrings("YarowskyLineParser.classLabels",new String[] {"1","-1"});
 	    if (classLabels.length != 2)
         throw new Exception("When binary, requires that there are just 2 classLabels, not [" + classLabels.length + "]");
-	    classPolarity = new Hashtable();
+	    classPolarity = new Hashtable<String, Boolean>();
 	    classPolarity.put(classLabels[0].toLowerCase(),true);
 	    classPolarity.put(classLabels[1].toLowerCase(),false);
     }
-    tokenization = TokenizationKind.valueOf(JerboaProperties.getString("YarowskyLineParser.tokenization", "PTB"));
+    tokenization = TokenizationKind.valueOf(JerboaProperties.getProperty("YarowskyLineParser.tokenization", "PTB"));
   }
 
   /**
@@ -108,7 +108,7 @@ public class YarowskyLineParser implements ILineParser {
     String[] fieldPair;
     if (((line = reader.readLine()) != null) && (line.startsWith("<message "))) {
 
-	    Hashtable<String,Object> h = new Hashtable();
+	    Hashtable<String,Object> h = new Hashtable<String, Object>();
 
 	    String[] fields = line.substring(10,line.length()-1).split("\\s+");
 	    for (String field : fields) {

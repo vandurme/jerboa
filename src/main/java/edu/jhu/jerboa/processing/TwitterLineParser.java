@@ -43,7 +43,7 @@ public class TwitterLineParser implements ILineParser {
   */
   public Hashtable<String,Object> parseLine(BufferedReader reader) throws IOException {
     Vector<String> content = new Vector<String>();
-    Hashtable<String,Object> h = new Hashtable();
+    Hashtable<String,Object> h = new Hashtable<String, Object>();
 
     if ((line = reader.readLine()) != null) {
       fields = line.split("\\t");

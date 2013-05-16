@@ -1,0 +1,3 @@
+target/*
+src/main/resources/models/*
+src/main/resources/analytics.properties

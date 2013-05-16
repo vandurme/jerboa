@@ -66,7 +66,7 @@ public class HashtableFilter implements ICounterContainer {
      Writes contents to: propPrefix + ".filename"
   */
   public void write () throws Exception {
-    String filename = JerboaProperties.getString(propPrefix + ".filename");
+    String filename = JerboaProperties.getProperty(propPrefix + ".filename");
     BufferedWriter writer = FileManager.getWriter(filename);
     Enumeration<?> e = table.keys();
     String key;

@@ -78,7 +78,7 @@ public class KeyFeatureContainer implements IFeatureContainer {
     kfTable = new Hashtable();
     fTable = new Hashtable();
     kTable = new Hashtable();
-    String keyFilename = JerboaProperties.getString("KeyFeatureContainer.keyFile",null);
+    String keyFilename = JerboaProperties.getProperty("KeyFeatureContainer.keyFile",null);
     if (keyFilename != null) {
       filterKeys = true;
       readKeys(keyFilename);
@@ -86,7 +86,7 @@ public class KeyFeatureContainer implements IFeatureContainer {
       filterKeys = false;
     }
     String filterName = 
-	    JerboaProperties.getString("KeyFeatureContainer.filter",
+	    JerboaProperties.getProperty("KeyFeatureContainer.filter",
                                  "edu.jhu.jerboa.counting.HashtableFilter");
     logger.info("Creating instance of [" + filterName + "]");
     Class c = Class.forName(filterName);
@@ -155,7 +155,7 @@ public class KeyFeatureContainer implements IFeatureContainer {
 
   public void write () throws IOException {
     BufferedWriter writer = FileManager.getWriter
-      (JerboaProperties.getString("KeyFeatureContainer.filename"));
+      (JerboaProperties.getProperty("KeyFeatureContainer.filename"));
 
     if (filterKeys)
       for (String key : kTable.keySet())
@@ -182,7 +182,7 @@ public class KeyFeatureContainer implements IFeatureContainer {
    */
   public void read () throws IOException, ClassNotFoundException {
     BufferedReader reader = FileManager.getReader
-      (JerboaProperties.getString("KeyFeatureContainer.filename"));
+      (JerboaProperties.getProperty("KeyFeatureContainer.filename"));
     double kThreshold = JerboaProperties.getDouble("KeyFeatureContainer.keyThreshold",0.0);
     double fThreshold = JerboaProperties.getDouble("KeyFeatureContainer.featureThreshold",0.0);
 

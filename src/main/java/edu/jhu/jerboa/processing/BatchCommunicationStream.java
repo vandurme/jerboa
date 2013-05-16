@@ -61,7 +61,7 @@ public class BatchCommunicationStream implements IStream {
     curDocID = 0;
     reader = FileManager.getReader(files[curDocID]);
     String docParserName =
-	    JerboaProperties.getString("BatchCommunicationStream.lineParser");
+	    JerboaProperties.getProperty("BatchCommunicationStream.lineParser");
     Class<?> c = Class.forName(docParserName);
     lineParser = (ILineParser) c.newInstance();
     log = new Hashtable();

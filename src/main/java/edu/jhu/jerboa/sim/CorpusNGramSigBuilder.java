@@ -64,13 +64,13 @@ public class CorpusNGramSigBuilder implements IStreamProcessor {
   public CorpusNGramSigBuilder () throws Exception {
     logger = Logger.getLogger(CorpusNGramSigBuilder.class.getName());
     dictProject = false;
-    String filename = JerboaProperties.getString("CorpusNGramSigBuilder.projDict",null);
+    String filename = JerboaProperties.getProperty("CorpusNGramSigBuilder.projDict",null);
     if (filename != null) {
 	    dictProject = true;
 	    readDictionary(filename);
     }
 
-    filename = JerboaProperties.getString("CorpusNGramSigBuilder.keys");
+    filename = JerboaProperties.getProperty("CorpusNGramSigBuilder.keys");
     trie = new Trie();
     trie.loadPhrases(filename);
 

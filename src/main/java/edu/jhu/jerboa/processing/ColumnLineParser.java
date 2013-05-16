@@ -41,7 +41,7 @@ public class ColumnLineParser implements ILineParser {
   TokenizationKind tokenization;
 
   public ColumnLineParser () throws Exception {
-    separator = JerboaProperties.getString("ColumnLineParser.separator",null);
+    separator = JerboaProperties.getProperty("ColumnLineParser.separator",null);
     lowercase = JerboaProperties.getBoolean("ColumnLineParser.lowercase",false);
     String[] fieldStrings = JerboaProperties.getStrings("ColumnLineParser.fields",null);
     if (fieldStrings != null) {
@@ -51,8 +51,8 @@ public class ColumnLineParser implements ILineParser {
     } else {
 	    fields = null;
     }
-    conjoinFields = JerboaProperties.getString("ColumnLineParser.conjoinFields",null);
-    String type = JerboaProperties.getString("ColumnLineParser.tokenizationKind", null);
+    conjoinFields = JerboaProperties.getProperty("ColumnLineParser.conjoinFields",null);
+    String type = JerboaProperties.getProperty("ColumnLineParser.tokenizationKind", null);
     if (type != null)
 	    tokenization = TokenizationKind.valueOf(type);
     else

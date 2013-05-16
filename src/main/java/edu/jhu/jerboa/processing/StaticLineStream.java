@@ -45,7 +45,7 @@ public class StaticLineStream implements IStream {
 
   */
   public StaticLineStream () throws Exception {
-    String fileWeightFilename = JerboaProperties.getString("StaticLineStream.fileWeights", null);
+    String fileWeightFilename = JerboaProperties.getProperty("StaticLineStream.fileWeights", null);
     if (fileWeightFilename == null) {
 	    String[] filenames = JerboaProperties.getStrings("StaticLineStream.files");
 	    files = FileManager.getFiles(filenames);
@@ -85,7 +85,7 @@ public class StaticLineStream implements IStream {
     curFileID = 0;
     reader = FileManager.getReader(files[curFileID]);
     String docParserName =
-	    JerboaProperties.getString("StaticLineStream.lineParser");
+	    JerboaProperties.getProperty("StaticLineStream.lineParser");
     Class<?> c = Class.forName(docParserName);
     lineParser = (ILineParser) c.newInstance();
   }
