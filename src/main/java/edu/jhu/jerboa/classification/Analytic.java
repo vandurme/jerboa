@@ -11,7 +11,11 @@ import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
 
 import edu.jhu.jerboa.processing.IDocumentParser;
 import edu.jhu.jerboa.util.JerboaProperties;
@@ -22,7 +26,8 @@ import edu.jhu.jerboa.util.JerboaProperties;
  *         Stand-alone wrapper for the core classification components.
  */
 public class Analytic {
-  private static Logger logger = Logger.getLogger(Analytic.class.getName());
+    
+    private static final Logger logger = LoggerFactory.getLogger(Analytic.class);
   IClassifier classifier;
   String classifierType;
   Hashtable<String, ClassifierState> starterStates;
@@ -94,7 +99,7 @@ public class Analytic {
         // System.out.println(classifierName + " exceeds threshold");
         decision = state.getDecision(classification);
         results += classifierName + "\t" + decision[0].getKey() + "\t" + decision[0].getValue() + "\n";
-        logger.fine(classifierName + " " + classification[0]);
+        logger.trace(classifierName + " " + classification[0]);
       }
     }
     return results;

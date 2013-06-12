@@ -6,10 +6,11 @@
 
 package edu.jhu.jerboa.util;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
-import java.util.Hashtable;
-import java.util.logging.Logger;
-import java.util.regex.Pattern;
+import java.io.InputStreamReader;
+import java.nio.file.Paths;
 
 import edu.jhu.jerboa.NoJerboaPropertyException;
 
@@ -33,157 +34,156 @@ import edu.jhu.jerboa.NoJerboaPropertyException;
  */
 public class JerboaProperties {
 
-  private static final Logger logger = Logger.getLogger(JerboaProperties.class.getName());
+    private static JProperties properties = new JProperties();
+    private static boolean isInitialized = false;
 
-  private static JProperties properties = new JProperties();
-  static Hashtable<String, String> variables;
+    private JerboaProperties() {
 
-  static Pattern variablePattern = Pattern.compile("\\{[^\\\\}]+\\}");
-
-  static {
-    String fileName = System.getProperty("JerboaProperties.filename");
-    if (fileName == null) {
-      // try a default of analytics.properties
-      fileName = "analytics.properties";
-      logger.info("Did not find JerboaProperties.filename specified - defaulting to " + fileName);
     }
 
-    logger.info("Reading JerboaProperty file [" + fileName + "]");
-    try {
-      properties.load(FileManager.getReader(fileName));
-    } catch (IOException ioe) {
-      logger.severe("Could not find the system properties file: " + fileName);
-      logger.severe("Ensure " + fileName + " is in your classpath.");
-      logger.severe("You can override this name by passing in a system parameter, e.g., -DJerboaProperties.filename=my.analytics.properties");
-
-      throw new RuntimeException(ioe);
-    }
-  }
-
-  public static double getDouble(String key) throws NoJerboaPropertyException {
-    String value = getProperty(key);
-    if (value == null)
-      throw new NoJerboaPropertyException(key);
-    else
-      return Double.parseDouble(value);
-  }
-
-  public static double getDouble(String key, double defaultValue) {
-    String value = getProperty(key);
-    if (value == null)
-      return defaultValue;
-    else
-      return Double.parseDouble(value);
-  }
-
-  public static double getDoubleOrNull(String key) {
-    String value = getProperty(key);
-    return value == null ? null : Double.parseDouble(value);
-  }
-
-  public static long getLong(String key) throws NoJerboaPropertyException {
-    String value = getProperty(key);
-    if (value == null)
-      throw new NoJerboaPropertyException(key);
-    else
-      return Long.parseLong(value);
-  }
-
-  public static long getLong(String key, long defaultValue) {
-    String value = getProperty(key);
-    if (value == null)
-      return defaultValue;
-    else
-      return Long.parseLong(value);
-  }
-
-  public static long getLongOrNull(String key) {
-    String value = getProperty(key);
-    return value == null ? null : Long.parseLong(value);
-  }
-
-  public static int getInt(String key) throws NoJerboaPropertyException {
-    String value = getProperty(key);
-    if (value == null)
-      throw new NoJerboaPropertyException(key);
-    else
-      return Integer.parseInt(value);
-  }
-
-  public static int getInt(String key, int defaultValue) {
-    String value = getProperty(key);
-    if (value == null)
-      return defaultValue;
-    else
-      return Integer.parseInt(value);
-  }
-
-  public static int getIntOrNull(String key) {
-    String value = getProperty(key);
-    return value == null ? null : Integer.parseInt(value);
-  }
-
-  public static boolean getBoolean(String key) throws NoJerboaPropertyException {
-    String value = getProperty(key);
-    if (value == null)
-      throw new NoJerboaPropertyException(key);
-    else
-      return Boolean.parseBoolean(value);
-  }
-
-  public static boolean getBoolean(String key, boolean defaultValue) {
-    String value = getProperty(key);
-    if (value == null)
-      return defaultValue;
-    else
-      return Boolean.parseBoolean(value);
-  }
-
-  public static boolean getBooleanOrNull(String key) {
-    String value = getProperty(key);
-    return value == null ? null : Boolean.parseBoolean(value);
-  }
-
-  public static String[] getStrings(String key) throws NoJerboaPropertyException {
-    String value = getProperty(key);
-    if (value == null)
-      throw new NoJerboaPropertyException(key);
-    else
-      return value.split("\\s");
-  }
-
-  public static String[] getStrings(String key, String[] defaultValue) {
-    String value = getProperty(key);
-    if (value == null)
-      return defaultValue;
-    else
-      return value.split("\\s");
-  }
-
-  public static String[] getStringsOrNull(String key) {
-    String value = getProperty(key);
-    return value == null ? null : value.split("\\s");
-  }
-
-  public static String getProperty(String key) {
-    // check system properties first
-    String value = System.getProperty(key);
-    if (value == null) {
-      // wasn't in system properties - check loaded properties object
-      value = properties.getProperty(key);
+    public static void initializeConfig(String pathToAnalyticsProperties, boolean loadFromClasspath) throws IOException {
+        // if previously initialized, just return. we're already done.
+        if (isInitialized)
+            return;
+        // if load to classpath is true, attempt to load from classpath.
+        if (loadFromClasspath) {
+            BufferedReader br = new BufferedReader(new InputStreamReader(JerboaProperties.class.getClassLoader().getResourceAsStream(
+                    pathToAnalyticsProperties)));
+            properties.load(br);
+            isInitialized = true;
+            br.close();
+        } else {
+            // otherwise, find the file on disk and load it.
+            FileReader fr = new FileReader(Paths.get(pathToAnalyticsProperties).toFile());
+            properties.load(fr);
+            fr.close();
+        }
     }
 
-    // we will return null, and let caller deal w/ it
-    return value;
-  }
+    public static double getDouble(String key) throws NoJerboaPropertyException {
+        String value = getProperty(key);
+        if (value == null)
+            throw new NoJerboaPropertyException(key);
+        else
+            return Double.parseDouble(value);
+    }
 
-  public static String getProperty(String key, String defaultValue) {
-    String value = JerboaProperties.getProperty(key);
-    if (value == null)
-      // we'll return the default if we didn't get anything from system or
-      // loaded properties
-      return defaultValue;
-    else
-      return value;
-  }
+    public static double getDouble(String key, double defaultValue) {
+        String value = getProperty(key);
+        if (value == null)
+            return defaultValue;
+        else
+            return Double.parseDouble(value);
+    }
+
+    public static double getDoubleOrNull(String key) {
+        String value = getProperty(key);
+        return value == null ? null : Double.parseDouble(value);
+    }
+
+    public static long getLong(String key) throws NoJerboaPropertyException {
+        String value = getProperty(key);
+        if (value == null)
+            throw new NoJerboaPropertyException(key);
+        else
+            return Long.parseLong(value);
+    }
+
+    public static long getLong(String key, long defaultValue) {
+        String value = getProperty(key);
+        if (value == null)
+            return defaultValue;
+        else
+            return Long.parseLong(value);
+    }
+
+    public static long getLongOrNull(String key) {
+        String value = getProperty(key);
+        return value == null ? null : Long.parseLong(value);
+    }
+
+    public static int getInt(String key) throws NoJerboaPropertyException {
+        String value = getProperty(key);
+        if (value == null)
+            throw new NoJerboaPropertyException(key);
+        else
+            return Integer.parseInt(value);
+    }
+
+    public static int getInt(String key, int defaultValue) {
+        String value = getProperty(key);
+        if (value == null)
+            return defaultValue;
+        else
+            return Integer.parseInt(value);
+    }
+
+    public static int getIntOrNull(String key) {
+        String value = getProperty(key);
+        return value == null ? null : Integer.parseInt(value);
+    }
+
+    public static boolean getBoolean(String key) throws NoJerboaPropertyException {
+        String value = getProperty(key);
+        if (value == null)
+            throw new NoJerboaPropertyException(key);
+        else
+            return Boolean.parseBoolean(value);
+    }
+
+    public static boolean getBoolean(String key, boolean defaultValue) {
+        String value = getProperty(key);
+        if (value == null)
+            return defaultValue;
+        else
+            return Boolean.parseBoolean(value);
+    }
+
+    public static boolean getBooleanOrNull(String key) {
+        String value = getProperty(key);
+        return value == null ? null : Boolean.parseBoolean(value);
+    }
+
+    public static String[] getStrings(String key) throws NoJerboaPropertyException {
+        String value = getProperty(key);
+        if (value == null)
+            throw new NoJerboaPropertyException(key);
+        else
+            return value.split("\\s");
+    }
+
+    public static String[] getStrings(String key, String[] defaultValue) {
+        String value = getProperty(key);
+        if (value == null)
+            return defaultValue;
+        else
+            return value.split("\\s");
+    }
+
+    public static String[] getStringsOrNull(String key) {
+        String value = getProperty(key);
+        return value == null ? null : value.split("\\s");
+    }
+
+    public static String getProperty(String key) {
+        // check system properties first
+        String value = System.getProperty(key);
+        if (value == null) {
+            // wasn't in system properties - check loaded properties object
+            value = properties.getProperty(key);
+        }
+
+        // we will return null, and let caller deal w/ it
+        return value;
+    }
+
+    public static String getProperty(String key, String defaultValue) {
+        String value = JerboaProperties.getProperty(key);
+        if (value == null)
+            // we'll return the default if we didn't get anything from system or
+            // loaded properties
+            return defaultValue;
+        else
+            return value;
+    }
 }

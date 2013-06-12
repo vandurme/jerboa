@@ -13,33 +13,44 @@ import java.util.logging.Logger;
 
 import edu.jhu.jerboa.processing.TokenizationKind;
 import edu.jhu.jerboa.processing.Tokenizer;
+import edu.jhu.jerboa.util.JerboaProperties;
 
 /**
-   @author Benjamin Van Durme
-
-   Stand-alone wrapper for the core classification components.
-
-   Command line interface allows for manually entering content, with decisions
-   output after each new line.
+ * @author Benjamin Van Durme
+ * 
+ *         Stand-alone wrapper for the core classification components.
+ * 
+ *         Command line interface allows for manually entering content, with
+ *         decisions output after each new line.
  */
 public class InteractiveAnalytic {
-	private static Logger logger = Logger.getLogger(InteractiveAnalytic.class.getName());
+    private static Logger logger = Logger.getLogger(InteractiveAnalytic.class.getName());
 
+    public static void main(String[] args) throws Exception {
+        if (args.length != 2) {
+            logger.info("usage: InteractiveAnalytic <path/to/analytics/properties> <isClasspath>");
+            return;
+        }
 
-    public static void main (String[] args) throws Exception {
-	Analytic analytic = new Analytic();
+        if (!args[1].equalsIgnoreCase("false") && !args[1].equalsIgnoreCase("true")) {
+            logger.info("Second argument must be a boolean: true for classpath loading; false for file loading.");
+            return;
+        }
 
-	BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-	String line;
-	Hashtable<String,Object> data = new Hashtable<String,Object>();
-	Hashtable<String,ClassifierState> states = new Hashtable<String,ClassifierState>();
-	logger.info("\n\nReady to process content. Type in words below...\n");
-		
-	while ((line = in.readLine()) != null) {
-	    data.put("content", Tokenizer.tokenize(line,TokenizationKind.PTB));
-	    analytic.update(states, analytic.processData(data));
-	    System.out.print(analytic.report(states) + "\n");
-	    
-	}
-   }
+        JerboaProperties.initializeConfig(args[0], Boolean.parseBoolean(args[1]));
+        Analytic analytic = new Analytic();
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+        String line;
+        Hashtable<String, Object> data = new Hashtable<String, Object>();
+        Hashtable<String, ClassifierState> states = new Hashtable<String, ClassifierState>();
+        logger.info("\n\nReady to process content. Type in words below...\n");
+
+        while ((line = in.readLine()) != null) {
+            data.put("content", Tokenizer.tokenize(line, TokenizationKind.PTB));
+            analytic.update(states, analytic.processData(data));
+            System.out.print(analytic.report(states) + "\n");
+
+        }
+    }
 }
