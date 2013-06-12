@@ -10,227 +10,235 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.jhu.jerboa.util.FileManager;
 import edu.jhu.jerboa.util.JerboaProperties;
 
 /**
-   @author Benjamin Van Durme
-
-   Does not support training, but will take a model file fit using a 3rd party
-   tool for classifying new instances.
-*/
+ * @author Benjamin Van Durme
+ * 
+ *         Does not support training, but will take a model file fit using a 3rd
+ *         party tool for classifying new instances.
+ */
 public class Logistic implements IClassifier {
-  private static Logger logger = Logger.getLogger(Logistic.class.getName());
-  String propPrefix;
-  double bias;
-  public Hashtable<String,Double> weights;
-  boolean zeroMargin;
-  static ClassifierForm form = ClassifierForm.BINARY;
 
-  public Logistic () throws Exception {
-    propPrefix = "Logistic";
-    bias = 0;
-    zeroMargin = false;
-    weights = new Hashtable<String,Double>();
-  }
-  public Logistic (String name) throws Exception {
-    propPrefix = "Logistic";
-    addName(name);
-    bias = 0;
-    zeroMargin = false;
-    weights = new Hashtable<String,Double>();
-  }
+    private static final Logger logger = LoggerFactory.getLogger(Logistic.class);
+    String propPrefix;
+    double bias;
+    public Hashtable<String, Double> weights;
+    boolean zeroMargin;
+    static ClassifierForm form = ClassifierForm.BINARY;
 
-
-  public ClassifierForm getForm() { return form; }
-
-  public void initialize() throws Exception {
-    zeroMargin = JerboaProperties.getBoolean(propPrefix + ".zeroMargin", false);
-  }
-
-  public void addName (String name) {
-    if (!name.equals(""))
-	    propPrefix = name + "." + propPrefix;
-  }
-
-  public int getCardinality () {return 1;}
-
-  public double getMaxWeight () {
-    Enumeration<?> e = weights.keys();
-    double tmp;
-    double max = 0;
-    while (e.hasMoreElements()) {
-	    tmp = Math.abs(weights.get(e.nextElement()));
-	    if (tmp > max)
-        max = tmp;
+    public Logistic() throws Exception {
+        propPrefix = "Logistic";
+        bias = 0;
+        zeroMargin = false;
+        weights = new Hashtable<String, Double>();
     }
-    return max;
-  }
 
-
-  /** Not supported */
-  public void train (Hashtable<String,Double> instance, String label)
-    throws IOException {
-    throw new IOException("Not supported");
-  }
-
-  public int getCategory (double[] classification) {
-    double x = classification[0];
-    if (x >= 0.5)
-	    return 0;
-    else if (zeroMargin && x >= 0.0)
-	    return 0;
-    else
-	    return 1;
-  }
-
-  /** Not supported */
-  public void train (Hashtable<String,Double> instance, double label)
-    throws IOException {
-    throw new IOException("Not supported");
-  }
-
-  public double[] dotProduct (Hashtable<String,Double> instance) {
-    String feature;
-    double[] results = {0.0};
-
-    Enumeration<?> e = instance.keys();
-    while (e.hasMoreElements()) {
-	    feature = (String) e.nextElement();
-	    if (weights.containsKey(feature))
-        results[0] += instance.get(feature) * weights.get(feature);
+    public Logistic(String name) throws Exception {
+        propPrefix = "Logistic";
+        addName(name);
+        bias = 0;
+        zeroMargin = false;
+        weights = new Hashtable<String, Double>();
     }
-    return results;
-  }
 
-  /** Let x = 1/(1+e^(features * weights))
-    
-      if zeroMargin is true, then returns: x - 0.5
-      else returns x
-  */
-  public double[] classify (Hashtable<String,Double> instance) {
-    String feature;
-    double results[] = {0.0};
-
-    Enumeration<?> e = instance.keys();
-    while (e.hasMoreElements()) {
-	    feature = (String) e.nextElement();
-	    if (weights.containsKey(feature))
-        results[0] += instance.get(feature) * weights.get(feature);
+    public ClassifierForm getForm() {
+        return form;
     }
-    return classify(results);
-  }
 
-  public double[] classify (double[] partialResults,
-                            Hashtable<String,Double> instance) {
-    double[] results = dotProduct(instance);
-    results[0] += partialResults[0];
+    public void initialize() throws Exception {
+        zeroMargin = JerboaProperties.getBoolean(propPrefix + ".zeroMargin", false);
+    }
 
-    return classify(results);
-  }
+    public void addName(String name) {
+        if (!name.equals(""))
+            propPrefix = name + "." + propPrefix;
+    }
 
-  public double[] classify (double[] results) {
-    double[] newResults = {0.0};
-    newResults[0] = zeroMargin ?
-	    (1/(1+Math.exp(-results[0]+bias))) - 0.5 :
-	    1/(1+Math.exp(-results[0]+bias));
-    return newResults;
-  }
+    public int getCardinality() {
+        return 1;
+    }
 
-  /**
-     Calls {@code readState(String filename)} with the value of {propPrefix}.filename
-  */
-  public void readState () throws IOException {
-    readState(JerboaProperties.getProperty(propPrefix + ".filename"));
-  }
+    public double getMaxWeight() {
+        Enumeration<?> e = weights.keys();
+        double tmp;
+        double max = 0;
+        while (e.hasMoreElements()) {
+            tmp = Math.abs(weights.get(e.nextElement()));
+            if (tmp > max)
+                max = tmp;
+        }
+        return max;
+    }
 
-  /**
-     filename : the model file
+    /** Not supported */
+    public void train(Hashtable<String, Double> instance, String label) throws IOException {
+        throw new IOException("Not supported");
+    }
 
-     Property:
-     {propPrefix}.modelSource : (String) which 3rd party tool generated the model
-
-     if modelSource.equals("LIBLINEAR") then it will look for the property:
-
-     {propPrefix}.featureMap : (String) maps feature names to feature IDs, such as generated by InstanceMaker
-  */
-  public void readState (String filename) throws IOException {
-    logger.info("Reading in Logistic model from [" + filename + "]");
-    BufferedReader in = FileManager.getReader(filename);
-    weights = new Hashtable<String,Double>();
-    String line;
-    String[] tokens;
-    String modelSource = JerboaProperties.getProperty(propPrefix + ".modelSource");
-
-    if (modelSource.equals("LIBLINEAR")) {
-	    String featureMapFilename = JerboaProperties.getProperty(propPrefix + ".featureMap");
-	    BufferedReader featureMapReader = FileManager.getReader(featureMapFilename);
-
-	    Hashtable<Integer,String> featureIDMap = new Hashtable();
-	    int lineNumber = 0;
-	    while ((line = featureMapReader.readLine()) != null) {
-        lineNumber++;
-        tokens = line.split("\\t");
-        if (tokens.length != 2)
-          throw new IOException("Impropert form [" + line + "]");
-        featureIDMap.put(Integer.parseInt(tokens[1]),tokens[0]);
-	    }
-	    featureMapReader.close();
-
-	    // liblinear usually, but not always, orders it's labels as 1, then
-	    // -1, but sometimes reverses them, in cases that to me (vandurme)
-	    // are not predictable, so we need to check the model file and
-	    // "correct" the weights if a reversal has happened.
-	    boolean reverseSign = false;
-	    // skip the first 6 lines of the model file (note this is brittle)
-	    for (int i = 0; i < 6; i++) {
-        line = in.readLine();
-        if (line != null) {
-        if (line.matches("^label -1 1"))
-          reverseSign = true;
-        // vandurme> if bias < 0, then that is liblinear saying there is
-        // no bias (see the README), where by default that line is -1 in
-        // the model file. For now we're ignoring this term, and leaving
-        // the bias as 0.0 throughout the rest of the code.
-        //if (line.matches("^bias.*")) {
-        //  String[] biasTokens = line.split("\\s+");
-        //  bias = Double.parseDouble(biasTokens[biasTokens.length-1]);
-        //}
-	    }
-	    }
-
-	    lineNumber = 0;
-	    // the rest are weights
-	    while ((line = in.readLine()) != null) {
-        tokens = line.split("\\s+");
-        if (tokens.length != 1)
-          throw new IOException("Line [" + lineNumber + "] improper format");
-        lineNumber++;
-        if (! reverseSign)
-          weights.put(featureIDMap.get(lineNumber), Double.parseDouble(tokens[0]));
+    public int getCategory(double[] classification) {
+        double x = classification[0];
+        if (x >= 0.5)
+            return 0;
+        else if (zeroMargin && x >= 0.0)
+            return 0;
         else
-          weights.put(featureIDMap.get(lineNumber), - Double.parseDouble(tokens[0]));
-	    }
-    } else {
-	    throw new IOException("Unsupported modelSource [" + modelSource + "]");
-    }
-    
-    in.close();
-  }
-
-    public Hashtable[] getWeights () {
-      return new Hashtable[] {this.weights};
+            return 1;
     }
 
-  /** Not supported */
-  public void writeState() throws IOException {
-    throw new IOException("Not supported"); }
+    /** Not supported */
+    public void train(Hashtable<String, Double> instance, double label) throws IOException {
+        throw new IOException("Not supported");
+    }
 
-  /** Not supported */
-  public void writeState(String filename) throws IOException {
-    throw new IOException("Not supported"); }
+    public double[] dotProduct(Hashtable<String, Double> instance) {
+        String feature;
+        double[] results = { 0.0 };
+
+        Enumeration<?> e = instance.keys();
+        while (e.hasMoreElements()) {
+            feature = (String) e.nextElement();
+            if (weights.containsKey(feature))
+                results[0] += instance.get(feature) * weights.get(feature);
+        }
+        return results;
+    }
+
+    /**
+     * Let x = 1/(1+e^(features * weights))
+     * 
+     * if zeroMargin is true, then returns: x - 0.5 else returns x
+     */
+    public double[] classify(Hashtable<String, Double> instance) {
+        String feature;
+        double results[] = { 0.0 };
+
+        Enumeration<?> e = instance.keys();
+        while (e.hasMoreElements()) {
+            feature = (String) e.nextElement();
+            if (weights.containsKey(feature))
+                results[0] += instance.get(feature) * weights.get(feature);
+        }
+        return classify(results);
+    }
+
+    public double[] classify(double[] partialResults, Hashtable<String, Double> instance) {
+        double[] results = dotProduct(instance);
+        results[0] += partialResults[0];
+
+        return classify(results);
+    }
+
+    public double[] classify(double[] results) {
+        double[] newResults = { 0.0 };
+        newResults[0] = zeroMargin ? (1 / (1 + Math.exp(-results[0] + bias))) - 0.5 : 1 / (1 + Math.exp(-results[0] + bias));
+        return newResults;
+    }
+
+    /**
+     * Calls {@code readState(String filename)} with the value of
+     * {propPrefix}.filename
+     */
+    public void readState() throws IOException {
+        readState(JerboaProperties.getProperty(propPrefix + ".filename"));
+    }
+
+    /**
+     * filename : the model file
+     * 
+     * Property: {propPrefix}.modelSource : (String) which 3rd party tool
+     * generated the model
+     * 
+     * if modelSource.equals("LIBLINEAR") then it will look for the property:
+     * 
+     * {propPrefix}.featureMap : (String) maps feature names to feature IDs,
+     * such as generated by InstanceMaker
+     */
+    public void readState(String filename) throws IOException {
+        logger.info("Reading in Logistic model from [" + filename + "]");
+        BufferedReader in = FileManager.getReader(filename);
+        weights = new Hashtable<String, Double>();
+        String line;
+        String[] tokens;
+        String modelSource = JerboaProperties.getProperty(propPrefix + ".modelSource");
+
+        if (modelSource.equals("LIBLINEAR")) {
+            String featureMapFilename = JerboaProperties.getProperty(propPrefix + ".featureMap");
+            BufferedReader featureMapReader = FileManager.getReader(featureMapFilename);
+
+            Hashtable<Integer, String> featureIDMap = new Hashtable();
+            int lineNumber = 0;
+            while ((line = featureMapReader.readLine()) != null) {
+                lineNumber++;
+                tokens = line.split("\\t");
+                if (tokens.length != 2)
+                    throw new IOException("Impropert form [" + line + "]");
+                featureIDMap.put(Integer.parseInt(tokens[1]), tokens[0]);
+            }
+            featureMapReader.close();
+
+            // liblinear usually, but not always, orders it's labels as 1, then
+            // -1, but sometimes reverses them, in cases that to me (vandurme)
+            // are not predictable, so we need to check the model file and
+            // "correct" the weights if a reversal has happened.
+            boolean reverseSign = false;
+            // skip the first 6 lines of the model file (note this is brittle)
+            for (int i = 0; i < 6; i++) {
+                line = in.readLine();
+                if (line != null) {
+                    if (line.matches("^label -1 1"))
+                        reverseSign = true;
+                    // vandurme> if bias < 0, then that is liblinear saying
+                    // there is
+                    // no bias (see the README), where by default that line is
+                    // -1 in
+                    // the model file. For now we're ignoring this term, and
+                    // leaving
+                    // the bias as 0.0 throughout the rest of the code.
+                    // if (line.matches("^bias.*")) {
+                    // String[] biasTokens = line.split("\\s+");
+                    // bias =
+                    // Double.parseDouble(biasTokens[biasTokens.length-1]);
+                    // }
+                }
+            }
+
+            lineNumber = 0;
+            // the rest are weights
+            while ((line = in.readLine()) != null) {
+                tokens = line.split("\\s+");
+                if (tokens.length != 1)
+                    throw new IOException("Line [" + lineNumber + "] improper format");
+                lineNumber++;
+                if (!reverseSign)
+                    weights.put(featureIDMap.get(lineNumber), Double.parseDouble(tokens[0]));
+                else
+                    weights.put(featureIDMap.get(lineNumber), -Double.parseDouble(tokens[0]));
+            }
+        } else {
+            throw new IOException("Unsupported modelSource [" + modelSource + "]");
+        }
+
+        in.close();
+    }
+
+    public Hashtable[] getWeights() {
+        return new Hashtable[] { this.weights };
+    }
+
+    /** Not supported */
+    public void writeState() throws IOException {
+        throw new IOException("Not supported");
+    }
+
+    /** Not supported */
+    public void writeState(String filename) throws IOException {
+        throw new IOException("Not supported");
+    }
 
 }
-

@@ -7,10 +7,10 @@
 package edu.jhu.jerboa.util;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Paths;
 
 import edu.jhu.jerboa.NoJerboaPropertyException;
 
@@ -54,7 +54,7 @@ public class JerboaProperties {
             br.close();
         } else {
             // otherwise, find the file on disk and load it.
-            FileReader fr = new FileReader(Paths.get(pathToAnalyticsProperties).toFile());
+            FileReader fr = new FileReader(new File(pathToAnalyticsProperties));
             properties.load(fr);
             fr.close();
         }
