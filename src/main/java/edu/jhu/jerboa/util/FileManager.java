@@ -32,7 +32,7 @@ public class FileManager {
     private static boolean readFromClasspath = true;
     private static boolean isConfigured = false;
 
-    public static void configure(boolean loadFromClasspath) {
+    public static void loadModelsFromClasspath(boolean loadFromClasspath) {
         if (isConfigured)
             return;
         readFromClasspath = loadFromClasspath;

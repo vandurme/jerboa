@@ -7,12 +7,14 @@
 package edu.jhu.jerboa.classification;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.util.Hashtable;
 import java.util.logging.Logger;
 
 import edu.jhu.jerboa.processing.TokenizationKind;
 import edu.jhu.jerboa.processing.Tokenizer;
+import edu.jhu.jerboa.util.FileManager;
 import edu.jhu.jerboa.util.JerboaProperties;
 
 /**
@@ -36,8 +38,10 @@ public class InteractiveAnalytic {
             logger.info("Second argument must be a boolean: true for classpath loading; false for file loading.");
             return;
         }
+        
+        boolean useClasspath = Boolean.parseBoolean(args[1]);
 
-        JerboaProperties.initializeConfig(args[0], Boolean.parseBoolean(args[1]));
+        JerboaProperties.initializeConfig(args[0], useClasspath);
         Analytic analytic = new Analytic();
 
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));

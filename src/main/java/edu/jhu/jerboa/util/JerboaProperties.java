@@ -53,6 +53,7 @@ public class JerboaProperties {
             isInitialized = true;
             br.close();
         } else {
+            FileManager.loadModelsFromClasspath(false);
             // otherwise, find the file on disk and load it.
             FileReader fr = new FileReader(new File(pathToAnalyticsProperties));
             properties.load(fr);
