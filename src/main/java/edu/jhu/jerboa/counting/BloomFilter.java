@@ -3,6 +3,9 @@
 // See jerboa/LICENSE, or http://cs.jhu.edu/~vandurme/jerboa/LICENSE
 
 // Benjamin Van Durme, vandurme@cs.jhu.edu, 27 Oct 2010
+//
+// implemented read/write in terms of readObject/writeObject.
+// -Charley Beller, beller@cogsci.jhu.edu, 9 Jul 2013
 
 package edu.jhu.jerboa.counting;
 
@@ -11,11 +14,15 @@ import java.util.Vector;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.io.IOException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.BitSet;
 import java.util.logging.Logger;
 
 import edu.jhu.jerboa.util.JerboaProperties;
 import edu.jhu.jerboa.util.Hash;
+import edu.jhu.jerboa.util.FileManager;
 
 /**
    @author Benjamin Van Durme
@@ -223,12 +230,20 @@ public class BloomFilter implements ICounterContainer {
                   + " numElements:" + numElements
                   + " width:" + width);
   }
-  public void read () throws Exception {
-    throw new Exception("Not supported");
+  public void read () throws IOException, ClassNotFoundException {
+    ObjectInputStream bloomIn = null;
+    File bloomFile = FileManager.getFile(JerboaProperties.getString("BF.bloomIn"));
+    logger.info("Reading configuration [" + bloomIn + "]");
+    bloomIn = FileManager.getFileObjectInputStream(bloomFile);
+    readObject(bloomIn);
   }
 
-  public void write () throws Exception {
-    throw new Exception("Not supported");
+  public void write () throws IOException {
+    ObjectOutputStream bloomOut = null;
+    String bloomFile = JerboaProperties.getString("BF.bloomOut");
+    logger.info("Opening for writing bytes [" + bloomFile + "]");
+    bloomOut = new ObjectOutputStream(new FileOutputStream(bloomFile));
+    writeObject(bloomOut);
   }
 
   public static void main (String[] args) {
