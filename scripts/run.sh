@@ -1,3 +1,7 @@
 #!/bin/sh
 cd ..
-java -DJerboa.resourceType=jar -DJerboaProperties.filename=analytics.properties -cp .:target/*:proj/analytic/models/* edu.jhu.jerboa.classification.InteractiveAnalytic
+java \
+-DJerboa.resourceType=jar \
+-cp .:target/*:$1 \
+edu.jhu.jerboa.classification.InteractiveAnalytic $2 true
+
