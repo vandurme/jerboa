@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.util.Hashtable;
 import java.util.logging.Logger;
 
+import edu.jhu.jerboa.JerboaConfigurationException;
 import edu.jhu.jerboa.processing.TokenizationKind;
 import edu.jhu.jerboa.processing.Tokenizer;
 import edu.jhu.jerboa.util.FileManager;
@@ -39,9 +40,16 @@ public class InteractiveAnalytic {
             return;
         }
         
+        String propertiesFilePath = args[0];
         boolean useClasspath = Boolean.parseBoolean(args[1]);
+        
+        if (useClasspath) {
+        	if (InteractiveAnalytic.class.getClassLoader().getResource(propertiesFilePath) == null)
+        		throw new JerboaConfigurationException("There are no resources named '" + 
+        				propertiesFilePath + "' on the classpath. Ensure you have this file on your classpath.");
+        }
 
-        JerboaProperties.initializeConfig(args[0], useClasspath);
+        JerboaProperties.initializeConfig(propertiesFilePath, useClasspath);
         Analytic analytic = new Analytic();
 
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));

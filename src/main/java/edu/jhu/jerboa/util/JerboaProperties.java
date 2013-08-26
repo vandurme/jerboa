@@ -12,7 +12,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import edu.jhu.jerboa.NoJerboaPropertyException;
+import edu.jhu.jerboa.JerboaConfigurationException;
 
 /**
  * A utility wrapper around {@link java.util.Properties}, supporting type
@@ -61,10 +61,10 @@ public class JerboaProperties {
         }
     }
 
-    public static double getDouble(String key) throws NoJerboaPropertyException {
+    public static double getDouble(String key) throws JerboaConfigurationException {
         String value = getProperty(key);
         if (value == null)
-            throw new NoJerboaPropertyException(key);
+            throw new JerboaConfigurationException(key);
         else
             return Double.parseDouble(value);
     }
@@ -82,10 +82,10 @@ public class JerboaProperties {
         return value == null ? null : Double.parseDouble(value);
     }
 
-    public static long getLong(String key) throws NoJerboaPropertyException {
+    public static long getLong(String key) throws JerboaConfigurationException {
         String value = getProperty(key);
         if (value == null)
-            throw new NoJerboaPropertyException(key);
+            throw new JerboaConfigurationException(key);
         else
             return Long.parseLong(value);
     }
@@ -103,10 +103,10 @@ public class JerboaProperties {
         return value == null ? null : Long.parseLong(value);
     }
 
-    public static int getInt(String key) throws NoJerboaPropertyException {
+    public static int getInt(String key) throws JerboaConfigurationException {
         String value = getProperty(key);
         if (value == null)
-            throw new NoJerboaPropertyException(key);
+            throw new JerboaConfigurationException(key);
         else
             return Integer.parseInt(value);
     }
@@ -124,10 +124,10 @@ public class JerboaProperties {
         return value == null ? null : Integer.parseInt(value);
     }
 
-    public static boolean getBoolean(String key) throws NoJerboaPropertyException {
+    public static boolean getBoolean(String key) throws JerboaConfigurationException {
         String value = getProperty(key);
         if (value == null)
-            throw new NoJerboaPropertyException(key);
+            throw new JerboaConfigurationException(key);
         else
             return Boolean.parseBoolean(value);
     }
@@ -145,10 +145,10 @@ public class JerboaProperties {
         return value == null ? null : Boolean.parseBoolean(value);
     }
 
-    public static String[] getStrings(String key) throws NoJerboaPropertyException {
+    public static String[] getStrings(String key) throws JerboaConfigurationException {
         String value = getProperty(key);
         if (value == null)
-            throw new NoJerboaPropertyException(key);
+            throw new JerboaConfigurationException(key);
         else
             return value.split("\\s");
     }

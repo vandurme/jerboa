@@ -20,7 +20,7 @@ import java.util.Iterator;
 import java.util.Random;
 import java.util.logging.Logger;
 
-import edu.jhu.jerboa.NoJerboaPropertyException;
+import edu.jhu.jerboa.JerboaConfigurationException;
 import edu.jhu.jerboa.util.FileManager;
 import edu.jhu.jerboa.util.Hash;
 import edu.jhu.jerboa.util.JerboaProperties;
@@ -399,13 +399,13 @@ public class SLSH implements IFeatureContainer, ISimilarity {
 	    }
     }
   }
-  public void read () throws NoJerboaPropertyException, IOException, ClassNotFoundException {
+  public void read () throws JerboaConfigurationException, IOException, ClassNotFoundException {
     if (signatures == null)
 	    signatures = new Hashtable<String,Signature>();
     readConfiguration();
     readSignatures();
   }
-  private void readConfiguration () throws NoJerboaPropertyException, IOException {
+  private void readConfiguration () throws JerboaConfigurationException, IOException {
     File[] configFiles = FileManager.getFiles(JerboaProperties.getStrings("SLSH.configIn"));
     logger.info("Reading configuration [" + configFiles[0].getName() + "]");
     ObjectInputStream in = FileManager.getFileObjectInputStream(configFiles[0]);
@@ -429,7 +429,7 @@ public class SLSH implements IFeatureContainer, ISimilarity {
   };
 
 
-  private void readSignatures () throws IOException, NoJerboaPropertyException {
+  private void readSignatures () throws IOException, JerboaConfigurationException {
     short keys = 0;
     short strengths = 1;
     short bytes = 2;

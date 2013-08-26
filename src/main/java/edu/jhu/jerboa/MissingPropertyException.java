@@ -4,34 +4,34 @@
 package edu.jhu.jerboa;
 
 /**
- * @author max
+ * @author thomamj1
  *
  */
-public class NoJerboaPropertyException extends Exception {
+public class MissingPropertyException extends Exception {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 2447020139651157497L;
+	private static final long serialVersionUID = 3968420245010349740L;
 
 	/**
 	 * 
 	 */
-	public NoJerboaPropertyException() {
+	public MissingPropertyException() {
 		super("One or more referenced properties were not found in the JerboaProperties.filename file.");
 	}
-	
+
 	/**
 	 * @param missingProperty
 	 */
-	public NoJerboaPropertyException(String missingProperty) {
+	public MissingPropertyException(String missingProperty) {
 		super("The specified property does not exist: " + missingProperty);
 	}
 
 	/**
 	 * @param cause
 	 */
-	public NoJerboaPropertyException(Throwable cause) {
+	public MissingPropertyException(Throwable cause) {
 		super(cause);
 	}
 
@@ -39,7 +39,7 @@ public class NoJerboaPropertyException extends Exception {
 	 * @param message
 	 * @param cause
 	 */
-	public NoJerboaPropertyException(String message, Throwable cause) {
+	public MissingPropertyException(String message, Throwable cause) {
 		super(message, cause);
 	}
 

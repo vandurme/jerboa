@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import edu.jhu.jerboa.NoJerboaPropertyException;
+import edu.jhu.jerboa.JerboaConfigurationException;
 import edu.jhu.jerboa.classification.feature.IFeature;
 import edu.jhu.jerboa.counting.ICounterContainer;
 import edu.jhu.jerboa.util.ASCIIEncoder;
@@ -58,7 +58,7 @@ public class ClassifierState {
   // specific to whatever features you will be using.
   public Hashtable<String, Object> blackboard;
 
-  public ClassifierState(String name) throws NoJerboaPropertyException {
+  public ClassifierState(String name) throws JerboaConfigurationException {
     addName(name);
     // confidence = null;
     numObservations = 0;
