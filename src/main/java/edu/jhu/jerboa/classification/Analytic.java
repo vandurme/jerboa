@@ -17,6 +17,8 @@ import org.slf4j.LoggerFactory;
 
 
 
+
+import edu.jhu.jerboa.JerboaConfigurationException;
 import edu.jhu.jerboa.processing.IDocumentParser;
 import edu.jhu.jerboa.util.JerboaProperties;
 
@@ -26,8 +28,8 @@ import edu.jhu.jerboa.util.JerboaProperties;
  *         Stand-alone wrapper for the core classification components.
  */
 public class Analytic {
-    
-    private static final Logger logger = LoggerFactory.getLogger(Analytic.class);
+
+  private static final Logger logger = LoggerFactory.getLogger(Analytic.class);
   IClassifier classifier;
   String classifierType;
   Hashtable<String, ClassifierState> starterStates;
@@ -36,11 +38,29 @@ public class Analytic {
    * Properties: Analytic.names : (String[]), e.g., en.gender.swbd-sender
    */
   public Analytic() throws Exception {
-    String[] names = JerboaProperties.getStrings("Analytic.names");
+    String[] names = JerboaProperties.getAnalyticNames();
     starterStates = new Hashtable<String, ClassifierState>();
     for (int i = 0; i < names.length; i++) {
       starterStates.put(names[i], new ClassifierState(names[i]));
       starterStates.get(names[i]).initialize();
+    }
+  }
+  
+  public Analytic(String languagePrefix) throws JerboaConfigurationException, Exception {
+    String[] names = JerboaProperties.getAnalyticNames();
+    starterStates = new Hashtable<String, ClassifierState>();
+    for (int i = 0; i < names.length; i++) {
+      String currName = names[i];
+      if (currName.startsWith(languagePrefix)) {
+        starterStates.put(currName, new ClassifierState(currName));
+        starterStates.get(currName).initialize();
+      }
+    }
+    
+    if (starterStates.isEmpty()) {
+      throw new JerboaConfigurationException("No languages with the prefix '" + 
+          languagePrefix + 
+          "' were found in the configuration.");
     }
   }
 
@@ -110,7 +130,7 @@ public class Analytic {
     if (states.size() == 0)
       for (String classifierName : starterStates.keySet())
         states
-            .put(classifierName, starterStates.get(classifierName).newState());
+        .put(classifierName, starterStates.get(classifierName).newState());
 
     for (SimpleImmutableEntry<String, String> message : messages) {
       states.get(message.getKey()).update(message.getValue());

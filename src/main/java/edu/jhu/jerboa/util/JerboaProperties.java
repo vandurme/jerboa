@@ -36,12 +36,13 @@ public class JerboaProperties {
 
     private static JProperties properties = new JProperties();
     private static boolean isInitialized = false;
+    private static String[] analyticNames;
 
     private JerboaProperties() {
 
     }
 
-    public static void initializeConfig(String pathToAnalyticsProperties, boolean loadFromClasspath) throws IOException {
+    public static void initializeConfig(String pathToAnalyticsProperties, boolean loadFromClasspath) throws IOException, JerboaConfigurationException {
         // if previously initialized, just return. we're already done.
         if (isInitialized)
             return;
@@ -59,6 +60,8 @@ public class JerboaProperties {
             properties.load(fr);
             fr.close();
         }
+        
+        analyticNames = JerboaProperties.getStrings("Analytic.names");
     }
 
     public static double getDouble(String key) throws JerboaConfigurationException {
@@ -186,5 +189,11 @@ public class JerboaProperties {
             return defaultValue;
         else
             return value;
+    }
+    
+    public static String[] getAnalyticNames() throws JerboaConfigurationException {
+      if (analyticNames.length == 0)
+        throw new JerboaConfigurationException("No analytic names were registered. Perhaps you need to call initializeConfig()?");
+      return analyticNames;
     }
 }
