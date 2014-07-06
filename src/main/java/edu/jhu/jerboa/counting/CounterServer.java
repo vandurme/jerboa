@@ -59,7 +59,7 @@ public class CounterServer {
     logger.info("Starting server on port " + port);
     serverSocket = new ServerSocket(port);
 
-    Class c = Class.forName(JerboaProperties.getString("CounterServer.counter"));
+    Class c = Class.forName(JerboaProperties.getProperty("CounterServer.counter"));
     ICounterContainer counter = (ICounterContainer) c.newInstance();
 
     logger.info("Server ready");

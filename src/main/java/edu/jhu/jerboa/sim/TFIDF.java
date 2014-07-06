@@ -22,7 +22,7 @@ public class TFIDF implements IFeatureContainer {
     kfc = new KeyFeatureContainer();
     kfc.read();
     String containerName = 
-	    JerboaProperties.getString("TFIDF.featureContainer",
+	    JerboaProperties.getProperty("TFIDF.featureContainer",
                                  "edu.jhu.jerboa.sim.KeyFeatureContainer");
     logger.info("Creating instance of [" + containerName + "]");
     Class c = Class.forName(containerName);

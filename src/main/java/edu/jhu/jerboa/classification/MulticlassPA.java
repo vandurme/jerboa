@@ -409,7 +409,7 @@ public class MulticlassPA implements IMulticlassClassifier {
      Calls {@code readState(String filename)} with the value of {@code MulticlassPA.filename}.
   */
   public void readState () throws IOException {
-    readState(JerboaProperties.getString(propPrefix + ".filename"));
+    readState(JerboaProperties.getProperty(propPrefix + ".filename"));
   }
 
   /**
@@ -453,7 +453,7 @@ public class MulticlassPA implements IMulticlassClassifier {
      Calls {@code writeState(String filename)} with the value of the property: filename}.
   */
   public void writeState () throws IOException {
-    writeState(JerboaProperties.getString(propPrefix + ".filename"));
+    writeState(JerboaProperties.getProperty(propPrefix + ".filename"));
   }
 
   /**

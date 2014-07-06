@@ -28,7 +28,6 @@ public class UtteranceLength extends Feature {
 	    logger.severe("Requires a key/value pair to be stored in provided data of the form \"content\" => String[]");
 	    return stateMessage;
 	}
-        String[] content = (String[]) data.get("content");
 
         // int length = content.length;
         // logger.info("utterance length: " + length);

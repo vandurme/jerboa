@@ -41,7 +41,7 @@ public class NGramSigBuilder implements IStreamProcessor {
   public NGramSigBuilder () throws Exception {
     logger = Logger.getLogger(NGramSigBuilder.class.getName());
     dictProject = false;
-    String filename = JerboaProperties.getString("NGramSigBuilder.projDict",null);
+    String filename = JerboaProperties.getProperty("NGramSigBuilder.projDict",null);
     if (filename != null) {
 	    dictProject = true;
 	    readDictionary(filename);
@@ -144,7 +144,7 @@ public class NGramSigBuilder implements IStreamProcessor {
   //    NGramSigBuilder.outputFile : (String) filename to output sums
   //  */
   // public void save () throws Exception {
-  // 	String outputFilename = JerboaProperties.getString("NGramSigBuilder.outputFile");
+  // 	String outputFilename = JerboaProperties.getProperty("NGramSigBuilder.outputFile");
   // 	logger.info("Saving sums [" + outputFilename + "]");
   // 	String key;
 

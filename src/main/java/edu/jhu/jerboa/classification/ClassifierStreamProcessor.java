@@ -6,21 +6,18 @@
 
 package edu.jhu.jerboa.classification;
 
-import edu.jhu.jerboa.util.*;
-import edu.jhu.jerboa.processing.*;
-import edu.jhu.jerboa.counting.*;
-import edu.jhu.jerboa.classification.feature.*;
-import java.util.AbstractMap.SimpleImmutableEntry;
-
-import java.text.DecimalFormat;
-import java.util.Hashtable;
-import java.util.Enumeration;
-import java.util.logging.Logger;
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
 import java.io.BufferedWriter;
-import java.io.File;
-import java.util.Arrays;
+import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.logging.Logger;
+
+import edu.jhu.jerboa.processing.IStream;
+import edu.jhu.jerboa.processing.IStreamProcessor;
+import edu.jhu.jerboa.processing.IStreamingContainer;
+import edu.jhu.jerboa.util.FileManager;
+import edu.jhu.jerboa.util.JerboaProperties;
+import edu.jhu.jerboa.util.KBest;
 
 /**
    @author Benjamin Van Durme
@@ -46,12 +43,12 @@ public class ClassifierStreamProcessor implements IStreamProcessor {
   public ClassifierStreamProcessor () throws Exception {
     propPrefix = "ClassifierStreamProcessor";
     stateTable = new Hashtable();
-    String classificationLogFilename = JerboaProperties.getString(propPrefix + ".logFilename", null);
+    String classificationLogFilename = JerboaProperties.getProperty(propPrefix + ".logFilename", null);
 	
     if (classificationLogFilename != null)
 	    classificationLog = FileManager.getWriter(classificationLogFilename);
 
-    String name = JerboaProperties.getString(propPrefix + ".name", "");
+    String name = JerboaProperties.getProperty(propPrefix + ".name", "");
     starterState = new ClassifierState(name);
     starterState.initialize();
     writeBestFeature = JerboaProperties.getBoolean(propPrefix + ".writeBestFeature", false);
@@ -164,7 +161,7 @@ public class ClassifierStreamProcessor implements IStreamProcessor {
   */
   private void serializeInstances () throws Exception {
     int featureIDCounter = 0;
-    BufferedWriter writer = FileManager.getWriter(JerboaProperties.getString(propPrefix + ".instances"));
+    BufferedWriter writer = FileManager.getWriter(JerboaProperties.getProperty(propPrefix + ".instances"));
     Hashtable<String,Integer> featureMap = new Hashtable();
     Hashtable<Integer,String> idFeatureMap = new Hashtable();
     Hashtable<String,Double> instance;
@@ -222,7 +219,7 @@ public class ClassifierStreamProcessor implements IStreamProcessor {
     throws Exception {
     Enumeration e = featureMap.keys();
     String key;
-    BufferedWriter featureMapWriter = FileManager.getWriter(JerboaProperties.getString(propPrefix + ".featureMap"));
+    BufferedWriter featureMapWriter = FileManager.getWriter(JerboaProperties.getProperty(propPrefix + ".featureMap"));
 	
     while (e.hasMoreElements()) {
 	    key = (String) e.nextElement();

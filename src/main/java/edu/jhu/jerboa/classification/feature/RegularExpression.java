@@ -42,7 +42,7 @@ public class RegularExpression extends Feature {
     binary = JerboaProperties.getBoolean(propPrefix + ".binary",false);
     explicit = JerboaProperties.getBoolean(propPrefix + ".explicit",false);
     classBased = JerboaProperties.getBoolean(propPrefix + ".classBased",false);
-    String patternFilename = JerboaProperties.getString(propPrefix + ".patterns");
+    String patternFilename = JerboaProperties.getProperty(propPrefix + ".patterns");
     loadPatterns(patternFilename);
 
 

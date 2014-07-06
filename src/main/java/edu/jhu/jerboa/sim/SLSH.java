@@ -4,21 +4,27 @@
 
 package edu.jhu.jerboa.sim;
 
-import edu.jhu.jerboa.util.*;
-import java.io.*;
-import edu.jhu.jerboa.processing.IStreamingContainer;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Random;
-import java.util.Vector;
-import java.util.Hashtable;
-import java.util.Enumeration;
 import java.util.logging.Logger;
-import java.io.ObjectOutputStream;
-import java.io.ObjectInputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.util.AbstractMap.SimpleImmutableEntry;
+
+import edu.jhu.jerboa.JerboaConfigurationException;
+import edu.jhu.jerboa.util.FileManager;
+import edu.jhu.jerboa.util.Hash;
+import edu.jhu.jerboa.util.JerboaProperties;
+import edu.jhu.jerboa.util.KBest;
 
 
 /**
@@ -303,7 +309,7 @@ public class SLSH implements IFeatureContainer, ISimilarity {
     writeSignatures();
   }
   private void writeConfiguration () throws IOException {
-    String configFile = JerboaProperties.getString("SLSH.configOut");
+    String configFile = JerboaProperties.getProperty("SLSH.configOut");
     logger.info("Writing configuration [" + configFile + "]");
     ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(configFile));
     out.writeInt(numBits);
@@ -327,7 +333,7 @@ public class SLSH implements IFeatureContainer, ISimilarity {
     //ObjectOutputStream bytesOut = null;
     FileOutputStream bytesOut = null;
     if (writeBytes) {
-	    String bytesFile = JerboaProperties.getString("SLSH.bytesOut");
+	    String bytesFile = JerboaProperties.getProperty("SLSH.bytesOut");
 	    logger.info("Opening for writing bytes [" + bytesFile + "]");
 	    //bytesOut = new ObjectOutputStream(new FileOutputStream(bytesFile));
 	    bytesOut = new FileOutputStream(bytesFile);
@@ -337,20 +343,20 @@ public class SLSH implements IFeatureContainer, ISimilarity {
     boolean writeSums = JerboaProperties.getBoolean("SLSH.writeSums",false);
     ObjectOutputStream sumsOut = null;
     if (writeSums) {
-	    String sumsFile = JerboaProperties.getString("SLSH.sumsOut");
+	    String sumsFile = JerboaProperties.getProperty("SLSH.sumsOut");
 	    logger.info("Opening for writing bytes [" + sumsFile + "]");
 	    sumsOut = new ObjectOutputStream(new FileOutputStream(sumsFile));
     }
     boolean writeStrengths = JerboaProperties.getBoolean("SLSH.writeStrengths",true);
     BufferedWriter strengthsWriter = null;
     if (writeStrengths) {
-	    String strengthsFile = JerboaProperties.getString("SLSH.strengthsOut");
+	    String strengthsFile = JerboaProperties.getProperty("SLSH.strengthsOut");
 	    logger.info("Opening for writing strengths [" + strengthsFile + "]");
 	    strengthsWriter = FileManager.getWriter(strengthsFile);
     }
 
     if (writeBytes || writeSums || writeStrengths) {
-	    String keysFile = JerboaProperties.getString("SLSH.keysOut");
+	    String keysFile = JerboaProperties.getProperty("SLSH.keysOut");
 	    logger.info("Opening for writing keys [" + keysFile + "]");
 	    BufferedWriter keysWriter = FileManager.getWriter(keysFile);
 	    Signature sig;
@@ -393,13 +399,13 @@ public class SLSH implements IFeatureContainer, ISimilarity {
 	    }
     }
   }
-  public void read () throws IOException, ClassNotFoundException {
+  public void read () throws JerboaConfigurationException, IOException, ClassNotFoundException {
     if (signatures == null)
 	    signatures = new Hashtable<String,Signature>();
     readConfiguration();
     readSignatures();
   }
-  private void readConfiguration () throws IOException {
+  private void readConfiguration () throws JerboaConfigurationException, IOException {
     File[] configFiles = FileManager.getFiles(JerboaProperties.getStrings("SLSH.configIn"));
     logger.info("Reading configuration [" + configFiles[0].getName() + "]");
     ObjectInputStream in = FileManager.getFileObjectInputStream(configFiles[0]);
@@ -423,7 +429,7 @@ public class SLSH implements IFeatureContainer, ISimilarity {
   };
 
 
-  private void readSignatures () throws IOException {
+  private void readSignatures () throws IOException, JerboaConfigurationException {
     short keys = 0;
     short strengths = 1;
     short bytes = 2;

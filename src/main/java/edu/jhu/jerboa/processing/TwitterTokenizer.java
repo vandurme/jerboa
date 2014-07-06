@@ -297,7 +297,7 @@ public class TwitterTokenizer {
   }
 
   public static SimpleImmutableEntry<Pattern,String>[] getUnicodePatterns () throws IOException {
-    String unicodePathname = JerboaProperties.getString("TwitterTokenizer.unicode",null);
+    String unicodePathname = JerboaProperties.getProperty("TwitterTokenizer.unicode",null);
     if (unicodePathname == null)
       throw new IOException("Must set TwitterTokenizer.unicode to proj/tokenize/unicode.csv, or some other replacement");
     BufferedReader reader = FileManager.getReader(unicodePathname);

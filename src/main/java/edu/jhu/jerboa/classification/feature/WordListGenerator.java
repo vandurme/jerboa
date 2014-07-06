@@ -13,6 +13,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.logging.Logger;
 
+import edu.jhu.jerboa.JerboaConfigurationException;
 import edu.jhu.jerboa.processing.IStream;
 import edu.jhu.jerboa.processing.IStreamProcessor;
 import edu.jhu.jerboa.processing.IStreamingContainer;
@@ -131,8 +132,8 @@ public class WordListGenerator implements IStreamProcessor {
 
 
     
-  private void writeList () throws IOException {
-    String filename = JerboaProperties.getString("WordListGenerator.wordList");
+  private void writeList () throws IOException, JerboaConfigurationException {
+    String filename = JerboaProperties.getProperty("WordListGenerator.wordList");
     BufferedWriter out = FileManager.getWriter(filename);
     Enumeration<?> e = counts.keys();
     String key;

@@ -24,7 +24,7 @@ public class Confidence implements IConfidence {
   }
 
   public Confidence (String name) throws IOException {
-    String formString = JerboaProperties.getString("Confidence.form","BINARY");
+    String formString = JerboaProperties.getProperty("Confidence.form","BINARY");
     form = ClassifierForm.valueOf(formString);
     defaultConfidence = JerboaProperties.getDouble("Confidence.default", 1.0);
   }

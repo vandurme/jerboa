@@ -37,7 +37,7 @@ public class DocumentSigBuilder implements IStreamProcessor {
   public DocumentSigBuilder () throws Exception {
     logger = Logger.getLogger(DocumentSigBuilder.class.getName());
     dictProject = false;
-    String filename = JerboaProperties.getString("DocumentSigBuilder.projDict",null);
+    String filename = JerboaProperties.getProperty("DocumentSigBuilder.projDict",null);
     if (filename != null) {
 	    dictProject = true;
 	    projDict = Loader.readWeightedDictionary(filename);
