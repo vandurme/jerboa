@@ -26,7 +26,7 @@ import edu.jhu.jerboa.util.JerboaProperties;
 
    property prefix is "PA"
 
-   {@code version} 0, 1, or 2  corresponding to versions of PassiveAggressive 
+   {@code version} 0, 1, or 2  corresponding to versions of PassiveAggressive
    {@code C} the C from Crammer et al
 */
 public class PA implements IClassifier {
@@ -346,7 +346,7 @@ public class PA implements IClassifier {
     // features and should be writing over all values within this
     // function, but for safety:
     weights.clear();
-	
+
     // Go through the summed values and the current perceptron,
     // averaging across all instances
     Enumeration<?> e = sumWeights.keys();
@@ -573,10 +573,10 @@ public class PA implements IClassifier {
   /**
      Returns the weight vector. Calling this before or during the training
      will result in an incomplete weight vector.
-     
-     Outputs Hashtable<String,Double>[], but thanks to Java's type erasure
+
+     Outputs Hashtable[String,Double][], but thanks to Java's type erasure
      we can't specify this in the method signature specifically. Life is pain.
-     
+
      This passes back an array of size 1. This is because Java's type erasure
      causes it to be unable to distinguish between Object[] and Object at
      runtime, causing it to see a method that returns the first as the same

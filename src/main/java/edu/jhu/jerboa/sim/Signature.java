@@ -17,9 +17,9 @@ import java.io.IOException;
 
 /**
    @author Benjamin Van Durme
-   
+
    A basic struct for storing either the sums needed for computing signatures,
-   or the bit signature itself.  
+   or the bit signature itself.
 
    strength : how many updates led to this signature? Measured in number of
    function calls, not in aggrated update values. This is especially
@@ -86,8 +86,8 @@ public class Signature { //implements Serializable {
 
   /**
      Takes a keyfile and a bytes file, writes:
-     key <TAB> toString(bytes[])
-     key <TAB> toString(bytes[])
+     key \t toString(bytes[])
+     key \t toString(bytes[])
      ...
   */
   public static void main (String[] args) throws Exception {

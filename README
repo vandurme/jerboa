@@ -24,7 +24,12 @@ To reference this package in academic writing:
 
 which can be found at: http://cs.jhu.edu/~vandurme/papers/JerboaTR2012.pdf .
 
-
+Maven coordinates:
+  <dependency>
+    <groupId>edu.jhu.hlt</groupId>
+    <artifactId>jerboa</artifactId>
+    <version>1.0.0</version>
+  </dependency>
 
 README	  : this file
 LICENSE	  : 2-clause BSD license

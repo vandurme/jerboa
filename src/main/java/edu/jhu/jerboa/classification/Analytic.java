@@ -56,7 +56,8 @@ public class Analytic {
      If one was sitting downstream, intercepting a set of
      serializedStateMessages, and wanted to turn that into a classifier
      decision, then:
-
+  */
+    /*
      String configurationFile = ...; // e.g., en.gender.properties
      JerboaProperties.load(configurationFile);
      Analytic analytic = new Analytic();

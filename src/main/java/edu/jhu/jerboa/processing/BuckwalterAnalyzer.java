@@ -77,13 +77,15 @@ public class BuckwalterAnalyzer {
     return tokenList.toArray(new BuckwalterToken[] {});
   }
 
-  /**
+    /**
      Where x is the return value of this function, then:
      x[i] : the i'th Buckwalter token
      x[i][j] : a particular solution to a variant the i'th Buckwalter token
      x[i][j][k] : the k'th token of the j'th variant solution of the i'th Buckwalter token
+    */
 
-     To crudely get the first possible sequence from x:
+
+    /* To crudely get the first possible sequence from x:
      String seq = "";
      for (int i = 0; i < x.length; i++)
      for (int k < x[i][0].length; k++)

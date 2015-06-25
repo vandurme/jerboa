@@ -29,12 +29,12 @@ import edu.jhu.jerboa.util.*;
    Benjamin Van Durme and Ashwin Lall.
    Probabilistic Counting with Randomized Storage.
    IJCAI. 2009.
-   {@linktourl http://www.cs.jhu.edu/~vandurme/papers/VanDurmeLallIJCAI09.pdf}
+   http://www.cs.jhu.edu/~vandurme/papers/VanDurmeLallIJCAI09.pdf
 
    Benjamin Van Durme and Ashwin Lall.
    Streaming Pointwise Mutual Information.
    NIPS. 2009.
-   {@linktourl http://www.cs.jhu.edu/~vandurme/papers/VanDurmeLallNIPS09.pdf}
+   http://www.cs.jhu.edu/~vandurme/papers/VanDurmeLallNIPS09.pdf
 */
 public class TOMB implements ICounterContainer {
   BitSet memory;
@@ -62,7 +62,7 @@ public class TOMB implements ICounterContainer {
     // We're only going to represent up to Integer.MAX_VALUE max freq.
     // Here we possibly lower the value of d, in order that we don't
     // build a codebook larger than required.
-    int maxStatesNeeded = 
+    int maxStatesNeeded =
 	    (int) Math.floor(Math.log((double)Integer.MAX_VALUE)/Math.log(base));
     int perCell = ((int)Math.pow(2,height))-1;
     if (depth * perCell > maxStatesNeeded)
@@ -104,7 +104,7 @@ public class TOMB implements ICounterContainer {
     out.writeObject(invertedCodebook);
     out.writeObject(random);
   }
-    
+
   private void readObject(ObjectInputStream in)
     throws IOException, ClassNotFoundException {
     salts = (int[]) in.readObject();
@@ -141,7 +141,7 @@ public class TOMB implements ICounterContainer {
   public boolean set(String key, int value) {
     if (value <= 0)
 	    return false; // for compat
-	
+
     int d = 0;
     int address = 0;
     int i;
@@ -300,13 +300,13 @@ public class TOMB implements ICounterContainer {
     ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("/tmp/test.tomb"));
     out.writeObject(tomb);
     out.close();
-	
+
     ObjectInputStream in = new ObjectInputStream(new FileInputStream("/tmp/test.tomb"));
     TOMB tomb2 = (TOMB) in.readObject();
     in.close();
 
     System.out.println(tomb2.get("dog"));
-    	
+
   }
 
   // TODO: implement these instead of the Serialization versions

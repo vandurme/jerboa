@@ -33,7 +33,7 @@ public class TwitterLineParser implements ILineParser {
 
   /**
      Tweets are expected to be of the form:
-     MESSAGE-ID <tab> AUTHOR <tab> CONTENT
+     MESSAGE-ID \t AUTHOR \t CONTENT
 
      Results include:
      "author" : String
@@ -60,7 +60,7 @@ public class TwitterLineParser implements ILineParser {
             c = contentString.charAt(i);
             cType = Character.getType(c);
             //System.out.print(" " + cType + " ");
-                        
+
             switch (state) {
             case 0 : // Start state
               //System.out.println("[" + token + "]");

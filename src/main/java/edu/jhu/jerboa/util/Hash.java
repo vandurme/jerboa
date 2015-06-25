@@ -38,7 +38,7 @@ public class Hash {
      same salt. I've observed minor correlation between similar keys, very
      little or no correlation between the same key using different salts.
 
-     This is a modified version (to accept a salt) of Fig. 4 from {@linktourl http://home.comcast.net/~bretm/hash/6.html}
+     This is a modified version (to accept a salt) of Fig. 4 from http://home.comcast.net/~bretm/hash/6.html
 
      {@code
      int p = 16777619;

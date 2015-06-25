@@ -25,7 +25,7 @@ import edu.jhu.jerboa.util.JerboaProperties;
    property prefix is "MulticlassPA", optionally:
    "MulticlassPA." + addName(String name), if the later is used.
 
-   {@code PA} 0, 1, or 2  corresponding to versions of PassiveAggressive 
+   {@code PA} 0, 1, or 2  corresponding to versions of PassiveAggressive
    {@code C} the C from Crammer et al
 */
 public class MulticlassPA implements IMulticlassClassifier {
@@ -150,7 +150,7 @@ public class MulticlassPA implements IMulticlassClassifier {
   }
 
   /**
-     Calls train(Hashtable<String,Double> instance, double[] labels) with a
+     Calls train(Hashtable[String,Double] instance, double[] labels) with a
      single element array.
   */
   public void train (Hashtable<String,Double> instance, String label) {
@@ -340,7 +340,7 @@ public class MulticlassPA implements IMulticlassClassifier {
   // 	while (sorted[numPos].getValue() > 0)
   // 	    numPos++;
   // 	if (numPos == 0) return new String[] {};
-	
+
   // 	String[] labels = new String[numPos];
   // 	for (int i = 0; i < numPos; i++)
   // 	    labels[i] = sorted[i].getKey();
@@ -385,7 +385,7 @@ public class MulticlassPA implements IMulticlassClassifier {
 
   public double[] classify (double[] results) {
     double[] newResults = new double[categories.length];
-	
+
     for (int i = 0; i < newResults.length; i++)
 	    newResults[i] = bias[i] + results[i];
 
@@ -404,7 +404,7 @@ public class MulticlassPA implements IMulticlassClassifier {
     return categories;
   }
 
-    
+
   /**
      Calls {@code readState(String filename)} with the value of {@code MulticlassPA.filename}.
   */
@@ -487,7 +487,7 @@ public class MulticlassPA implements IMulticlassClassifier {
             return y.compareTo(x);
           }
         });
-	    
+
 	    for (Map.Entry e : list) {
         if ((Double)e.getValue() != 0)
           out.write(e.getKey() + "\t" + e.getValue());
@@ -498,11 +498,10 @@ public class MulticlassPA implements IMulticlassClassifier {
   }
 
   /**
-     Outputs Hashtable<String,Double>[], but thanks to Java's type erasure
+     Outputs Hashtable[String,Double][], but thanks to Java's type erasure
      we can't specify this in the method signature specifically. Life is pain.
   */
   public Hashtable[] getWeights () {
     return this.weights;
   }
 }
-

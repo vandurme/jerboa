@@ -27,7 +27,7 @@ import edu.jhu.jerboa.util.FileManager;
 /**
    @author Benjamin Van Durme
 
-   See {@linktourl http://en.wikipedia.org/wiki/Bloom_filter} for introduction.
+   See http://en.wikipedia.org/wiki/Bloom_filter for introduction.
 
    This implementation uses an array of BitSet objects order to gobble more
    memory than would be allowed by the limits coming from 32bit integers used
@@ -87,7 +87,7 @@ public class BloomFilter implements ICounterContainer {
     logger.config("Constructed BloomFilter: width=" + width
                   + " numHashes=" + numHashes
                   + " numElements=" + numElements);
-	
+
     numBitSets = (int) (width/(long)Integer.MAX_VALUE) + 1;
     bitSets = new BitSet[numBitSets];
     bitSetWidth = (int) (width / numBitSets);
@@ -120,7 +120,7 @@ public class BloomFilter implements ICounterContainer {
   public boolean set (String key) {
     boolean in = true;
     BitSet memory = bitSets[Hash.hash(key,bitSetSalt,numBitSets)];
-    
+
     for (int i = 0; i < numHashes; i++) {
       address[i] = Hash.hash(key,salts[i],bitSetWidth);
 	    in = in && memory.get(address[i]);
@@ -139,7 +139,7 @@ public class BloomFilter implements ICounterContainer {
   public boolean set (String key, int value) {
     return set(key);
   }
-    
+
   /**
      For compatability with ICounterContainer; same as {@code in(String key)}, but mapped to {1,0}.
   */
@@ -173,7 +173,7 @@ public class BloomFilter implements ICounterContainer {
     int numHashes = (int) Math.round((0.7*numBits)/(double)numElements);
     if (numHashes == 0)
 	    return 1;
-    else 
+    else
 	    return numHashes;
   }
 
@@ -198,7 +198,7 @@ public class BloomFilter implements ICounterContainer {
     // m = - (n * (ln p))/ 0.693147181
     return (long) ((numElements * (Math.log(falsePositive)/Math.log(2))) / -0.693147181);
   }
-		
+
   private void writeObject(ObjectOutputStream out)
     throws IOException {
     out.writeObject(bitSets);
@@ -214,7 +214,7 @@ public class BloomFilter implements ICounterContainer {
                   + " numElements:"+numElements
                   + " width:"+width);
   }
-    
+
   private void readObject(ObjectInputStream in)
     throws IOException, ClassNotFoundException {
     bitSets = (BitSet[]) in.readObject();

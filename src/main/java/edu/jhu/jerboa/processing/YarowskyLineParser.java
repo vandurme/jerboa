@@ -66,8 +66,8 @@ public class YarowskyLineParser implements ILineParser {
     // with a StringBuilder, but David's format isn't proper XML formatting
     // (recognizing special characters, etc.) anyway, and the following is
     // easier to read.
-	  
-	
+
+
     String message = "<message id=" + messageID + " communicant=" + communicant;
     message += " attribute=" + label + ">\n";
     for (String token : content)
@@ -80,13 +80,13 @@ public class YarowskyLineParser implements ILineParser {
   /**
      Converts content of the form, e.g. :
 
-     <message id=FISHG-00001A communicant=00001A attribute=MALE recipient=00001B recipient_attribute=FEMALE>
-     and i generally prefer 
-     eating at home 
-     hello andy 
-     how are you 
+     message id=FISHG-00001A communicant=00001A attribute=MALE recipient=00001B recipient_attribute=FEMALE
+     and i generally prefer
+     eating at home
+     hello andy
+     how are you
      ...
-     </message>
+     /message
 
      "label" : {1,-1}, if binary (positive, negative determined by order of the property: classLabels)
      or
@@ -145,4 +145,3 @@ public class YarowskyLineParser implements ILineParser {
     }
   }
 }
-

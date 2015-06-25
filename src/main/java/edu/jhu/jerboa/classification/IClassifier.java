@@ -67,7 +67,7 @@ public interface IClassifier {
     public int getCardinality();
 
     /**
-       Outputs Hashtable<String,Double>[], but thanks to Java's type erasure
+       Outputs Hashtable[String,Double][], but thanks to Java's type erasure
        we can't specify this in the method signature specifically. Life is pain.
 
        Sometimes this passes back an array of size 1. This is because Java's
@@ -77,7 +77,7 @@ public interface IClassifier {
        that returns one *and* a method that returns the other.
      */
     public Hashtable[] getWeights();
-    
+
     public ClassifierForm getForm();
 
     public void addName(String name);
